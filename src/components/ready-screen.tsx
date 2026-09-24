@@ -10,7 +10,7 @@ import { FeelCheck } from "./feel-check";
 import { PersonaAvatar } from "./persona-avatar";
 import { StickerLoader } from "./sticker-loader";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0 };
+const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 let snapshot = kokoroState();
 function subscribe(cb: () => void) {
   return onKokoroChange(() => {

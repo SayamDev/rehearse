@@ -7,7 +7,7 @@ import { kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange 
 import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0 };
+const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 let snapshot = kokoroState();
 function subscribe(cb: () => void) {
   return onKokoroChange(() => {
@@ -56,7 +56,8 @@ export function WelcomeGuide() {
   }
 
   const loading = voice.status === "loading";
-  const ready = voice.status === "ready";
+  // Downloaded on an earlier visit: nothing to fetch, even if it hasn't loaded yet this time.
+  const ready = voice.status === "ready" || (voice.status === "idle" && voice.cached === true);
 
   return (
     <dialog
@@ -93,28 +94,30 @@ export function WelcomeGuide() {
               <div className="flex flex-col gap-1">
                 <p className="font-semibold">Give me my most human voice</p>
                 <p className="text-body-sm text-muted">
-                  With it, I sound like a real person instead of a robot. It&apos;s a one-time download of about 90MB, then it works
-                  offline too.
+                  With it, I sound like a real person instead of a robot.
+                  {!ready && " It's a one-time download of about 90MB, then it works offline too."}
                 </p>
               </div>
             </div>
-            <p className="flex gap-2 rounded-control bg-surface p-3 text-body-sm">
-              <ShieldCheckIcon size={20} weight="fill" className="mt-0.5 shrink-0 text-up" aria-hidden />
-              <span>
-                <strong>Safe and private.</strong> It&apos;s free and open-source, it downloads from Hugging Face (a well-known home for
-                free AI voices), and it runs only on your device. Nothing you say is sent anywhere by it, and you can switch back
-                to the standard voice any time in Me.
-              </span>
-            </p>
+            {!ready && (
+              <p className="flex gap-2 rounded-control bg-surface p-3 text-body-sm">
+                <ShieldCheckIcon size={20} weight="fill" className="mt-0.5 shrink-0 text-up" aria-hidden />
+                <span>
+                  <strong>Safe and private.</strong> It&apos;s free and open-source, it downloads from Hugging Face (a well-known home for
+                  free AI voices), and it runs only on your device. Nothing you say is sent anywhere by it, and you can switch back to the
+                  standard voice any time in Me.
+                </span>
+              </p>
+            )}
             {device && !device.supported && (
               <p className="text-body-sm text-muted">
-                This device may be a bit slow for it, so I&apos;ll use your device&apos;s own voice instead. Everything else works
-                the same.
+                This device may be a bit slow for it, so I&apos;ll use your device&apos;s own voice instead. Everything else works the same.
               </p>
             )}
             {device?.supported && ready && (
               <p className="flex items-center gap-2 text-body-sm font-semibold" role="status">
-                <CheckCircleIcon size={20} weight="fill" className="text-up" aria-hidden /> All set! My voice is saved on this device.
+                <CheckCircleIcon size={20} weight="fill" className="text-up" aria-hidden /> All set! My voice is already on this device, so
+                there&apos;s nothing to download.
               </p>
             )}
             {device?.supported && loading && (
@@ -170,8 +173,8 @@ export function WelcomeGuide() {
                 <HeadphonesIcon size={18} weight="bold" aria-hidden /> Find a quiet spot
               </p>
               <p className="text-body-sm text-muted">
-                Headphones help in Live Interview, so I don&apos;t hear myself. And don&apos;t worry about mistakes: try again and
-                watch your score go up.
+                Headphones help in Live Interview, so I don&apos;t hear myself. And don&apos;t worry about mistakes: try again and watch
+                your score go up.
               </p>
             </div>
           </li>
