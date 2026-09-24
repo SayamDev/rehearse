@@ -93,6 +93,7 @@ const wait = (ms: number) => new Promise<null>((r) => setTimeout(() => r(null), 
 type Clip = { url: string; rate: number } | null;
 
 let serverOffUntil = 0;
+let arabicOffUntil = 0;
 const clips = new Map<string, Promise<Clip>>();
 const MAX_CLIPS = 80;
 // Kokoro runs one generation at a time; later chunks queue behind earlier ones.
@@ -113,17 +114,18 @@ function remember(key: string, clip: Promise<Clip>) {
   return clip;
 }
 
-async function serverClip(text: string, persona: Persona): Promise<string | null> {
-  if (Date.now() < serverOffUntil) return null;
+async function serverClip(text: string, persona: Persona, lang: "en" | "ar" = "en"): Promise<string | null> {
+  if (Date.now() < (lang === "ar" ? arabicOffUntil : serverOffUntil)) return null;
   try {
     const res = await fetch("/api/speak", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, persona: persona.id }),
+      body: JSON.stringify({ text, persona: persona.id, lang }),
       signal: AbortSignal.timeout(12_000),
     });
     if (!res.ok || !res.headers.get("Content-Type")?.startsWith("audio/")) {
-      serverOffUntil = Date.now() + 10 * 60_000;
+      if (lang === "ar") arabicOffUntil = Date.now() + 10 * 60_000;
+      else serverOffUntil = Date.now() + 10 * 60_000;
       return null;
     }
     return URL.createObjectURL(await res.blob());
@@ -270,6 +272,14 @@ export async function speak(line: string | string[], persona: Persona, engine: E
     const english = new Set([persona.greeting, persona.followUpLead]);
     const text = (Array.isArray(line) ? line : [line]).filter((p) => !english.has(p)).join(" ");
     try {
+      setVoice({ status: "preparing", persona: persona.id });
+      // Arabic has a free human voice on Groq; other languages use the device's voice.
+      const url = lang === "ar" ? await arabicClips(text, persona) : null;
+      if (token !== run) return;
+      if (url) {
+        for (const u of url) await playClip(u, token, persona.id, paceFor(persona));
+        return;
+      }
       await browserSpeak(text, persona, token);
     } finally {
       if (token === run) setVoice(IDLE);
@@ -297,6 +307,13 @@ export async function speak(line: string | string[], persona: Persona, engine: E
   } finally {
     if (token === run) setVoice(IDLE);
   }
+}
+
+/** Arabic clips for each chunk, or null if any can't be made (then the device voice reads it all). */
+async function arabicClips(text: string, persona: Persona): Promise<string[] | null> {
+  const parts = chunkText(text, true);
+  const urls = await Promise.all(parts.map((c) => serverClip(c, persona, "ar")));
+  return urls.every(Boolean) ? (urls as string[]) : null;
 }
 
 export function stopSpeaking() {

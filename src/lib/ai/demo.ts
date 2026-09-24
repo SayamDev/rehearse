@@ -130,8 +130,10 @@ export function demoQuestions(req: QuestionsRequest): BankItem[] {
 
 const SITUATION = /\b(when i|at my|while i|last (year|summer|month)|in my (last|previous|first|second)|during|there was a time|once)\b/i;
 const TASK = /\b(my (job|role|task|goal|responsibility) was|i (had|needed) to|i was (asked|responsible)|the goal was)\b/i;
-const ACTION = /\b(i (decided|built|called|asked|created|wrote|organi[sz]ed|led|started|fixed|changed|made|spoke|talked|set up|checked|found))\b/i;
-const RESULT = /\b(as a result|in the end|result(ed)?|so (the|we|she|he|they)|which (meant|led)|afterwards|came back|increased|reduced|saved|improved|finished)\b/i;
+const ACTION = /\b(i (decided|built|called|asked|created|wrote|organi[sz]ed|led|started|fixed|changed|made|spoke|talked|set up|checked|found|trained|helped|offered|explained|listened|suggested|planned|stayed|handled|contacted|emailed|apologi[sz]ed|arranged|sorted|took|gave|showed))\b/i;
+const RESULT = /\b(as a result|in the end|result(ed)?|so (the|we|she|he|they)|which (meant|led|helped)|afterwards|came back|increased|reduced|saved|improved|finished|thanked|thanks to|feedback|praised|promoted|on time|was happy|were happy|worked out|turned out|\d+ ?(%|percent|per cent))\b/i;
+/** Motivation answers should point at this job, not only at the candidate. */
+const JOB_LINK = /\b(this (job|role|company|team|place|position)|your (company|team|shop|store|customers|values)|here|because)\b/i;
 
 function sentences(text: string): string[] {
   return text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
@@ -151,7 +153,8 @@ export function demoGrade(req: GradeRequest): GradingOutput {
   const star = {
     situation: SITUATION.test(text),
     task: TASK.test(text),
-    action: ACTION.test(text),
+    // A clear action counts even when it's phrased differently ("I rang", "I stayed late").
+    action: ACTION.test(text) || (lower.match(/\bi (\w+ed|did|went|made|took|told|spoke|found|built|led|ran|gave|got|set|kept|brought|wrote|chose)\b/g) ?? []).length >= 2,
     result: RESULT.test(text),
   };
   const starCount = Object.values(star).filter(Boolean).length;
@@ -171,6 +174,12 @@ export function demoGrade(req: GradeRequest): GradingOutput {
   const isHypothetical = hypothetical > pastActions;
 
   const isBehavioral = req.question.category === "behavioral";
+  // Words from the question pack for this kind of job show the answer fits the role.
+  const pack = packForRole(req.role);
+  const jobWords = pack ? new Set(pack.questions.flatMap((q) => contentWords(`${q.text} ${q.looking_for}`))) : new Set<string>();
+  const jobHits = [...said].filter((w) => jobWords.has(w)).length;
+  const sentenceLengths = sentences(text).map((x) => x.split(/\s+/).length);
+  const longest = Math.max(0, ...sentenceLengths);
   const lengthFit = wc < 40 ? 3 : wc < 80 ? 6 : wc <= 320 ? 8 : 5;
 
   const scores = {
@@ -178,9 +187,16 @@ export function demoGrade(req: GradeRequest): GradingOutput {
     structure: clamp(isBehavioral ? 2 + starCount * 2 : 3 + (wc >= 60 ? 3 : 1) + (star.result ? 2 : 0)),
     specificity: clamp(3 + Math.min(4, numbers * 2) + (wc >= 80 ? 2 : 0)),
     ownership: clamp(3 + Math.min(5, iCount / 2) - Math.min(3, Math.max(0, weCount - iCount) / 2) + (star.result ? 1 : 0)),
-    clarity: clamp(lengthFit),
-    role_fit: clamp(4 + (lower.includes(req.role.toLowerCase().split(" ")[0]) ? 2 : 0) + (wc >= 60 ? 2 : 0)),
+    clarity: clamp(lengthFit - (longest > 45 ? 2 : 0)),
+    role_fit: clamp(
+      4 +
+        (lower.includes(req.role.toLowerCase().split(" ")[0]) ? 2 : 0) +
+        Math.min(2, Math.floor(jobHits / 3)) +
+        (wc >= 60 ? 1 : 0) +
+        (req.question.category === "motivation" && JOB_LINK.test(text) ? 1 : 0),
+    ),
   };
+
   // Very short answers can't show real structure or specifics, whatever words they use.
   if (wc < 40) {
     scores.structure = Math.min(scores.structure, 4);
@@ -205,16 +221,33 @@ export function demoGrade(req: GradeRequest): GradingOutput {
       : star.result
         ? "There is a clear point and a close."
         : "Open with your point and close with a clear conclusion.",
-    specificity: numbers > 0 ? "Concrete details and numbers make this believable." : "Add a concrete detail: a number, a name, or a tool.",
-    ownership: iCount > weCount ? "You say what you personally did." : "Say more about what you did, not only the team.",
-    clarity: wc < 40 ? "Too short to judge well. Aim for about a minute." : wc > 320 ? "It runs long. Cut the setup and keep the action." : "Easy to follow and a good length.",
-    role_fit: `Connect the story to what a ${req.role} does day to day.`,
+    specificity:
+      numbers > 0
+        ? `You gave ${numbers === 1 ? "a number" : `${numbers} numbers or amounts`}, which makes this believable.`
+        : "There are no numbers yet. Add one: how many people, how long, or how much.",
+    ownership:
+      iCount > weCount
+        ? "You say what you personally did."
+        : `You said \u201cwe\u201d ${weCount} ${weCount === 1 ? "time" : "times"} and \u201cI\u201d ${iCount}. Say more about your own part.`,
+    clarity:
+      wc < 40
+        ? "Too short to judge well. Aim for about a minute."
+        : wc > 320
+          ? "It runs long. Cut the setup and keep the action."
+          : longest > 45
+            ? `One sentence runs to ${longest} words. Break it up so it's easier to follow.`
+            : "Easy to follow and a good length.",
+    role_fit:
+      jobHits >= 3
+        ? `You used ideas that matter in ${pack?.name.toLowerCase() ?? "this work"}.`
+        : `Connect the story to what a ${req.role} does day to day.`,
   };
 
   const s = sentences(text);
+  // The strongest sentence: a number, "I", an action and a result score a point each.
+  const signal = (x: string) => Number(/\d/.test(x)) + Number(/\bi\b/i.test(x)) + Number(ACTION.test(x)) + Number(RESULT.test(x));
   const quote =
-    s.find((x) => /\d/.test(x) && x.split(/\s+/).length <= 20) ??
-    s.find((x) => /\bi\b/i.test(x) && x.split(/\s+/).length <= 20) ??
+    s.filter((x) => x.split(/\s+/).length <= 22).sort((a, b) => signal(b) - signal(a))[0] ??
     words.slice(0, Math.min(12, wc)).join(" ");
 
   const strongest = (Object.keys(scores) as (keyof typeof scores)[]).sort((a, b) => scores[b] - scores[a])[0];

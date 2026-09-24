@@ -45,3 +45,7 @@ next-env.d.ts
 .claude/
 .impeccable/review/
 .impeccable/hook.cache.json
+
+# Playwright
+/test-results/
+/playwright-report/

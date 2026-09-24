@@ -229,7 +229,7 @@ export async function groqChat(system: string, messages: ChatMessage[]): Promise
 }
 
 /** Human-sounding speech from Groq's Orpheus model. Input is capped at 200 characters. */
-export async function groqSpeech(text: string, voice: string): Promise<ArrayBuffer> {
+export async function groqSpeech(text: string, voice: string, model = "canopylabs/orpheus-v1-english"): Promise<ArrayBuffer> {
   if (!takeSiteBudget("speech")) throw new GroqLimitError("Free daily share used");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);
@@ -239,7 +239,7 @@ export async function groqSpeech(text: string, voice: string): Promise<ArrayBuff
       method: "POST",
       signal: controller.signal,
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "canopylabs/orpheus-v1-english", input: text, voice, response_format: "wav" }),
+      body: JSON.stringify({ model, input: text, voice, response_format: "wav" }),
     });
   } catch (err) {
     throw new GroqError(err instanceof Error ? err.message : "Groq speech request failed");
