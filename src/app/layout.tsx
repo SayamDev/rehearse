@@ -6,6 +6,7 @@ import { StickerCelebration } from "@/components/sticker-celebration";
 import { SettingsEffects } from "@/components/settings-effects";
 import { RegisterServiceWorker } from "@/components/pwa";
 import { MotionProvider } from "@/components/motion-provider";
+import { WelcomeGuide } from "@/components/welcome-guide";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </footer>
           </main>
           <StickerCelebration />
+          <WelcomeGuide />
         </MotionProvider>
         <SettingsEffects />
         <RegisterServiceWorker />

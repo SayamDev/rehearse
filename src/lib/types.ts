@@ -167,6 +167,8 @@ export type Profile = {
   weeklyGoal?: number;
   /** Morning checklist ticks on interview day, keyed by the interview's date. */
   dayTicks?: { when: string; done: number[] };
+  /** The first-visit welcome guide has been shown. */
+  welcomed?: boolean;
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live", "phone", "video", "offer"] as const;
