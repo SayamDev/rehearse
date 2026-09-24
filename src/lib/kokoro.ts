@@ -153,12 +153,31 @@ function getWorker(): Worker {
       pending.delete(msg.id);
     }
   };
-  // The worker script itself couldn't start (for example, blocked by the browser).
+  // The worker script itself couldn't start. The usual cause is an old copy of the script
+  // saved by the offline service worker without the headers Chrome needs; clear those saved
+  // copies and try once more before giving up.
   worker.onerror = (e) => {
     e.preventDefault();
-    fail("The voice worker couldn't start.");
+    if (status !== "loading") return;
+    if (retriedWorker) return fail("The voice worker couldn't start.");
+    retriedWorker = true;
+    worker?.terminate();
+    worker = null;
+    clearSavedScripts().then(() => send({ type: "load" }));
   };
   return worker;
+}
+
+let retriedWorker = false;
+
+/** Deletes the offline service worker's saved app files (pages are kept). */
+async function clearSavedScripts() {
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k.startsWith("rehearse-") && k.endsWith("-assets")).map((k) => caches.delete(k)));
+  } catch {
+    // Storage blocked: nothing saved to clear.
+  }
 }
 
 function stopWatchdog() {

@@ -13,6 +13,8 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
   const state = useSyncExternalStore(onKokoroChange, kokoroState, () => KOKORO_SERVER_STATE);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [error, setError] = useState("");
+  /** The technical reason, shown small so it can be passed on if the problem keeps happening. */
+  const [detail, setDetail] = useState("");
 
   useEffect(() => {
     // Device capability can only be read in the browser.
@@ -28,8 +30,9 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
     if (next === "standard") return;
     try {
       await loadKokoro();
-    } catch {
+    } catch (e) {
       setError("The voice couldn't download. Check your connection and try again.");
+      setDetail(e instanceof Error ? e.message : String(e));
     }
   }
 
@@ -69,6 +72,7 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
       {error && (
         <p role="alert" className="text-label text-down">
           {error}
+          {detail && <span className="mt-1 block text-muted">Details: {detail}</span>}
         </p>
       )}
     </div>
