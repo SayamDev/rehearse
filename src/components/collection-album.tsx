@@ -7,10 +7,10 @@ import { RARITY_LABEL, StickerArt } from "./sticker-art";
 import { COLLECTION, earnedIds, type Collectible } from "@/lib/collection";
 import { useStore } from "@/lib/store";
 
-const GROUPS: { key: Collectible["group"]; title: string }[] = [
-  { key: "legendary", title: "Legendary" },
-  { key: "skills", title: "Skill stickers" },
-  { key: "achievements", title: "Achievements" },
+const GROUPS: { key: Collectible["group"]; title: string; ink: string }[] = [
+  { key: "legendary", title: "Legendary", ink: "sticker-sun" },
+  { key: "skills", title: "Skill stickers", ink: "sticker-sky" },
+  { key: "achievements", title: "Achievements", ink: "sticker-lime" },
 ];
 
 /** Deterministic small tilt per sticker so the sheet looks hand-placed. */
@@ -33,9 +33,54 @@ export function CollectionAlbum({ compact = false }: { compact?: boolean }) {
   const [selectedId, setSelectedId] = useState(COLLECTION.find((c) => c.group === "legendary")!.id);
   const selected = COLLECTION.find((c) => c.id === selectedId)!;
   const has = earned.has(selected.id);
+  const mine = COLLECTION.filter((c) => earned.has(c.id));
+  const pct = Math.round((mine.length / COLLECTION.length) * 100);
 
   return (
     <div className="flex flex-col gap-5">
+      {/* The album cover: how much you've collected, and the stickers you already have. */}
+      <div className="panel relative flex flex-col gap-4 overflow-hidden p-5">
+        <div aria-hidden className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full bg-sun opacity-[var(--blob)]" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-14 right-16 size-28 rounded-full bg-grape opacity-[var(--blob)]" />
+        <div className="relative flex flex-wrap items-center justify-between gap-3">
+          <p className="font-display text-title-lg font-extrabold">
+            <span className="tnum">{mine.length}</span> of <span className="tnum">{COLLECTION.length}</span> collected
+          </p>
+          <span className="sticker sticker-tomato">{pct}%</span>
+        </div>
+        <div
+          className="relative h-3 w-full overflow-hidden rounded-full bg-surface-2"
+          role="progressbar"
+          aria-label="Stickers collected"
+          aria-valuemin={0}
+          aria-valuemax={COLLECTION.length}
+          aria-valuenow={mine.length}
+        >
+          <div
+            className="h-full rounded-full bg-tomato transition-[width] duration-500"
+            style={{ width: `${Math.max(pct, mine.length ? 4 : 0)}%` }}
+          />
+        </div>
+        {mine.length > 0 ? (
+          <ul className="relative flex flex-wrap items-center gap-1" aria-label="Your stickers">
+            {mine.map((c) => (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(c.id)}
+                  aria-label={c.name}
+                  className="rounded-control p-0.5 transition-transform hover:-translate-y-0.5"
+                >
+                  <StickerArt item={c} earned size={44} tilt={tiltFor(c.id)} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="relative text-body-sm text-muted">Your first sticker is one answer away.</p>
+        )}
+      </div>
+
       <div className="panel flex flex-col items-center gap-4 p-5 text-center sm:flex-row sm:items-center sm:gap-6 sm:text-left" aria-live="polite">
         <StickerArt item={selected} earned={has} size={compact ? 108 : 132} tilt={tiltFor(selected.id)} />
         <div className="flex flex-col gap-1.5">
@@ -60,9 +105,9 @@ export function CollectionAlbum({ compact = false }: { compact?: boolean }) {
         const got = items.filter((c) => earned.has(c.id)).length;
         return (
           <section key={g.key} aria-label={g.title} className="flex flex-col gap-3">
-            <h3 className="flex items-baseline gap-2 text-title font-bold">
+            <h3 className="flex items-center gap-3 text-title font-bold">
               {g.title}
-              <span className="tnum text-label font-semibold text-muted">
+              <span className={`sticker tnum ${g.ink}`}>
                 {got} of {items.length}
               </span>
             </h3>

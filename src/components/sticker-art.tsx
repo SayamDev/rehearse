@@ -154,8 +154,13 @@ export function StickerArt({
 }) {
   const gid = useId().replace(/:/g, "");
   const foil = item.rarity === "legendary";
-  const fill = !earned ? "var(--surface-2)" : foil ? `url(#foil-${gid})` : item.art.type === "word" ? INK[item.art.ink] : "var(--sun)";
-  const dieStroke = earned ? "var(--die)" : "var(--line)";
+  const ink = item.art.type === "word" ? INK[item.art.ink] : "var(--sun)";
+  // Not earned yet: a pale wash of the sticker's own colour with a dashed outline, so the album
+  // still looks colourful and shows what's coming, without being mistaken for an earned sticker.
+  const lockedFill = `color-mix(in oklab, ${ink} 16%, var(--surface))`;
+  const lockedLine = `color-mix(in oklab, ${ink} 60%, var(--surface))`;
+  const fill = !earned ? lockedFill : foil ? `url(#foil-${gid})` : ink;
+  const dieStroke = earned ? "var(--die)" : lockedLine;
 
   return (
     <svg
@@ -199,8 +204,8 @@ export function StickerArt({
         </>
       ) : (
         <g opacity={0.9}>
-          <g stroke="var(--line)" strokeWidth={3} strokeDasharray="7 6" fill="var(--surface-2)">
-            <CharacterArt character={item.art.character} fill="var(--surface-2)" />
+          <g stroke={lockedLine} strokeWidth={3} strokeDasharray="7 6" fill={lockedFill}>
+            <CharacterArt character={item.art.character} fill={lockedFill} />
           </g>
           <text x={60} y={70} textAnchor="middle" fontSize={34} fontWeight={800} fill="var(--muted)" fontFamily="var(--font-bricolage), sans-serif">
             ?

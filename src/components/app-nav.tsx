@@ -7,6 +7,7 @@ import { liveStreak, localDay, useStore } from "@/lib/store";
 import { isDue } from "@/lib/memory";
 import { levelFromXp } from "@/lib/scoring";
 import { useT, type UiKey } from "@/lib/i18n";
+import { ThemeToggle } from "./theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Practice", key: "nav.practice" as UiKey, icon: MicrophoneStageIcon, match: (p: string) => p === "/" || p.startsWith("/practice") },
@@ -52,23 +53,26 @@ export function AppNav() {
               );
             })}
           </ul>
-          <Link
-            href="/me"
-            className="ml-auto flex items-center gap-3 rounded-full py-1 pl-1 pr-1 text-label"
-            aria-label={hydrated ? `Level ${level.level}, ${level.title}. ${streak} day streak.` : "Your progress"}
-          >
-            {hydrated ? (
-              <>
-                <span className="flex items-center gap-1 text-muted tnum" title="Daily streak">
-                  <FireIcon size={18} weight={streak > 0 ? "fill" : "regular"} className={streak > 0 ? "text-sun-text" : ""} aria-hidden />
-                  {streak}
-                </span>
-                <span className="sticker tnum">Lv {level.level}</span>
-              </>
-            ) : (
-              <span className="skeleton h-7 w-24" aria-hidden />
-            )}
-          </Link>
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
+            <Link
+              href="/me"
+              className="flex items-center gap-3 rounded-full py-1 pl-1 pr-1 text-label"
+              aria-label={hydrated ? `Level ${level.level}, ${level.title}. ${streak} day streak.` : "Your progress"}
+            >
+              {hydrated ? (
+                <>
+                  <span className="flex items-center gap-1 text-muted tnum" title="Daily streak">
+                    <FireIcon size={18} weight={streak > 0 ? "fill" : "regular"} className={streak > 0 ? "text-sun-text" : ""} aria-hidden />
+                    {streak}
+                  </span>
+                  <span className="sticker tnum">Lv {level.level}</span>
+                </>
+              ) : (
+                <span className="skeleton h-7 w-24" aria-hidden />
+              )}
+            </Link>
+          </div>
         </nav>
       </header>
 
