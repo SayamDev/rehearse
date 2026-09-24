@@ -355,6 +355,12 @@ export function markSeen(ids: string[]) {
   commit({ profile: { ...s.profile, seen: [...seen] } });
 }
 
+/** Remembers that the first-visit welcome guide was shown, so it never opens again. */
+export function markWelcomed() {
+  const s = current();
+  commit({ profile: { ...s.profile, welcomed: true } });
+}
+
 export function countCoachChat() {
   const s = current();
   commit({ profile: { ...s.profile, stats: { ...s.profile.stats, coachChats: s.profile.stats.coachChats + 1 } } });
