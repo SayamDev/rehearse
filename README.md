@@ -103,3 +103,9 @@ npm run lint
 
 Phase 2: accounts with guest upgrade, templates, progress dashboard, badges, Daily Challenge, Full Mock, PDF export.
 Phase 3: Follow-up Gauntlet, interviewer personas, skill map, shareable templates, leaderboards, the Lab, translations.
+
+## Ownership
+
+© 2026 Sayam Ajmal. All rights reserved. See [LICENSE](LICENSE). No one may copy, reuse or
+redistribute this code or content without written permission. Hosting it with a provider
+(Cloudflare or any other) does not transfer ownership.

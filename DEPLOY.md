@@ -3,6 +3,20 @@
 This keeps the app at £0. Cloudflare's free Workers plan needs no card, and when a free
 limit is reached requests are refused rather than charged.
 
+## You keep ownership
+
+Checked on 24 September 2026 in each host's own terms:
+
+- **Cloudflare** (Self-Serve Subscription Agreement, section 2.5.1): you "retain all right,
+  title and interest" in everything you upload. Cloudflare only gets a licence to store and
+  serve it so the service works. It also receives only the built app, not your source code.
+- **Vercel** (Terms, section 3): the terms don't say you keep ownership in the same way, and on
+  the free Hobby plan Vercel may use your content to train AI and share it with third parties.
+  **Don't use Vercel Hobby for this app.**
+
+The app itself also says who owns it: LICENSE (all rights reserved), the footer on every page,
+and the package details. Re-read a host's terms before using any other provider.
+
 ## Rules that keep it free
 
 - **Never add a payment method** to Cloudflare or Groq. Without one, nothing can bill.
