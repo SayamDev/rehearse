@@ -36,9 +36,9 @@ export function WelcomeGuide() {
 
   async function download() {
     setError("");
+    updateSettings({ voiceEngine: "kokoro" });
     try {
       await loadKokoro();
-      updateSettings({ voiceEngine: "kokoro" });
     } catch {
       setError("The voice couldn't download. Check your connection, or try again later from Me.");
     }

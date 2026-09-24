@@ -1,0 +1,7 @@
+# Cloudflare serves these static files directly, without the app's own headers (next.config.ts).
+# The page is cross-origin isolated for the on-device voice, and Chrome refuses to start the
+# voice's background worker unless its script carries a matching policy. Keep this in sync
+# with next.config.ts.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless

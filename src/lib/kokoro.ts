@@ -29,6 +29,12 @@ let warming = false;
 let startedAt = 0;
 /** The download is mostly one model file of about 92MB; used until the real sizes are known. */
 const EXPECTED_BYTES = 92_000_000;
+/** Give up if nothing at all arrives for this long (the worker or connection is stuck)... */
+const NO_START_MS = 45_000;
+/** ...or if a started download goes quiet this long. Long, because Firefox only reports the big file at the end. */
+const STALL_MS = 5 * 60_000;
+let lastActivity = 0;
+let watchdog: ReturnType<typeof setInterval> | null = null;
 let nextId = 0;
 const pending = new Map<number, (blob: Blob | null) => void>();
 const listeners = new Set<() => void>();
@@ -121,6 +127,7 @@ function getWorker(): Worker {
   worker = new Worker(new URL("./kokoro.worker.ts", import.meta.url), { type: "module" });
   worker.onmessage = (e: MessageEvent<WorkerOut>) => {
     const msg = e.data;
+    if (msg.type !== "audio") lastActivity = Date.now();
     if (msg.type === "progress") {
       loadedBytes = msg.loaded;
       totalBytes = Math.max(msg.total, EXPECTED_BYTES);
@@ -136,20 +143,43 @@ function getWorker(): Worker {
       warming = false;
       cached = true;
       progress = 100;
+      stopWatchdog();
       emit();
       settleLoad?.resolve();
     } else if (msg.type === "error") {
-      status = "error";
-      warming = false;
-      loading = null;
-      emit();
-      settleLoad?.reject(new Error(msg.message));
+      fail(msg.message);
     } else if (msg.type === "audio") {
       pending.get(msg.id)?.(msg.blob);
       pending.delete(msg.id);
     }
   };
+  // The worker script itself couldn't start (for example, blocked by the browser).
+  worker.onerror = (e) => {
+    e.preventDefault();
+    fail("The voice worker couldn't start.");
+  };
   return worker;
+}
+
+function stopWatchdog() {
+  if (watchdog) clearInterval(watchdog);
+  watchdog = null;
+}
+
+/** Stops a load that failed or got stuck, so the screens can offer to try again. */
+function fail(message: string) {
+  stopWatchdog();
+  if (status !== "loading") return;
+  status = "error";
+  warming = false;
+  loading = null;
+  // A fresh worker next time, in case this one is stuck.
+  worker?.terminate();
+  worker = null;
+  pending.forEach((done) => done(null));
+  pending.clear();
+  emit();
+  settleLoad?.reject(new Error(message));
 }
 
 function send(msg: WorkerIn) {
@@ -166,10 +196,17 @@ export function loadKokoro(): Promise<void> {
   totalBytes = EXPECTED_BYTES;
   warming = false;
   startedAt = Date.now();
+  lastActivity = startedAt;
   emit();
   loading = new Promise<void>((resolve, reject) => {
     settleLoad = { resolve, reject };
   });
+  stopWatchdog();
+  watchdog = setInterval(() => {
+    if (warming) return;
+    const quiet = Date.now() - lastActivity;
+    if (quiet > (loadedBytes > 0 ? STALL_MS : NO_START_MS)) fail("The download stopped.");
+  }, 5000);
   send({ type: "load" });
   return loading;
 }

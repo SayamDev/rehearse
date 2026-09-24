@@ -22,10 +22,12 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
 
   async function choose(next: "standard" | "kokoro") {
     setError("");
-    if (next === "standard") return updateSettings({ voiceEngine: "standard" });
+    // Saved straight away, so the choice sticks even if the download is slow or fails.
+    // Until the voice is ready, the backup voices read instead.
+    updateSettings({ voiceEngine: next });
+    if (next === "standard") return;
     try {
       await loadKokoro();
-      updateSettings({ voiceEngine: "kokoro" });
     } catch {
       setError("The voice couldn't download. Check your connection and try again.");
     }
