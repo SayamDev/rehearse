@@ -27,13 +27,32 @@ let nextId = 0;
 const pending = new Map<number, (blob: Blob | null) => void>();
 const listeners = new Set<() => void>();
 let settleLoad: { resolve: () => void; reject: (e: Error) => void } | null = null;
+/** Whether the model files are already saved in this browser (null until checked). */
+let cached: boolean | null = null;
 
 function emit() {
   listeners.forEach((l) => l());
 }
 
 export function kokoroState() {
-  return { status, progress };
+  return { status, progress, cached };
+}
+
+/**
+ * Checks whether the voice was downloaded before. The model library keeps its files
+ * in the browser's "transformers-cache", keyed by the file's address, so finding the
+ * Kokoro model file there means loading it needs no download.
+ */
+export async function checkKokoroCache(): Promise<boolean> {
+  if (cached !== null) return cached;
+  try {
+    const keys = await (await caches.open("transformers-cache")).keys();
+    cached = keys.some((r) => r.url.includes("Kokoro-82M") && r.url.endsWith(".onnx"));
+  } catch {
+    cached = false;
+  }
+  emit();
+  return cached;
 }
 
 export function onKokoroChange(fn: () => void) {
@@ -57,10 +76,13 @@ export function kokoroSupported(): boolean {
 
 /**
  * Whether the one-time download may start by itself: a capable device on an
- * unmetered connection. On mobile data or Data Saver we wait for the user to ask.
+ * unmetered connection, or one that already has it saved. On mobile data or Data
+ * Saver we wait for the user to ask.
  */
 export function kokoroAutoOk(): boolean {
   if (!kokoroSupported()) return false;
+  // Already saved on this device, so loading it costs no data.
+  if (cached) return true;
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean; type?: string; effectiveType?: string } }).connection;
   if (!conn) return true;
   if (conn.saveData || conn.type === "cellular") return false;
@@ -77,6 +99,7 @@ function getWorker(): Worker {
       emit();
     } else if (msg.type === "ready") {
       status = "ready";
+      cached = true;
       progress = 100;
       emit();
       settleLoad?.resolve();

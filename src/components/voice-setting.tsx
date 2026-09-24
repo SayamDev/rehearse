@@ -6,7 +6,7 @@ import { kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/
 import { updateSettings } from "@/lib/store";
 import { Segmented } from "./segmented";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0 };
+const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 let snapshot = kokoroState();
 function subscribe(cb: () => void) {
   return onKokoroChange(() => {
@@ -57,15 +57,15 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
           <div className="h-2 w-full max-w-sm overflow-hidden rounded-full bg-surface-2">
             <div className="h-full bg-sky transition-[width] duration-300" style={{ width: `${state.progress}%` }} />
           </div>
-          <span className="tnum text-label text-muted">Downloading the voice... {state.progress}%</span>
+          <span className="tnum text-label text-muted">{state.cached ? "Getting the voice ready..." : "Downloading the voice..."} {state.progress}%</span>
         </div>
       )}
-      {engine === "kokoro" && state.status === "ready" && (
+      {engine === "kokoro" && (state.status === "ready" || (state.status === "idle" && state.cached)) && (
         <p className="flex items-center gap-2 text-label text-muted">
-          <span className="sticker sticker-lime">Ready</span> Saved on this device, so it works offline too.
+          <span className="sticker sticker-lime">Installed</span> Already saved on this device, so it works offline too.
         </p>
       )}
-      {engine === "kokoro" && (state.status === "idle" || state.status === "error") && supported !== false && (
+      {engine === "kokoro" && (state.status === "error" || (state.status === "idle" && state.cached === false)) && supported !== false && (
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" className="btn btn-ghost min-h-10 text-label" onClick={() => choose("kokoro")}>
             <DownloadSimpleIcon size={16} weight="bold" aria-hidden />
