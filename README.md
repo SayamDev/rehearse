@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rehearse
 
-## Getting Started
+Free, game-like interview practice. Name a job, answer three questions by voice or typing, get a score and one clear fix per answer, then take it again and watch the score move.
 
-First, run the development server:
+This is **Phase 1**: guest mode only, progress saved in the browser.
+
+## Run it (costs nothing)
 
 ```bash
+npm install
+cp .env.example .env.local   # optional: add a free GROQ_API_KEY
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**How notes are produced, in order:**
+1. **Groq free tier** (`openai/gpt-oss-120b`, strict JSON output) when `GROQ_API_KEY` is set. Create a free key at console.groq.com and turn on **Zero Data Retention** under Data Controls.
+2. **Built-in rule-based notes** when there is no key, when the free daily AI quota is used up, or when the AI call fails. These check structure (STAR), detail, ownership, and length. Users see a short "Quick notes" line explaining why.
+3. Claude is still wired in (`ANTHROPIC_API_KEY`) for the day donated credits appear. Leave it empty to stay free.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Nobody is ever blocked. Each visitor gets a fair daily share of the free AI quota (`DAILY_GRADE_LIMIT`, default 20). Past it, they get rule-based notes instead of an error.
 
-## Learn More
+```bash
+npm test           # unit tests (scoring, delivery, rules grader, provider fallback)
+npm run typecheck
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## How it works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Piece | Where |
+|---|---|
+| Question generation (AI sets cached per role + level for 7 days) | `src/app/api/questions/route.ts` |
+| Engine choice and fallback (Groq, then rules) | `src/lib/ai/provider.ts`, `src/lib/ai/groq.ts` |
+| Rule-based notes and question bank | `src/lib/ai/demo.ts` |
+| Grading route (rubric JSON, validated with Zod) | `src/app/api/grade/route.ts` |
+| Grader prompt, rubric anchors, calibration examples | `src/lib/ai/prompts.ts` |
+| Overall score, grade, XP, levels | `src/lib/scoring.ts` |
+| Pace and filler words (measured in code, not by AI) | `src/lib/delivery.ts` |
+| Voice capture (browser Web Speech API) | `src/lib/use-speech.ts` |
+| Remember: key points, recall matching, review schedule | `src/lib/memory.ts` |
+| Remember screens (save panel, tab, editor, recall drill) | `src/components/save-answer-panel.tsx`, `remember-view.tsx`, `saved-answer-editor.tsx`, `recall-drill.tsx` |
+| Collectibles and unlock rules | `src/lib/collection.ts`, art in `src/components/sticker-art.tsx` |
+| Modes and interviewers | `src/lib/game.ts`, `src/components/interviewer-card.tsx`, `persona-avatar.tsx` |
+| Daily Challenge question bank | `src/lib/daily.ts` |
+| Coach (AI prompt + built-in guide) | `src/lib/ai/coach.ts`, `src/app/api/coach/route.ts` |
+| Unlock animation (Lottie) | `public/lottie/sticker-burst.json`, `src/components/lottie-burst.tsx` |
+| Guest storage (localStorage) | `src/lib/store.ts` |
+| Fair-use limits per IP per day | `src/lib/rate-limit.ts` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Scoring.** The AI scores six rubric items from 1 to 10 with a reason each. The overall score is a weighted average computed in code (relevance 20%, structure 20%, specifics 20%, ownership 10%, clarity 15%, role fit 15%). For spoken answers, delivery counts for 10%. Weights are shown to users.
 
-## Deploy on Vercel
+**Game layer.**
+- **Modes:** Quick Round (3 questions), Daily Challenge (one shared question a day), Speed Round (5 questions, 60 seconds each, level 2), and Boss Round (level 5, beat Mr. Grant with an average of 7+).
+- **Interviewers:** Sam, Priya (level 3) and Mr. Grant (level 5). They read questions aloud using the browser's free speech voices, and ask a follow-up based on your answer.
+- **Collection:** 24 stickers: 9 skills, 12 achievements, and 3 legendary foil characters. They're shown on the homepage with how to earn each one, and every unlock gets a one-time celebration with a Lottie burst.
+- **Coach:** `/coach` chat. It uses Groq when a key is set, and a built-in guide otherwise.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Voices.** Interviewers try three voices in order: **Kokoro** (`src/lib/kokoro.ts`), an open-source voice that runs in a Web Worker in the browser after a one-time ~90MB download; then Groq's Orpheus voices when a key is set (clips cached per line); then the most natural device voice. Kokoro downloads by itself only on capable devices (4+ GB memory, 4+ cores) on an unmetered connection; on mobile data or Data Saver, users download it from Me. `next.config.ts` sets COOP/COEP headers so Kokoro can use several threads.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Remember.** Save any take or the stronger version, edit it into your own words, and keep 1 to 5 key points. Recall practice shows only the question; you answer from memory and see which key points you hit (matched by shared words, and you can correct any result). Review timing follows five boxes (1, 2, 4, 7, 14 days): hitting every point moves an answer up, half or more holds it, less sends it back to tomorrow. No AI involved, so it's always free.
+
+**Get ready** (`/prepare`, content in `src/lib/prepare.ts`). A full **Mock Interview** mode wraps the job-specific questions in a fixed opener ("Tell me about yourself") and closer ("Do you have any questions for me?"), with no follow-ups on those two. The **"Tell me about yourself" builder** guides three short parts, estimates speaking time, saves the result to Remember, and starts a one-question practice. **Questions to ask them** is a starred list stored in the profile; stars appear as hints on the closing question. The "Stuck?" helper shows the saved intro on the opener. All of it is built in, so it costs nothing.
+
+**Live Interview** (mode `live`, `src/components/live-interview.tsx`). Hands-free: the interviewer asks out loud, the browser's speech recognition listens, a natural pause ends the answer (1.6s, or 2.6s for short answers, then a 0.7s grace that new speech cancels), an instant spoken "okay" covers the moment it takes to prepare the reaction, and `/api/react` returns one short reaction plus, at most twice per interview, one follow-up when the answer is missing an action or result. Reactions use Groq's small `openai/gpt-oss-20b` (its own free daily allowance, capped at 950 site-wide and 60 per visitor) with built-in fallbacks (`src/lib/live.ts`). The next question is prepared while the current one is answered. Notes are written at the end, like after a real interview.
+
+**Calm and nerves** (`/calm`, content in `src/lib/calm.ts`). Guided breathing (long breath out, or box breathing) with a sticker circle that grows and shrinks, a 5-4-3-2-1 grounding exercise, lines to say if your mind goes blank, reframes, and a day-of checklist. During practice, "Need a moment?" opens a three-breath pause (not in Speed Round). Each round asks how nervous you feel before and after, and Me shows how often you ended calmer. Finishing a breathing exercise earns the Cool head sticker.
+
+**Confidence tools.** Warm-up round (`/practice/warmup`): three everyday questions with Sam, not scored or saved. Soft mode (Me) hides scores until the round summary. Keep recordings (Me, off by default) saves spoken answers in IndexedDB on the device (`src/lib/recordings.ts`, best 10 kept) so the Calm corner can replay your best. Camera check in the answer box shows a mirrored self-view with an eye-line guide and an on-device light check; nothing is recorded. Body language guide (`/prepare/body`). Printable interview-day card (`/prepare/card`, print CSS in `globals.css`). Accessibility: larger text, simpler words (sent to the AI as `plain`), and a Slowest speaking speed.
+
+**Also, when stuck.** Under every answer box: what the interviewer wants, a step-by-step answer shape with starter lines, and idea prompts (`src/lib/helpers.ts`). A quiet spell while speaking gets a gentle nudge toward the next step.
+
+**Cost safety.** Groq calls have site-wide daily ceilings just under the free plan (`src/lib/rate-limit.ts`). Claude only runs with `ALLOW_PAID_AI=yes` as well as a key.
+
+**XP.** 10 for answering, plus up to 20 from the score, plus 12 per point improved over your previous best on that question. Retakes that improve earn the most.
+
+**Safety.** Answers are wrapped in `<answer>` tags and the grader is told to treat them as data only. Non-answers are flagged and scored 1. The question writer refuses discriminatory topics. Answers are limited to 4,000 characters.
+
+## Staying free
+
+- Groq's free tier allows about 1,000 AI requests a day for `gpt-oss-120b`, shared by all visitors. When it runs out, rule-based notes take over until the next day.
+- AI-written question sets are cached per role, so most of the quota goes to scoring.
+- Host free on Cloudflare Workers (via the OpenNext adapter) or similar. Vercel's free plan is for non-commercial use; check it fits your project.
+- Do not use Gemini's free tier for this app: Google may use free-tier prompts to improve its products and have humans review them (outside the UK/EEA/Switzerland), and it requires every user to be 18 or older.
+
+## Known limits (Phase 1)
+
+- Voice needs Chrome, Edge, or Safari. Firefox users type (the app switches automatically).
+- Progress lives in one browser. Accounts and sync (Supabase) arrive in Phase 2.
+- No prep timer, avatar, or read-aloud yet.
+- The grader's consistency target (±0.5 on repeat grading) still needs a test set of about 30 answers run against the real AI.
+- Chrome and Edge send voice to Google or Microsoft for transcription. The privacy page says so; typing avoids it.
+
+## Next phases
+
+Phase 2: accounts with guest upgrade, templates, progress dashboard, badges, Daily Challenge, Full Mock, PDF export.
+Phase 3: Follow-up Gauntlet, interviewer personas, skill map, shareable templates, leaderboards, the Lab, translations.

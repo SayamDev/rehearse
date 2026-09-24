@@ -1,0 +1,121 @@
+{
+  "title": "Choose the visual world for Rehearse (round 2)",
+  "question": "Your brief: unique, fun, playful, inviting, trustworthy, game-like, friendly, arty, for teens and adults. The roll assigned The Sticker Book. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The Sticker Book",
+      "kicker": "THE ROLL",
+      "lineage": "die-cut sticker sheets, laptop sticker packs, collectible sticker albums",
+      "thesis": "Every skill you practise becomes a bold die-cut sticker you earn, and your progress is a sticker sheet filling up.",
+      "palette": ["#f3f4fb", "#1c1b2e", "#ff5a3c", "#3ba7ff", "#b8e62e", "#ffc83d"],
+      "materials": ["thick white die-cut borders", "flat bold sticker inks", "peel-corner states"],
+      "viewport": "A big friendly question in chunky type, with a sticker slapped on the corner of the input; below, your sticker sheet with empty outlines waiting to be earned.",
+      "risk": "Can tip into childish if the stickers are cute mascots; it needs grown-up graphic sticker art, like laptop sticker packs.",
+      "raised": [
+        {"from": "challenger-bench", "raise": "A folded flag sticker marks exactly where you stopped, so you can always pick up again."},
+        {"from": "challenger-kraftwerk", "raise": "Earned stickers are joined by lines that light up, showing your path through the skills."},
+        {"from": "challenger-exposure", "raise": "State is shown with marks, not only colour: a peeled corner means locked, a full sticker means earned."}
+      ]
+    },
+    {
+      "id": "model-pick",
+      "label": "The Community Zine",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "risograph zines and community-centre flyers",
+      "thesis": "A handmade, two-ink riso print from your local community print shop: arty, warm, and clearly made for people, not a corporation.",
+      "palette": ["#f7f7f2", "#ff48b0", "#0078bf", "#ffe800", "#1a1a1a"],
+      "materials": ["riso grain", "slight ink misregistration", "hand-drawn doodle marks"],
+      "viewport": "Oversized headline overprinted in pink and blue, a doodled arrow pointing at the job input, a torn-edge notes card below.",
+      "risk": "Arty zine styles are popular right now, so it's the more familiar of the two creative options."
+    },
+    {
+      "id": "challenger-poster",
+      "label": "Public Service Poster",
+      "verdict": "competitive",
+      "lineage": "1930s national-park and public-works posters",
+      "thesis": "Each screen is one bold poster with one clear instruction, like TAKE TWO.",
+      "palette": ["#127b83", "#2f5d3a", "#d9a441", "#f5efe0"],
+      "materials": ["flat silkscreen inks", "layered landscape planes"],
+      "viewport": "A layered landscape (the climb to your job) with one big imperative caption: WHAT JOB ARE YOU AIMING FOR?",
+      "case": "Very clear and trustworthy, feels like a free public service; less game-like and more American-heritage than playful.",
+      "risk": "Can feel old-fashioned or heavy if the illustrations are weak."
+    },
+    {
+      "id": "challenger-sneaker",
+      "label": "Sneaker Box Wall",
+      "verdict": "competitive",
+      "lineage": "sneaker archive walls and shoe boxes",
+      "thesis": "Your saved answers are a wall of labelled boxes; open one to see the answer folded in tissue.",
+      "palette": ["#d9651e", "#111111", "#ffffff", "#7ad3c9"],
+      "materials": ["cardboard box board", "one-line silhouette art", "tissue paper"],
+      "viewport": "A wall of stacked boxes, one pulled half out with your next question on its end label.",
+      "case": "Teens get it instantly and the Remember tab maps beautifully; adults and non-sneaker fans may not identify with it.",
+      "risk": "Streetwear culture can feel exclusive to some users."
+    },
+    {
+      "id": "challenger-bench",
+      "label": "Film Cutting Bench",
+      "verdict": "declined",
+      "lineage": "film editing benches",
+      "thesis": "Steps as punched film frames along a rail.",
+      "palette": ["#0b0b0b", "#ff6a1a", "#ffffff"],
+      "materials": ["film grain", "tape flags"],
+      "viewport": "A perforated film rail across the screen.",
+      "case": "Nobody practising for a job interview identifies with film editing.",
+      "kept": "A flag marking where you stopped.",
+      "risk": "Obscure."
+    },
+    {
+      "id": "challenger-exposure",
+      "label": "Darkroom Exposure Record",
+      "verdict": "declined",
+      "lineage": "darkroom printing records",
+      "thesis": "Overlapping translucent sheets with hatch marks.",
+      "palette": ["#e8e8e8", "#7a7a7a", "#c2188f"],
+      "materials": ["tracing paper", "hatching"],
+      "viewport": "Stacked sheets over a grey ramp.",
+      "case": "Technical and cold for anxious first-time job seekers.",
+      "kept": "Show state with marks, not only colour.",
+      "risk": "Cold."
+    },
+    {
+      "id": "challenger-alphabet",
+      "label": "Alphabet Storm",
+      "verdict": "declined",
+      "lineage": "surreal typographic art",
+      "thesis": "Letters turn into weather.",
+      "palette": ["#ffffff", "#111111", "#b8c0c8"],
+      "materials": ["letter particles"],
+      "viewport": "Words breaking into rain.",
+      "case": "Beautiful, but moving text hurts readability for people with low literacy or dyslexia.",
+      "kept": "Words treated as material.",
+      "risk": "Accessibility."
+    },
+    {
+      "id": "challenger-kraftwerk",
+      "label": "Neon Wiring Grid",
+      "verdict": "declined",
+      "lineage": "Kraftwerk Man-Machine identity",
+      "thesis": "Neon line diagrams on a strict grid.",
+      "palette": ["#0b0b0b", "#e3261f", "#f2b705", "#ffffff"],
+      "materials": ["neon rules", "grid"],
+      "viewport": "A wiring schematic of skills.",
+      "case": "Cool and graphic but cold, not friendly or inviting.",
+      "kept": "Progress lines that light up between completed steps.",
+      "risk": "Cold."
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": false},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A friendly gamified learning app: bright green, rounded cards, mascot energy.",
+    "palette": ["#ffffff", "#3c3c3c", "#58cc02"],
+    "materials": ["rounded cards", "progress bars", "streak flames"],
+    "viewport": "Big green start button, XP bar, streak counter.",
+    "risk": "Indistinguishable from every language-learning app."
+  },
+  "steer": true
+}

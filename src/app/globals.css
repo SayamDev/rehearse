@@ -1,26 +1,428 @@
 @import "tailwindcss";
 
+/* The Sticker Book.
+   A sticker sheet: cool backing, white paper sheets, and four flat sticker inks.
+   Every sticker has a thick white die-cut border, a short soft shadow, and a slight tilt.
+   Text on any ink is always --on-ink. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --floor: #f3f4fb;
+  --surface: #fdfdff;
+  --surface-2: #e9ebf7;
+  --ink: #1c1b2e;
+  --muted: #56566e;
+  --line: #d8dbee;
+  --on-ink: #1c1b2e;
+  --die: #fdfdff;
+  --tomato: #ff5a3c;
+  --sky: #3ba7ff;
+  --lime: #b8e62e;
+  --sun: #ffc83d;
+  --grape: #a58bff;
+  --mint: #3ddbb4;
+  --sun-text: #8a5a00;
+  --grape-text: #6a4bd6;
+  --cue: #ff5a3c;
+  --up: #2f7a12;
+  --down: #c2331b;
+  --focus: #1f6fd1;
+  --sticker-shadow: 0 1px 0 rgb(28 27 46 / 0.1), 0 4px 10px -4px rgb(28 27 46 / 0.28);
+  --sheet-shadow: 0 1px 2px rgb(28 27 46 / 0.05), 0 10px 28px -18px rgb(28 27 46 / 0.3);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --floor: #17162a;
+    --surface: #221f38;
+    --surface-2: #2d2a48;
+    --ink: #f4f3ff;
+    --muted: #b1afcc;
+    --line: #3a3760;
+    --die: #fbfbff;
+    --sun-text: #ffc83d;
+    --grape-text: #c2b0ff;
+    --up: #b8e62e;
+    --down: #ff8a73;
+    --focus: #3ba7ff;
+    --sticker-shadow: 0 1px 0 rgb(0 0 0 / 0.25), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+    --sheet-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-floor: var(--floor);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-on-ink: var(--on-ink);
+  --color-tomato: var(--tomato);
+  --color-sky: var(--sky);
+  --color-lime: var(--lime);
+  --color-sun: var(--sun);
+  --color-grape: var(--grape);
+  --color-mint: var(--mint);
+  --color-sun-text: var(--sun-text);
+  --color-grape-text: var(--grape-text);
+  --color-cue: var(--cue);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-body), ui-sans-serif, sans-serif;
+  /* Type ramp. Every size in the app comes from here (see DESIGN.md). */
+  --text-micro: 0.6875rem;
+  --text-tape: 0.8125rem;
+  --text-label: 0.875rem;
+  --text-body-sm: 0.9375rem;
+  --text-body: 1rem;
+  --text-body-lg: 1.0625rem;
+  --text-title: 1.125rem;
+  --text-wordmark: 1.125rem;
+  --text-title-lg: 1.25rem;
+  --text-score-sm: 1.875rem;
+  --text-question: 1.6rem;
+  --text-headline: 2rem;
+  --text-headline-lg: 2.5rem;
+  --text-display: 2.4rem;
+  --text-display-lg: 3.4rem;
+  --text-score: 3.25rem;
+  --text-score-lg: 4.5rem;
+  --radius-control: 14px;
+  --radius-panel: 20px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Me > Settings > Larger text: everything is sized in rem, so this scales the whole app. */
+html[data-text="large"] {
+  font-size: 112.5%;
+}
+
+html {
+  background: var(--floor);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--floor);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  caret-color: var(--tomato);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--sun);
+  color: var(--on-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1.5px;
+}
+
+* {
+  scrollbar-color: var(--line) transparent;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Fixed-width digits only where a value ticks live (timers), so it doesn't jitter. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Component classes live in the components layer so utilities (text-sm, etc.) can override them. */
+@layer components {
+  /* A die-cut sticker label. Sun by default; colour variants below. */
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--sun);
+    color: var(--on-ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-tape);
+    line-height: 1;
+    padding: 0.42rem 0.7rem 0.4rem;
+    border: 3px solid var(--die);
+    border-radius: 999px;
+    box-shadow: var(--sticker-shadow);
+    transform: rotate(-2deg);
+    white-space: nowrap;
+  }
+  .sticker-sky {
+    background: var(--sky);
+  }
+  .sticker-lime {
+    background: var(--lime);
+  }
+  .sticker-tomato {
+    background: var(--tomato);
+  }
+  .sticker-sun {
+    background: var(--sun);
+  }
+  .sticker-grape {
+    background: var(--grape);
+  }
+  /* Not earned yet: a dashed outline where the sticker will go. */
+  .sticker-empty {
+    background: transparent;
+    color: var(--muted);
+    border: 2px dashed var(--line);
+    box-shadow: none;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--sheet-shadow);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1.15rem;
+    border-radius: 14px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-body);
+    transition:
+      transform 150ms var(--ease-out-expo),
+      background-color 150ms,
+      border-color 150ms,
+      color 150ms,
+      box-shadow 150ms,
+      opacity 150ms;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--floor);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--ink) 86%, var(--floor));
+  }
+  /* The main action: a tomato sticker you press. */
+  .btn-go {
+    background: var(--tomato);
+    color: var(--on-ink);
+    border: 3px solid var(--die);
+    box-shadow: var(--sticker-shadow);
+  }
+  .btn-go:hover:not(:disabled) {
+    transform: translateY(-1px) rotate(-1deg);
+  }
+  .btn-go:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--line);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: color-mix(in oklab, var(--line) 40%, var(--muted));
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--muted);
+    padding: 0 0.6rem;
+  }
+  .btn-quiet:hover:not(:disabled) {
+    color: var(--ink);
+  }
+
+  .field {
+    width: 100%;
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 0.75rem 0.95rem;
+    font-size: var(--text-body);
+    transition: border-color 150ms;
+  }
+  .field::placeholder {
+    color: color-mix(in oklab, var(--muted) 85%, var(--surface));
+  }
+  .field:hover {
+    border-color: color-mix(in oklab, var(--line) 40%, var(--muted));
+  }
+  .field:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  /* The record button's ring. Only loops while recording. */
+  .cue-ring {
+    box-shadow: var(--sticker-shadow), 0 0 0 0 color-mix(in oklab, var(--cue) 45%, transparent);
+  }
+  .cue-live .cue-ring {
+    animation: cue-pulse 1.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes cue-pulse {
+    0% {
+      box-shadow: var(--sticker-shadow), 0 0 0 0 color-mix(in oklab, var(--cue) 45%, transparent);
+    }
+    100% {
+      box-shadow: var(--sticker-shadow), 0 0 0 20px color-mix(in oklab, var(--cue) 0%, transparent);
+    }
+  }
+
+  /* Calm fade, used by loaders under reduced motion. */
+  @keyframes typing {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+
+  /* Loader: sticker dots hop and tilt in turn. */
+  .sticker-hop {
+    box-shadow: var(--sticker-shadow);
+    animation: sticker-hop 0.9s var(--ease-out-expo) infinite;
+  }
+  @keyframes sticker-hop {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-70%) rotate(-12deg);
+    }
+  }
+
+  /* Calm corner: the breathing circle eases like a breath, not like UI. */
+  .breath-circle {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+
+  .appear-late {
+    animation: appear 200ms var(--ease-out-expo) 300ms backwards;
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Interviewer sound bars while speaking. */
+  .voice-bar {
+    transform-origin: center;
+    animation: voice-bar 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes voice-bar {
+    from {
+      transform: scaleY(0.3);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-2) 0%, color-mix(in oklab, var(--surface-2) 60%, var(--surface)) 50%, var(--surface-2) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+    border-radius: 10px;
+  }
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* Loaders still show that something is happening, with a slow fade instead of movement. */
+  .sticker-hop {
+    animation: typing 1.6s ease-in-out infinite !important;
+  }
+  .voice-bar {
+    animation: none !important;
+    transform: scaleY(0.6);
+  }
+  /* The breathing circle holds still; a bar shows each phase instead. */
+  .breath-circle {
+    transform: scale(0.8) !important;
+  }
+  .breath-bar {
+    display: block !important;
+  }
+}
+
+/* Printing (the interview-day card): plain ink on white, no app chrome. */
+@media print {
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+    --floor: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f2f2f2;
+    --ink: #111111;
+    --muted: #444444;
+    --line: #cccccc;
+  }
+  /* The app's own header and tab bar, not headers inside the card. */
+  body > header,
+  body > nav,
+  body > a,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .print-card {
+    box-shadow: none !important;
+    border: 1px solid var(--line) !important;
+  }
 }
