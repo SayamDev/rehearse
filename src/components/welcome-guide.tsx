@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { CheckCircleIcon, DownloadSimpleIcon, FloppyDiskIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
-import { kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
+import { KOKORO_SERVER_STATE, kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
 import { VoiceProgress } from "./voice-progress";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
 /**
  * First visit only: a short guide to getting the best out of Rehearse, with a
@@ -18,7 +17,7 @@ const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 export function WelcomeGuide() {
   const { hydrated, sessions, profile } = useStore();
   const pathname = usePathname();
-  const voice = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
+  const voice = useSyncExternalStore(onKokoroChange, kokoroState, () => KOKORO_SERVER_STATE);
   const ref = useRef<HTMLDialogElement>(null);
   const [device, setDevice] = useState<{ supported: boolean; metered: boolean } | null>(null);
   const [error, setError] = useState("");
@@ -116,7 +115,7 @@ export function WelcomeGuide() {
             )}
             {device?.supported && loading && (
               <div className="flex flex-col gap-2">
-                <VoiceProgress progress={voice.progress} cached={voice.cached} name="my voice" />
+                <VoiceProgress state={voice} name="my voice" />
                 <span className="text-label text-muted">You can close this and start; it keeps going.</span>
               </div>
             )}

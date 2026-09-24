@@ -2,16 +2,15 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
-import { kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
+import { KOKORO_SERVER_STATE, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { updateSettings } from "@/lib/store";
 import { Segmented } from "./segmented";
 import { VoiceProgress } from "./voice-progress";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
 /** Me setting: the on-device Kokoro voice (default, one-time download) or the standard voice. */
 export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
-  const state = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
+  const state = useSyncExternalStore(onKokoroChange, kokoroState, () => KOKORO_SERVER_STATE);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [error, setError] = useState("");
 
@@ -46,7 +45,7 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
           { value: "standard", label: "Standard" },
         ]}
       />
-      {loading && <VoiceProgress progress={state.progress} cached={state.cached} />}
+      {loading && <VoiceProgress state={state} />}
       {(state.status === "ready" || (state.status === "idle" && state.cached)) && (
         <p className="flex items-center gap-2 text-label text-muted">
           <span className="sticker sticker-lime">Installed</span>

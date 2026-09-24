@@ -14,7 +14,8 @@ export type WorkerIn =
   | { type: "generate"; id: number; text: string; voice: string; speed: number };
 
 export type WorkerOut =
-  | { type: "progress"; progress: number }
+  | { type: "progress"; loaded: number; total: number }
+  | { type: "warming" }
   | { type: "ready" }
   | { type: "error"; message: string }
   | { type: "audio"; id: number; blob: Blob | null };
@@ -31,23 +32,44 @@ function post(msg: WorkerOut) {
 function load() {
   if (tts) return Promise.resolve(tts);
   if (loading) return loading;
-  const perFile = new Map<string, number>();
+  // Bytes per file, so progress reflects the whole download rather than whichever file is furthest along.
+  const perFile = new Map<string, { loaded: number; total: number }>();
+  let lastPost = 0;
+  const report = (force = false) => {
+    const now = Date.now();
+    if (!force && now - lastPost < 150) return;
+    lastPost = now;
+    let loaded = 0;
+    let total = 0;
+    for (const f of perFile.values()) {
+      loaded += f.loaded;
+      total += f.total;
+    }
+    post({ type: "progress", loaded, total });
+  };
   loading = import("kokoro-js")
     .then(({ KokoroTTS }) =>
       KokoroTTS.from_pretrained(MODEL_ID, {
         dtype: "q8",
         device: "wasm",
-        progress_callback: (info: { status: string; file?: string; progress?: number }) => {
-          if (info.status === "progress" && info.file && typeof info.progress === "number") {
-            perFile.set(info.file, info.progress);
-            // The model file dominates the download, so the largest file's progress is a fair overall figure.
-            post({ type: "progress", progress: Math.round(Math.max(...perFile.values())) });
+        progress_callback: (info: { status: string; file?: string; loaded?: number; total?: number }) => {
+          if (!info.file) return;
+          if (info.status === "progress" && typeof info.loaded === "number") {
+            // Without a size header the library reports the size so far as the total; treat that as unknown.
+            const total = typeof info.total === "number" && info.total > info.loaded ? info.total : 0;
+            perFile.set(info.file, { loaded: info.loaded, total });
+            report();
+          } else if (info.status === "done") {
+            const f = perFile.get(info.file);
+            if (f) perFile.set(info.file, { loaded: f.loaded, total: f.loaded });
+            report(true);
           }
         },
       }),
     )
     .then(async (model) => {
       const ready = model as unknown as Tts;
+      post({ type: "warming" });
       // The first generation is slow while the engine warms up, so do it now rather than on a real line.
       await ready.generate("Hi.", { voice: "af_heart" }).catch(() => null);
       tts = ready;

@@ -23,6 +23,12 @@ let worker: Worker | null = null;
 let loading: Promise<void> | null = null;
 let status: KokoroStatus = "idle";
 let progress = 0;
+let loadedBytes = 0;
+let totalBytes = 0;
+let warming = false;
+let startedAt = 0;
+/** The download is mostly one model file of about 92MB; used until the real sizes are known. */
+const EXPECTED_BYTES = 92_000_000;
 let nextId = 0;
 const pending = new Map<number, (blob: Blob | null) => void>();
 const listeners = new Set<() => void>();
@@ -30,15 +36,32 @@ let settleLoad: { resolve: () => void; reject: (e: Error) => void } | null = nul
 /** Whether the model files are already saved in this browser (null until checked). */
 let cached: boolean | null = null;
 
+export type KokoroSnapshot = {
+  status: KokoroStatus;
+  /** 0 to 100, from bytes received. */
+  progress: number;
+  cached: boolean | null;
+  /** Bytes received so far, and the expected total. */
+  loaded: number;
+  total: number;
+  /** Downloaded; the voice is warming up before its first line. */
+  warming: boolean;
+  /** When loading started (ms), for "time left" estimates. */
+  startedAt: number;
+};
+
+/** What the server renders, before the browser can know anything. */
+export const KOKORO_SERVER_STATE: KokoroSnapshot = { status: "idle", progress: 0, cached: null, loaded: 0, total: 0, warming: false, startedAt: 0 };
+
 /** The latest state as one object, replaced on every change so React can read it directly. */
-let snapshot: { status: KokoroStatus; progress: number; cached: boolean | null } = { status, progress, cached };
+let snapshot: KokoroSnapshot = KOKORO_SERVER_STATE;
 
 function emit() {
-  snapshot = { status, progress, cached };
+  snapshot = { status, progress, cached, loaded: loadedBytes, total: totalBytes, warming, startedAt };
   listeners.forEach((l) => l());
 }
 
-export function kokoroState() {
+export function kokoroState(): KokoroSnapshot {
   return snapshot;
 }
 
@@ -99,16 +122,25 @@ function getWorker(): Worker {
   worker.onmessage = (e: MessageEvent<WorkerOut>) => {
     const msg = e.data;
     if (msg.type === "progress") {
-      progress = msg.progress;
+      loadedBytes = msg.loaded;
+      totalBytes = Math.max(msg.total, EXPECTED_BYTES);
+      // Held under 100 until the voice is actually ready.
+      progress = Math.min(99, Math.round((loadedBytes / totalBytes) * 100));
+      emit();
+    } else if (msg.type === "warming") {
+      warming = true;
+      progress = 99;
       emit();
     } else if (msg.type === "ready") {
       status = "ready";
+      warming = false;
       cached = true;
       progress = 100;
       emit();
       settleLoad?.resolve();
     } else if (msg.type === "error") {
       status = "error";
+      warming = false;
       loading = null;
       emit();
       settleLoad?.reject(new Error(msg.message));
@@ -130,6 +162,10 @@ export function loadKokoro(): Promise<void> {
   if (loading) return loading;
   status = "loading";
   progress = 0;
+  loadedBytes = 0;
+  totalBytes = EXPECTED_BYTES;
+  warming = false;
+  startedAt = Date.now();
   emit();
   loading = new Promise<void>((resolve, reject) => {
     settleLoad = { resolve, reject };
@@ -153,4 +189,38 @@ export function kokoroClip(text: string, persona: PersonaId, speed = 1): Promise
     });
     send({ type: "generate", id, text, voice: KOKORO_VOICES[persona], speed });
   });
+}
+
+const MB = 1_000_000;
+
+function timeLeft(seconds: number): string {
+  if (seconds < 10) return "a few seconds left";
+  if (seconds < 60) return `about ${Math.round(seconds / 5) * 5} sec left`;
+  return `about ${Math.round(seconds / 60)} min left`;
+}
+
+function clock(seconds: number): string {
+  const s = Math.floor(seconds);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+/**
+ * What the progress bar says while the voice loads. `known` means real byte counts are
+ * arriving, so the bar can show a fill instead of a sliding stripe.
+ */
+export function voiceProgressText(state: KokoroSnapshot, elapsed: number, name = "the voice") {
+  if (state.warming) return { label: `Almost ready: warming up ${name}...`, detail: "", known: false };
+  const known = state.loaded > 0;
+  if (state.cached) return { label: `Getting ${name} ready...`, detail: "", known };
+  if (known) {
+    const speed = state.loaded / Math.max(elapsed, 1);
+    const left = (state.total - state.loaded) / Math.max(speed, 1);
+    let detail = `${Math.round(state.loaded / MB)} of ${Math.round(state.total / MB)} MB (${state.progress}%)`;
+    // Wait a moment before estimating, so the first guess isn't wild.
+    if (elapsed >= 3 && state.progress < 99) detail += ` · ${timeLeft(left)}`;
+    return { label: `Downloading ${name}...`, detail, known };
+  }
+  // Some browsers (Firefox) only report at the very end, so show time so far instead.
+  if (elapsed >= 6) return { label: `Downloading ${name}...`, detail: `${clock(elapsed)} so far. About 90MB, usually 1 to 2 minutes on Wi-Fi.`, known };
+  return { label: "Starting the download (about 90MB)...", detail: "", known };
 }
