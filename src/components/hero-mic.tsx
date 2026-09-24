@@ -24,7 +24,7 @@ export function HeroMic({ className = "" }: { className?: string }) {
       anim = lottie.loadAnimation({ container: el, renderer: "svg", loop: true, autoplay: !reduce, path: "/lottie/hero-mic.json" }) as Anim;
       if (reduce) {
         // A still frame with all three waves showing.
-        anim.goToAndStop(34, true);
+        anim.goToAndStop(130, true);
         return;
       }
       observer = new IntersectionObserver(([entry]) => (entry.isIntersecting ? anim?.play() : anim?.pause()));
