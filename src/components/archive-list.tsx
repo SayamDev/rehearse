@@ -136,7 +136,7 @@ export function ArchiveList() {
           .
         </p>
       ) : (
-        <ul className="panel">
+        <ul className="panel overflow-hidden">
           {filtered.map((s) => {
             const score = sessionScore(s);
             const answered = s.questions.filter((q) => q.takes.length > 0).length;
@@ -163,7 +163,7 @@ export function ArchiveList() {
                   </div>
                 ) : (
                   <>
-                <Link href={href} className="flex min-w-0 flex-1 items-center gap-4 py-4 pl-5 pr-2 transition-colors hover:bg-surface-2 sm:pl-6">
+                <Link href={href} className="flex min-w-0 flex-1 items-center gap-4 py-4 pl-5 pr-2 transition-colors hover:bg-surface-2 focus-visible:outline-offset-[-3px] sm:pl-6">
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate font-medium">{s.role}</span>
                     <span className="text-label text-muted">
@@ -178,7 +178,7 @@ export function ArchiveList() {
                   type="button"
                   aria-label={`Delete the ${s.role} session from ${formatDate(s.createdAt)}`}
                   onClick={() => setConfirmId(s.id)}
-                  className="flex w-12 shrink-0 items-center justify-center text-muted transition-colors hover:bg-surface-2 hover:text-down sm:w-14"
+                  className="flex w-12 shrink-0 items-center justify-center text-muted transition-colors hover:bg-surface-2 hover:text-down focus-visible:outline-offset-[-3px] sm:w-14"
                 >
                   <TrashIcon size={18} aria-hidden />
                 </button>
