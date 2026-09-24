@@ -3,6 +3,7 @@ import { Atkinson_Hyperlegible_Next, Bricolage_Grotesque } from "next/font/googl
 import { AppNav } from "@/components/app-nav";
 import { StickerCelebration } from "@/components/sticker-celebration";
 import { SettingsEffects } from "@/components/settings-effects";
+import { RegisterServiceWorker } from "@/components/pwa";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
     description: "Answer, get notes, take it again. Free interview practice for any job.",
     type: "website",
   },
+  appleWebApp: { capable: true, title: "Rehearse", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -51,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <StickerCelebration />
         <SettingsEffects />
+        <RegisterServiceWorker />
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CATEGORIES, COMPETENCIES, PERSONAS, SENIORITIES } from "../types";
+import { CATEGORIES, COMPETENCIES, PERSONAS, RUBRIC_KEYS, SENIORITIES } from "../types";
+import { LANGUAGE_CODES } from "../languages";
 
 export const MAX_ANSWER_CHARS = 4000;
 export const MAX_JD_CHARS = 6000;
@@ -15,6 +16,9 @@ export const QuestionsRequest = z.object({
   persona: z.enum(PERSONAS).optional(),
   /** Simpler words, for people learning English or who prefer plain language. */
   plain: z.boolean().default(false),
+  language: z.enum(LANGUAGE_CODES).default("en"),
+  /** The skill the user wants to work on: questions give room to practise it. */
+  focus: z.enum(RUBRIC_KEYS).optional(),
 });
 export type QuestionsRequest = z.infer<typeof QuestionsRequest>;
 
@@ -35,6 +39,7 @@ export const GradeRequest = z.object({
   answer: z.string().trim().min(1).max(MAX_ANSWER_CHARS),
   mode: z.enum(["voice", "type"]),
   plain: z.boolean().default(false),
+  language: z.enum(LANGUAGE_CODES).default("en"),
 });
 export type GradeRequest = z.infer<typeof GradeRequest>;
 

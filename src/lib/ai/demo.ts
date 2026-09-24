@@ -6,6 +6,7 @@
 import type { Category, Competency } from "../types";
 import type { GradeRequest, GradingOutput, QuestionsRequest } from "./schemas";
 import { contentWords } from "../memory";
+import { packForRole } from "../packs";
 
 export type BankItem = {
   text: string;
@@ -111,7 +112,8 @@ export function demoQuestions(req: QuestionsRequest): BankItem[] {
   const seed = hash(`${req.role}:${req.seniority}:${req.exclude.length}`);
   const behavioral = GENERAL.filter((q) => q.category === "behavioral" && !excluded.has(q.text.toLowerCase()));
   const other = GENERAL.filter((q) => q.category !== "behavioral" && !excluded.has(q.text.toLowerCase()));
-  const role = roleQuestions(req.role).filter((q) => !excluded.has(q.text.toLowerCase()));
+  // A matching question pack gives questions written for this kind of work.
+  const role = (packForRole(req.role)?.questions ?? roleQuestions(req.role)).filter((q) => !excluded.has(q.text.toLowerCase()));
   const pick = <T,>(arr: T[], offset: number) => (arr.length ? arr[(seed + offset) % arr.length] : undefined);
   const set = [pick(behavioral, 0), pick(role, 1), pick(other, 2), pick(behavioral, 3), pick(other, 5)]
     .filter((q): q is BankItem => Boolean(q))

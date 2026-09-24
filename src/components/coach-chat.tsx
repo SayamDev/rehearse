@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { PaperPlaneRightIcon } from "@phosphor-icons/react";
 import { PersonaAvatar } from "./persona-avatar";
-import { countCoachChat } from "@/lib/store";
+import { countCoachChat, getSettings } from "@/lib/store";
 
 type Msg = { role: "user" | "assistant"; content: string; source?: "ai" | "rules" };
 
@@ -55,7 +55,10 @@ export function CoachChat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // The greeting is UI only; send the real conversation, last 12 turns.
-        body: JSON.stringify({ messages: next.slice(1).slice(-12).map(({ role, content: c }) => ({ role, content: c })) }),
+        body: JSON.stringify({
+          messages: next.slice(1).slice(-12).map(({ role, content: c }) => ({ role, content: c })),
+          language: getSettings().language,
+        }),
       });
       const data = (await res.json()) as { reply?: string; source?: "ai" | "rules"; error?: string };
       if (!res.ok || !data.reply) throw new Error(data.error ?? "Cobi couldn't answer. Try again.");

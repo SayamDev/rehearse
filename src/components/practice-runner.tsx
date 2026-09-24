@@ -17,6 +17,7 @@ import { LiveInterview } from "./live-interview";
 import { addFollowUp, addTake, completeSession, useSession, useStore, type AddTakeResult } from "@/lib/store";
 import { measureDelivery } from "@/lib/delivery";
 import { prepareSpeech } from "@/lib/tts";
+import { isOffline, offlineGrading } from "@/lib/offline";
 import { saveRecording } from "@/lib/recordings";
 import { isMockBookend } from "@/lib/prepare";
 import { deliveryScore, overallScore } from "@/lib/scoring";
@@ -69,21 +70,34 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
     setError("");
     setPhase("grading");
     try {
-      const res = await fetch("/api/grade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role: session.role,
-          seniority: session.seniority,
-          jobDescription: session.jobDescription,
-          question: sq.question,
-          answer: answer.text,
-          mode: answer.mode,
-          plain: profile.settings.plainWords,
-        }),
-      });
-      const data = (await res.json()) as { grading?: Grading; source?: NotesSource; reason?: FallbackReason; error?: string };
-      if (!res.ok || !data.grading) throw new Error(data.error ?? "We couldn't score that answer. Try again.");
+      let data: { grading?: Grading; source?: NotesSource; reason?: FallbackReason; error?: string };
+      try {
+        const res = await fetch("/api/grade", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            role: session.role,
+            seniority: session.seniority,
+            jobDescription: session.jobDescription,
+            question: sq.question,
+            answer: answer.text,
+            mode: answer.mode,
+            plain: profile.settings.plainWords,
+            language: session.language ?? "en",
+          }),
+        });
+        data = await res.json();
+        if (!res.ok || !data.grading) throw new Error(data.error ?? "We couldn't score that answer. Try again.");
+      } catch (err) {
+        if (!isOffline(err)) throw err;
+        // No connection: the built-in notes still score the answer.
+        data = {
+          grading: offlineGrading({ role: session.role, seniority: session.seniority, question: sq.question, answer: answer.text, mode: answer.mode }),
+          source: "rules",
+          reason: "offline",
+        };
+      }
+      if (!data.grading) throw new Error("We couldn't score that answer. Try again.");
       const delivery =
         answer.mode === "voice" && profile.settings.deliveryMetrics ? measureDelivery(answer.text, answer.durationSec) : null;
       const dScore = delivery ? deliveryScore(delivery) : null;

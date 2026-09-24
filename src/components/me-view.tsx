@@ -13,6 +13,11 @@ import { deleteRecordings } from "@/lib/recordings";
 import { StickerArt } from "./sticker-art";
 import { VoiceSetting } from "./voice-setting";
 import { Segmented } from "./segmented";
+import { LANGUAGES, isEnglish } from "@/lib/languages";
+import { scoreGain, scoreHistory, skillAverages, weakestSkill } from "@/lib/skills";
+import { ScoreChart, SkillBars } from "./progress-chart";
+import { ShareProgress } from "./share-progress";
+import { useInstall } from "./pwa";
 
 type Tab = "progress" | "stickers" | "settings";
 
@@ -110,6 +115,8 @@ function ProgressTab({ onStickers }: { onStickers: () => void }) {
   const felt = sessions.filter((s) => s.feel?.before !== undefined && s.feel?.after !== undefined);
   const calmer = felt.filter((s) => s.feel!.after! > s.feel!.before!).length;
   const next = COLLECTION.find((c) => c.group === "achievements" && !earned.has(c.id)) ?? COLLECTION.find((c) => !earned.has(c.id));
+  const points = scoreHistory(sessions);
+  const skills = skillAverages(sessions);
 
   return (
     <div className="flex flex-col gap-8">
@@ -151,6 +158,24 @@ function ProgressTab({ onStickers }: { onStickers: () => void }) {
             <span className="tnum font-semibold text-ink">{earned.size}</span> of {COLLECTION.length} stickers
           </span>
         </p>
+        {answers > 0 && <ShareProgress />}
+      </section>
+
+      <section aria-labelledby="scores" className="flex flex-col gap-3">
+        <h2 id="scores" className="text-title font-bold tracking-[-0.01em]">
+          Your scores
+        </h2>
+        <ScoreChart points={points} gain={scoreGain(points)} />
+      </section>
+
+      <section aria-labelledby="skills" className="flex flex-col gap-3">
+        <div>
+          <h2 id="skills" className="text-title font-bold tracking-[-0.01em]">
+            Your skills
+          </h2>
+          <p className="text-body-sm text-muted">Average of your last {skills[0]?.count ?? 0} answers, out of 10.</p>
+        </div>
+        <SkillBars skills={skills} weakest={weakestSkill(skills)} />
       </section>
 
       {felt.length > 0 && (
@@ -223,7 +248,7 @@ function SettingsTab() {
   const { profile, sessions, bank } = useStore();
   const s = profile.settings;
   const [confirming, setConfirming] = useState(false);
-  const ids = { read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId() };
+  const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId() };
   const [recsCleared, setRecsCleared] = useState(false);
   const speed = SPEEDS.find((o) => Number(o.value) === s.voiceSpeed)?.value ?? "1";
 
@@ -296,6 +321,29 @@ function SettingsTab() {
 
       <Group title="Easier to use" hint="Make the app work better for you.">
         <Row
+          stacked
+          label={<label htmlFor={ids.lang}>Practise in</label>}
+          description={
+            isEnglish(s.language)
+              ? "Answer questions and get your notes in another language. Menus stay in English for now."
+              : "Questions, your notes and Cobi's replies are in this language. Menus stay in English for now. Questions are read by your device's voice, and Live Interview is English only."
+          }
+          control={
+            <select
+              id={ids.lang}
+              value={s.language}
+              onChange={(e) => updateSettings({ language: e.target.value })}
+              className="field w-full max-w-xs"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code} lang={l.code}>
+                  {l.code === "en" ? "English" : `${l.native} (${l.name})`}
+                </option>
+              ))}
+            </select>
+          }
+        />
+        <Row
           label={<label htmlFor={ids.large}>Larger text</label>}
           description="Makes all the text in the app bigger."
           control={<Switch id={ids.large} checked={s.largeText} onChange={(v) => updateSettings({ largeText: v })} />}
@@ -305,6 +353,10 @@ function SettingsTab() {
           description="Questions and notes use short sentences and everyday words. Helpful if you're learning English. Pair it with a slower speaking speed above."
           control={<Switch id={ids.plain} checked={s.plainWords} onChange={(v) => updateSettings({ plainWords: v })} />}
         />
+      </Group>
+
+      <Group title="Use it like an app" hint="Put Rehearse on your home screen.">
+        <InstallRow />
       </Group>
 
       <Group title="Your data" hint="Everything stays in this browser.">
@@ -367,6 +419,33 @@ function SettingsTab() {
         </div>
       </Group>
     </div>
+  );
+}
+
+function InstallRow() {
+  const { state, install } = useInstall();
+  const how =
+    state === "installed"
+      ? "Rehearse is installed. Open it from your home screen or apps."
+      : state === "ios"
+        ? "In Safari, tap the Share button, then \u201cAdd to Home Screen\u201d."
+        : state === "ready"
+          ? "Opens in its own window, and still works without internet for Remember, the Calm corner and practice with built-in notes."
+          : "In Chrome or Edge, use the install button in the address bar or the menu (\u201cInstall Rehearse\u201d). It still works without internet for Remember, the Calm corner and practice with built-in notes.";
+  return (
+    <Row
+      label="Install Rehearse"
+      description={how}
+      control={
+        state === "ready" ? (
+          <button type="button" className="btn btn-ghost min-h-10 shrink-0 text-label" onClick={install}>
+            Install
+          </button>
+        ) : (
+          <span />
+        )
+      }
+    />
   );
 }
 

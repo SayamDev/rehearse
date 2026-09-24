@@ -85,7 +85,7 @@ describe("delivery", () => {
 });
 
 describe("demo mode", () => {
-  const base = { role: "Barista", seniority: "entry" as const, jobDescription: "", count: 3, exclude: [], plain: false };
+  const base = { role: "Barista", seniority: "entry" as const, jobDescription: "", count: 3, exclude: [], plain: false, language: "en" };
 
   it("fills a 5-question Speed Round with distinct questions", () => {
     const qs = demoQuestions({ ...base, count: 5 });

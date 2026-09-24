@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   const cacheKey =
     !req.jobDescription.trim() && req.exclude.length === 0
-      ? `${req.role.toLowerCase()}|${req.seniority}|${req.count}|${req.persona ?? ""}`
+      ? `${req.role.toLowerCase()}|${req.seniority}|${req.count}|${req.persona ?? ""}|${req.language}|${req.focus ?? ""}|${req.plain}`
       : null;
   const cached = cacheKey ? bankCache.get(cacheKey) : undefined;
   if (cached && Date.now() - cached.at < CACHE_MS) {

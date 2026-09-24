@@ -111,6 +111,17 @@ body {
   caret-color: var(--tomato);
 }
 
+/* Practising in Arabic or Urdu: each paragraph follows the direction of its own text. */
+p,
+li,
+h1,
+h2,
+h3,
+blockquote,
+textarea {
+  unicode-bidi: plaintext;
+}
+
 h1,
 h2,
 h3 {

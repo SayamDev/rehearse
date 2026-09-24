@@ -5,6 +5,7 @@ import type { Persona } from "./game";
 import { kokoroAutoOk, kokoroClip, kokoroState, loadKokoro } from "./kokoro";
 import { getSettings } from "./store";
 import type { PersonaId } from "./types";
+import { isEnglish, languageFor } from "./languages";
 
 /**
  * Interviewer voice, best first:
@@ -16,7 +17,16 @@ import type { PersonaId } from "./types";
  * To keep the wait short: every chunk of a line is requested at once and played in
  * order, the first sentence is its own short chunk so audio starts quickly, clips
  * are kept in memory, and the next question can be prepared ahead of time.
+ *
+ * Kokoro and Orpheus only speak English, so rounds in another language use the
+ * device voice for that language.
  */
+
+/** The practice language, when it isn't English. */
+function otherLanguage(): string | null {
+  const code = getSettings().language;
+  return isEnglish(code) ? null : code;
+}
 
 type Engine = "standard" | "kokoro";
 
@@ -181,7 +191,7 @@ function clipFor(text: string, persona: Persona, requested: Engine, pace: number
  * Does nothing when questions aren't read aloud.
  */
 export function prepareSpeech(parts: string[], persona: Persona, engine: Engine) {
-  if (typeof window === "undefined" || !getSettings().readAloud) return;
+  if (typeof window === "undefined" || !getSettings().readAloud || otherLanguage()) return;
   kickKokoro(engine);
   const pace = paceFor(persona);
   for (const c of chunkParts(parts)) void clipFor(c, persona, engine, pace);
@@ -205,12 +215,12 @@ let audioEl: HTMLAudioElement | null = null;
 const NATURAL = /(natural|neural|online|premium|enhanced|siri|google)/i;
 const ROBOTIC = /(compact|espeak|zarvox|trinoids|albert|bad news|bells|boing|bubbles|cellos|whisper|wobble|jester|organ|superstar)/i;
 
-/** English voices, most natural first. */
-export function rankedVoices(): SpeechSynthesisVoice[] {
+/** Device voices for a language (English by default), most natural first. */
+export function rankedVoices(lang = "en"): SpeechSynthesisVoice[] {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
   return window.speechSynthesis
     .getVoices()
-    .filter((v) => v.lang.toLowerCase().startsWith("en") && !ROBOTIC.test(v.name))
+    .filter((v) => v.lang.toLowerCase().replace("_", "-").startsWith(lang) && !ROBOTIC.test(v.name))
     .sort((a, b) => Number(NATURAL.test(b.name)) - Number(NATURAL.test(a.name)) || Number(b.localService) - Number(a.localService));
 }
 
@@ -219,7 +229,9 @@ function browserSpeak(text: string, persona: Persona, token: number): Promise<vo
     if (token !== run || typeof window === "undefined" || !("speechSynthesis" in window)) return resolve();
     const synth = window.speechSynthesis;
     const u = new SpeechSynthesisUtterance(text);
-    const voices = rankedVoices();
+    const lang = otherLanguage();
+    if (lang) u.lang = languageFor(lang).speech;
+    const voices = rankedVoices(lang ?? "en");
     const pick = { friendly: 0, busy: 1, tough: 2 }[persona.id];
     if (voices.length) u.voice = voices[Math.min(pick, voices.length - 1)];
     u.rate = paceFor(persona);
@@ -252,6 +264,18 @@ function playClip(url: string, token: number, persona: PersonaId, rate: number):
 export async function speak(line: string | string[], persona: Persona, engine: Engine = "standard"): Promise<void> {
   stopSpeaking();
   const token = ++run;
+  const lang = otherLanguage();
+  if (lang) {
+    // The interviewers' own set lines are English; in another language only the question is read.
+    const english = new Set([persona.greeting, persona.followUpLead]);
+    const text = (Array.isArray(line) ? line : [line]).filter((p) => !english.has(p)).join(" ");
+    try {
+      await browserSpeak(text, persona, token);
+    } finally {
+      if (token === run) setVoice(IDLE);
+    }
+    return;
+  }
   setVoice({ status: "preparing", persona: persona.id });
   kickKokoro(engine);
   const pace = paceFor(persona);

@@ -13,11 +13,23 @@ import { levelFromXp } from "@/lib/scoring";
 import { PersonaAvatar } from "./persona-avatar";
 import { JobCombobox } from "./job-combobox";
 import { SENIORITY_LABELS } from "@/lib/session";
-import { SENIORITIES, type Mode, type PersonaId, type Question, type Seniority } from "@/lib/types";
+import { SENIORITIES, type Mode, type PersonaId, type Question, type RubricKey, type Seniority } from "@/lib/types";
+import { isEnglish, languageFor } from "@/lib/languages";
+import { isOffline, offlineQuestions } from "@/lib/offline";
+import { SKILL_FOCUS } from "@/lib/skills";
+import { RUBRIC_LABELS } from "@/lib/scoring";
 
 const MAX_JD = 6000;
 
-export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole: string; initialMode?: Mode }) {
+export function SetupForm({
+  initialRole,
+  initialMode = "quick",
+  initialFocus,
+}: {
+  initialRole: string;
+  initialMode?: Mode;
+  initialFocus?: RubricKey;
+}) {
   const router = useRouter();
   const [role, setRole] = useState(initialRole);
   const [seniority, setSeniority] = useState<Seniority>("entry");
@@ -28,6 +40,9 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
   const [persona, setPersona] = useState<PersonaId>("friendly");
   const info = MODES[mode];
   const chosenPersona: PersonaId = info.persona ?? persona;
+  const [focus, setFocus] = useState<RubricKey | undefined>(initialFocus);
+  const language = languageFor(profile.settings.language);
+  const english = isEnglish(language.code);
 
   // Load the voice and prepare the chosen interviewer's greeting while the form is filled in.
   useEffect(() => {
@@ -54,6 +69,11 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
       setError("Type a job title to practice for.");
       return;
     }
+    if (mode === "live" && !english) {
+      setStatus("error");
+      setError("Live Interview is English only for now. Pick another mode, or switch to English in Me.");
+      return;
+    }
     if (level < info.unlockLevel) {
       setStatus("error");
       setError(`${info.name} unlocks at level ${info.unlockLevel}. Keep practising to get there.`);
@@ -66,31 +86,45 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
     // The greeting is prepared while the questions are written, so it plays straight away.
     prepareSpeech([who.greeting], who, engine);
     try {
-      const res = await fetch("/api/questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role: trimmed,
-          seniority,
-          jobDescription: jd.slice(0, MAX_JD),
-          count: info.questions,
-          persona: chosenPersona,
-          plain: getSettings().plainWords,
-        }),
-      });
-      const data = (await res.json()) as { questions?: Question[]; source?: "ai" | "rules"; error?: string };
-      if (!res.ok || !data.questions?.length) throw new Error(data.error ?? "We couldn't write questions just now. Try again.");
+      let data: { questions?: Question[]; source?: "ai" | "rules"; error?: string };
+      try {
+        const res = await fetch("/api/questions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            role: trimmed,
+            seniority,
+            jobDescription: jd.slice(0, MAX_JD),
+            count: info.questions,
+            persona: chosenPersona,
+            plain: getSettings().plainWords,
+            language: language.code,
+            focus,
+          }),
+        });
+        data = await res.json();
+        if (!res.ok || !data.questions?.length) throw new Error(data.error ?? "We couldn't write questions just now. Try again.");
+      } catch (err) {
+        if (!isOffline(err)) throw err;
+        // No connection: practise with the built-in questions instead.
+        data = { questions: offlineQuestions(trimmed, seniority, info.questions), source: "rules" };
+      }
+      const written = data.questions ?? [];
+      // A mock interview opens and closes like a real one, in the round's language.
+      const opener = english ? OPENER : { ...OPENER, text: language.opener };
+      const closer = english ? CLOSER : { ...CLOSER, text: language.closer };
       const session = createSession({
         role: trimmed,
         seniority,
         jobDescription: jd.slice(0, MAX_JD),
         // A mock interview opens and closes like a real one.
-        questions: mode === "mock" || mode === "live" ? [OPENER, ...data.questions, CLOSER] : data.questions,
+        questions: mode === "mock" || mode === "live" ? [opener, ...written, closer] : written,
         demo: data.source !== "ai",
         mode,
         persona: chosenPersona,
+        language: language.code,
       });
-      prepareSpeech([mode === "mock" || mode === "live" ? OPENER.text : data.questions[0].text], who, engine);
+      prepareSpeech([mode === "mock" || mode === "live" ? opener.text : written[0].text], who, engine);
       router.push(`/practice/${session.id}`);
     } catch (err) {
       setStatus("error");
@@ -118,7 +152,25 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
           Job title
         </label>
         <JobCombobox id={roleId} value={role} onChange={setRole} className="max-w-xl" />
+        <p className="text-label text-muted">
+          Practising in <span lang={language.code} className="font-semibold text-ink">{language.native}</span>.{" "}
+          <Link href="/me#settings" className="font-semibold text-ink underline underline-offset-4">
+            Change language
+          </Link>
+        </p>
       </div>
+
+      {focus && (
+        <div className="flex flex-col gap-2 rounded-[var(--radius-panel)] border-2 border-sky bg-surface p-4 sm:flex-row sm:items-start sm:gap-4">
+          <span className="sticker sticker-sky w-fit shrink-0 -rotate-2">Focus: {RUBRIC_LABELS[focus]}</span>
+          <p className="min-w-0 flex-1 text-body-sm leading-relaxed text-muted">
+            Your questions will give you room to practise this. {SKILL_FOCUS[focus].tip}
+          </p>
+          <button type="button" className="btn btn-quiet min-h-9 w-fit shrink-0 text-label" onClick={() => setFocus(undefined)}>
+            Remove focus
+          </button>
+        </div>
+      )}
 
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-label font-medium">Level</legend>
@@ -149,7 +201,8 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
         <div className="grid gap-3 sm:grid-cols-2">
           {(["quick", "live", "mock", "speed", "boss"] as Mode[]).map((m) => {
             const mi = MODES[m];
-            const locked = hydrated && level < mi.unlockLevel;
+            const englishOnly = m === "live" && !english;
+            const locked = (hydrated && level < mi.unlockLevel) || englishOnly;
             const on = mode === m;
             return (
               <label
@@ -166,7 +219,8 @@ export function SetupForm({ initialRole, initialMode = "quick" }: { initialRole:
                 <span className="text-body-sm text-muted">{mi.blurb}</span>
                 {locked && (
                   <span className="mt-1 flex items-center gap-1.5 text-label font-semibold text-muted">
-                    <LockSimpleIcon size={14} weight="bold" aria-hidden /> Unlocks at level {mi.unlockLevel}
+                    <LockSimpleIcon size={14} weight="bold" aria-hidden />{" "}
+                    {englishOnly ? "English only for now" : `Unlocks at level ${mi.unlockLevel}`}
                   </span>
                 )}
               </label>

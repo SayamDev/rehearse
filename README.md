@@ -56,6 +56,11 @@ npm run lint
 - **Interviewers:** Sam, Priya (level 3) and Mr. Grant (level 5). They read questions aloud using the browser's free speech voices, and ask a follow-up based on your answer.
 - **Collection:** 24 stickers: 9 skills, 12 achievements, and 3 legendary foil characters. They're shown on the homepage with how to earn each one, and every unlock gets a one-time celebration with a Lottie burst.
 - **Coach:** `/coach` chat. It uses Groq when a key is set, and a built-in guide otherwise.
+- **Question packs:** `/prepare/packs`, 12 hand-written packs (retail, care, hospitality, warehouse, office, tech, creative, trades, leadership and more). No AI needed; they also feed the built-in question bank.
+- **Interview countdown:** on Get ready. Add the date for a day-by-day plan, and download a calendar file with two reminders (no accounts or notifications needed).
+- **Progress:** Me shows a score line over time, average per skill, and the weakest skill with a one-tap focused round (`/practice/new?focus=specificity`). A progress card image can be shared; it's drawn on the device and shows no job titles or answers.
+- **Other languages:** Me > Settings > Practise in. Questions, notes and Cobi reply in 12 languages via the same free Groq model. Menus stay English; non-English questions use the device voice; Live Interview is English only.
+- **Installable and offline:** `app/manifest.ts` and `public/sw.js` (production only). Offline, rounds use built-in questions and notes, and Remember, Calm corner and Get ready keep working.
 
 **Voices.** Interviewers try three voices in order: **Kokoro** (`src/lib/kokoro.ts`), an open-source voice that runs in a Web Worker in the browser after a one-time ~90MB download; then Groq's Orpheus voices when a key is set (clips cached per line); then the most natural device voice. Kokoro downloads by itself only on capable devices (4+ GB memory, 4+ cores) on an unmetered connection; on mobile data or Data Saver, users download it from Me. `next.config.ts` sets COOP/COEP headers so Kokoro can use several threads.
 

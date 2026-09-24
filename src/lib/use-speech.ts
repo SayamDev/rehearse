@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getSettings } from "./store";
+import { isEnglish, languageFor } from "./languages";
 
 /* Minimal typings for the Web Speech API, which TypeScript's DOM lib omits. */
 type SpeechAlternative = { transcript: string };
@@ -151,7 +153,9 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
     const r = new Ctor();
     r.continuous = true;
     r.interimResults = true;
-    r.lang = navigator.language || "en-US";
+    const code = getSettings().language;
+    // English uses the device's own accent setting; other languages use their locale.
+    r.lang = isEnglish(code) ? navigator.language || "en-US" : languageFor(code).speech;
     r.onresult = (e) => {
       let fin = "";
       let tmp = "";

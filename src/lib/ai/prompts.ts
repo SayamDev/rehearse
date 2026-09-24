@@ -1,5 +1,7 @@
 import type { GradeRequest, QuestionsRequest } from "./schemas";
 import { PERSONAS } from "../game";
+import { languageInstruction } from "../languages";
+import { SKILL_FOCUS } from "../skills";
 
 const SENIORITY_LABEL = {
   entry: "entry level or first job",
@@ -30,6 +32,9 @@ export function questionUserPrompt(req: QuestionsRequest): string {
   ];
   if (req.persona) lines.push(`Write the questions as ${PERSONAS[req.persona].style}`);
   if (req.plain) lines.push(PLAIN_WORDS);
+  if (req.focus) lines.push(SKILL_FOCUS[req.focus].prompt);
+  const lang = languageInstruction(req.language, "every question and every looking_for");
+  if (lang) lines.push(lang);
   if (req.jobDescription.trim()) {
     lines.push(`<job_description>\n${req.jobDescription.trim()}\n</job_description>`);
   }
@@ -106,6 +111,8 @@ export function gradeUserPrompt(req: GradeRequest): string {
     parts.push(`<job_description>\n${req.jobDescription.trim()}\n</job_description>`);
   }
   if (req.plain) parts.push(`${PLAIN_WORDS} This applies to every piece of feedback you write.`);
+  const lang = languageInstruction(req.language, "every piece of feedback (each why, strength.why, fix, improved_answer, follow_up_question and criteria point)");
+  if (lang) parts.push(`${lang} The answer is in that language too. strength.quote must still be copied exactly from the answer.`);
   parts.push(`<answer>\n${req.answer}\n</answer>`);
   return parts.join("\n\n");
 }

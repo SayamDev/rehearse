@@ -225,13 +225,14 @@ export function NotesCard({
   );
 }
 
-const QUICK_NOTES: Record<"not-configured" | "limit" | "error", string> = {
+const QUICK_NOTES: Record<"not-configured" | "limit" | "error" | "offline", string> = {
   "not-configured": "Built-in rules checked your structure, detail, and length. They can't follow meaning the way AI notes can.",
   limit: "Today's free AI notes are used up, so built-in rules scored this one. AI notes are back tomorrow.",
   error: "AI notes aren't available right now, so built-in rules scored this one. Try another take later.",
+  offline: "You're offline, so built-in rules scored this one. Take it again when you're back online for AI notes.",
 };
 
-function QuickNotesLine({ reason }: { reason: "not-configured" | "limit" | "error" }) {
+function QuickNotesLine({ reason }: { reason: keyof typeof QUICK_NOTES }) {
   return (
     <p className="max-w-[62ch] text-label leading-relaxed text-muted">
       <span className="sticker sticker-sky mr-2 align-middle">Quick notes</span>

@@ -71,7 +71,7 @@ export type AnswerMode = "voice" | "type";
 
 /** "ai": scored by Groq (or donated Claude credits). "rules": built-in rule-based notes. */
 export type NotesSource = "ai" | "rules";
-export type FallbackReason = "not-configured" | "limit" | "error" | null;
+export type FallbackReason = "not-configured" | "limit" | "error" | "offline" | null;
 
 export type Take = {
   id: string;
@@ -111,6 +111,8 @@ export type Session = {
   feel?: { before?: number; after?: number };
   /** Live Interview: everything said, in order. */
   conversation?: ConversationLine[];
+  /** Language the round is in. Missing means English. */
+  language?: string;
 };
 
 export type ConversationLine = { who: "interviewer" | "you"; text: string };
@@ -134,6 +136,16 @@ export type Settings = {
   largeText: boolean;
   /** Ask the AI for simpler words in questions and notes. */
   plainWords: boolean;
+  /** Language to practise in (see languages.ts). Menus stay in English. */
+  language: string;
+};
+
+/** The user's real interview, for the countdown on Get ready. */
+export type UpcomingInterview = {
+  role: string;
+  /** Local date and time, "YYYY-MM-DDTHH:mm". */
+  when: string;
+  where: string;
 };
 
 export type Profile = {
@@ -149,6 +161,8 @@ export type Profile = {
   stats: { perfectRecalls: number; coachChats: number; breathing: number };
   /** Stickers earned in sessions that were later deleted, so clearing history never takes them away. */
   keptStickers?: string[];
+  /** The real interview the user is getting ready for. */
+  interview?: UpcomingInterview | null;
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live"] as const;

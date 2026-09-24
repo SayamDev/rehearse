@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRightIcon,
+  StackIcon,
   ChatCircleTextIcon,
   CoffeeIcon,
   PersonSimpleIcon,
@@ -10,10 +11,18 @@ import {
   WindIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { PersonaAvatar } from "@/components/persona-avatar";
+import { InterviewCountdown } from "@/components/interview-countdown";
 
 export const metadata: Metadata = { title: "Get ready", description: "Tools for the big day: a full mock interview, your intro, and questions to ask." };
 
 const TOOLS = [
+  {
+    href: "/prepare/packs",
+    title: "Question packs",
+    note: "Real questions for retail, care, hospitality, warehouse, office, tech, creative, trades and more.",
+    ink: "sticker-sky",
+    icon: StackIcon,
+  },
   {
     href: "/practice/warmup",
     title: "Warm-up round",
@@ -65,6 +74,8 @@ export default function PreparePage() {
         <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">Get ready</h1>
         <p className="max-w-[56ch] text-muted">Got an interview coming up? These help with the parts almost every interview has.</p>
       </div>
+
+      <InterviewCountdown />
 
       <section aria-labelledby="mock" className="panel flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:p-6">
         <PersonaAvatar id="friendly" size={80} />

@@ -5,7 +5,7 @@ import { levelFromXp, takeXp } from "./scoring";
 import { MAX_POINTS, recallXp, scheduleAfterRecall } from "./memory";
 import { earnedIds } from "./collection";
 import { deleteRecordingsFor } from "./recordings";
-import type { ConversationLine, KeyPoint, Mode, PersonaId, Profile, Question, SavedAnswer, Session, Seniority, Settings, Take } from "./types";
+import type { UpcomingInterview, ConversationLine, KeyPoint, Mode, PersonaId, Profile, Question, SavedAnswer, Session, Seniority, Settings, Take } from "./types";
 
 /**
  * Phase 1 keeps guest progress in this browser (localStorage).
@@ -20,7 +20,7 @@ const DEFAULT_PROFILE: Profile = {
   streak: 0,
   bestStreak: 0,
   lastPracticeDay: null,
-  settings: { deliveryMetrics: true, defaultAnswerMode: "voice", readAloud: true, voiceEngine: "kokoro", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false },
+  settings: { deliveryMetrics: true, defaultAnswerMode: "voice", readAloud: true, voiceEngine: "kokoro", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false, language: "en" },
   seen: [],
   askList: [],
   stats: { perfectRecalls: 0, coachChats: 0, breathing: 0 },
@@ -139,6 +139,7 @@ export function createSession(input: {
   demo: boolean;
   mode?: Mode;
   persona?: PersonaId;
+  language?: string;
 }): Session {
   const s = current();
   const session: Session = {
@@ -152,6 +153,7 @@ export function createSession(input: {
     createdAt: new Date().toISOString(),
     completedAt: null,
     demo: input.demo,
+    ...(input.language && input.language !== "en" ? { language: input.language } : {}),
   };
   commit({ sessions: [session, ...s.sessions], profile: s.profile });
   return session;
@@ -212,6 +214,12 @@ export function setFeel(sessionId: string, when: "before" | "after", value: numb
 export function setConversation(sessionId: string, conversation: ConversationLine[]) {
   const s = current();
   commit({ sessions: s.sessions.map((x) => (x.id === sessionId ? { ...x, conversation } : x)), profile: s.profile });
+}
+
+/** Saves (or clears, with null) the real interview the user is getting ready for. */
+export function setInterview(interview: UpcomingInterview | null) {
+  const s = current();
+  commit({ profile: { ...s.profile, interview } });
 }
 
 /** Counts a finished breathing exercise. */

@@ -10,7 +10,7 @@ const profile: Profile = {
   streak: 0,
   bestStreak: 0,
   lastPracticeDay: null,
-  settings: { deliveryMetrics: true, defaultAnswerMode: "type", readAloud: true, voiceEngine: "standard", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false },
+  settings: { deliveryMetrics: true, defaultAnswerMode: "type", readAloud: true, voiceEngine: "standard", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false, language: "en" },
   seen: [],
   askList: [],
   stats: { perfectRecalls: 0, coachChats: 0, breathing: 0 },

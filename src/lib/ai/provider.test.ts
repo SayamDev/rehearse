@@ -16,6 +16,7 @@ const req = {
   answer: "Last summer at my cafe job a customer was upset about a late order, so I remade it and she came back the next week.",
   mode: "type" as const,
   plain: false,
+  language: "en",
 };
 
 const item = { score: 7, why: "Good." };
@@ -82,7 +83,7 @@ describe("provider fallback", () => {
   it("falls back to the question bank when Groq is down", async () => {
     vi.stubGlobal("fetch", mockFetch(503, {}));
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const r = await questions({ role: "Nurse", seniority: "mid", jobDescription: "", count: 3, exclude: [], plain: false });
+    const r = await questions({ role: "Nurse", seniority: "mid", jobDescription: "", count: 3, exclude: [], plain: false, language: "en" });
     expect(r.source).toBe("rules");
     expect(r.data).toHaveLength(3);
   });
