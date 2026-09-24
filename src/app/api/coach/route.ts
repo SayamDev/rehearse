@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { COACH_SYSTEM, guideReply } from "@/lib/ai/coach";
+import { coachSystem, guideReply } from "@/lib/ai/coach";
 import { GroqLimitError, groqChat, groqEnabled } from "@/lib/ai/groq";
 import { clientKey, takeToken } from "@/lib/rate-limit";
 import { LANGUAGE_CODES, languageInstruction } from "@/lib/languages";
@@ -10,6 +10,15 @@ const Body = z.object({
     .min(1)
     .max(12),
   language: z.enum(LANGUAGE_CODES).default("en"),
+  context: z
+    .object({
+      role: z.string().max(80).optional(),
+      focus: z.string().max(40).optional(),
+      interviewInDays: z.number().int().min(-1).max(3650).optional(),
+      roundsThisWeek: z.number().int().min(0).max(100).optional(),
+      weeklyGoal: z.number().int().min(1).max(14).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: Request) {
@@ -23,7 +32,7 @@ export async function POST(request: Request) {
   if (!takeToken("coach", clientKey(request)).ok) return Response.json({ reply: guideReply(last.content), source: "rules", reason: "limit" });
 
   try {
-    return Response.json({ reply: await groqChat([COACH_SYSTEM, languageInstruction(parsed.data.language, "your replies")].filter(Boolean).join("\n\n"), messages), source: "ai" });
+    return Response.json({ reply: await groqChat(coachSystem(parsed.data.context, languageInstruction(parsed.data.language, "your replies")), messages), source: "ai" });
   } catch (error) {
     if (!(error instanceof GroqLimitError)) console.error("coach route", error);
     return Response.json({ reply: guideReply(last.content), source: "rules", reason: error instanceof GroqLimitError ? "limit" : "error" });
