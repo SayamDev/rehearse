@@ -37,7 +37,8 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
     <div className="flex flex-col gap-3">
       <Segmented
         label="Voice quality"
-        value={engine}
+        // Shows the choice being downloaded, not the voice still in use until it finishes.
+        value={loading ? "kokoro" : engine}
         onChange={choose}
         disabled={loading}
         options={[
