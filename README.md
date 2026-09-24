@@ -94,5 +94,5 @@ Students, first-job seekers, people changing careers, anyone practising in their
 ---
 
 <p align="center">
-  <sub>© 2026 Sayam Ajmal. All rights reserved. This code and content may not be copied, reused or redistributed without written permission. See <a href="LICENSE">LICENSE</a>.</sub>
+  <sub>© 2026 Sayam Ajmal. All rights reserved. This code and content may not be copied, reused or redistributed without written permission. See <a href="LICENSE">LICENSE</a>. Developer notes live in <a href="docs">docs</a>.</sub>
 </p>

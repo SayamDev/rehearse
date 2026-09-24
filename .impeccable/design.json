@@ -1,0 +1,694 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-24T10:54:50.361751+00:00",
+  "title": "Design System: Rehearse",
+  "extensions": {
+    "colorMeta": {
+      "floor": {
+        "role": "neutral",
+        "displayName": "Lilac Backing",
+        "canonical": "#f3f4fb",
+        "tonalRamp": [
+          "#131839",
+          "#222b67",
+          "#323e95",
+          "#4453c1",
+          "#717dd0",
+          "#9fa7df",
+          "#c9ceed",
+          "#ecedf9"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Paper Sheet",
+        "canonical": "#fdfdff",
+        "tonalRamp": [
+          "#00004c",
+          "#00008a",
+          "#0000c7",
+          "#0505ff",
+          "#4242ff",
+          "#8080ff",
+          "#b8b8ff",
+          "#e5e5ff"
+        ]
+      },
+      "surface-2": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "#e9ebf7",
+        "tonalRamp": [
+          "#141938",
+          "#252e65",
+          "#354292",
+          "#4858bc",
+          "#7581cd",
+          "#a1aadd",
+          "#cbcfec",
+          "#eceef8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1c1b2e",
+        "tonalRamp": [
+          "#1d1c30",
+          "#353357",
+          "#4c4a7d",
+          "#6562a3",
+          "#8b88b9",
+          "#b0afd0",
+          "#d3d2e5",
+          "#efeff6"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#56566e",
+        "tonalRamp": [
+          "#22222b",
+          "#3c3c4d",
+          "#575770",
+          "#737391",
+          "#9595ac",
+          "#b7b7c7",
+          "#d7d7e0",
+          "#f1f1f4"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#d8dbee",
+        "tonalRamp": [
+          "#171b35",
+          "#2a3160",
+          "#3c478b",
+          "#515eb3",
+          "#7c86c6",
+          "#a6add8",
+          "#cdd1e9",
+          "#edeff7"
+        ]
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "On-Ink",
+        "canonical": "#1c1b2e",
+        "tonalRamp": [
+          "#1d1c30",
+          "#353357",
+          "#4c4a7d",
+          "#6562a3",
+          "#8b88b9",
+          "#b0afd0",
+          "#d3d2e5",
+          "#efeff6"
+        ]
+      },
+      "die": {
+        "role": "neutral",
+        "displayName": "Die-cut White",
+        "canonical": "#fdfdff",
+        "tonalRamp": [
+          "#00004c",
+          "#00008a",
+          "#0000c7",
+          "#0505ff",
+          "#4242ff",
+          "#8080ff",
+          "#b8b8ff",
+          "#e5e5ff"
+        ]
+      },
+      "tomato": {
+        "role": "primary",
+        "displayName": "Tomato",
+        "canonical": "#ff5a3c",
+        "tonalRamp": [
+          "#4c0c00",
+          "#8a1500",
+          "#c71f00",
+          "#ff2c05",
+          "#ff5f42",
+          "#ff9380",
+          "#ffc3b8",
+          "#ffe9e5"
+        ]
+      },
+      "sky": {
+        "role": "secondary",
+        "displayName": "Sky",
+        "canonical": "#3ba7ff",
+        "tonalRamp": [
+          "#002a4c",
+          "#004c8a",
+          "#006ec7",
+          "#058fff",
+          "#42aaff",
+          "#80c6ff",
+          "#b8dfff",
+          "#e5f4ff"
+        ]
+      },
+      "lime": {
+        "role": "tertiary",
+        "displayName": "Lime",
+        "canonical": "#b8e62e",
+        "tonalRamp": [
+          "#354408",
+          "#607b0f",
+          "#8bb215",
+          "#b3e420",
+          "#c6eb56",
+          "#d8f18d",
+          "#e9f7bf",
+          "#f7fce8"
+        ]
+      },
+      "sun": {
+        "role": "tertiary",
+        "displayName": "Sun",
+        "canonical": "#ffc83d",
+        "tonalRamp": [
+          "#4c3700",
+          "#8a6300",
+          "#c78f00",
+          "#ffb805",
+          "#ffca42",
+          "#ffdb80",
+          "#ffebb8",
+          "#fff8e5"
+        ]
+      },
+      "sun-text": {
+        "role": "tertiary",
+        "displayName": "Sun Text",
+        "canonical": "#8a5a00",
+        "tonalRamp": [
+          "#4c3200",
+          "#8a5a00",
+          "#c78200",
+          "#ffa805",
+          "#ffbd42",
+          "#ffd380",
+          "#ffe6b8",
+          "#fff6e5"
+        ]
+      },
+      "cue": {
+        "role": "primary",
+        "displayName": "Cue",
+        "canonical": "#ff5a3c",
+        "tonalRamp": [
+          "#4c0c00",
+          "#8a1500",
+          "#c71f00",
+          "#ff2c05",
+          "#ff5f42",
+          "#ff9380",
+          "#ffc3b8",
+          "#ffe9e5"
+        ]
+      },
+      "up": {
+        "role": "neutral",
+        "displayName": "Up",
+        "canonical": "#2f7a12",
+        "tonalRamp": [
+          "#1a430a",
+          "#2e7812",
+          "#43ad1a",
+          "#59df25",
+          "#82e75b",
+          "#aaef90",
+          "#d0f6c1",
+          "#eefce9"
+        ]
+      },
+      "down": {
+        "role": "neutral",
+        "displayName": "Down",
+        "canonical": "#c2331b",
+        "tonalRamp": [
+          "#431209",
+          "#792011",
+          "#af2e18",
+          "#e03f24",
+          "#e86e59",
+          "#ef9d8f",
+          "#f6c8c0",
+          "#fcebe9"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus",
+        "canonical": "#1f6fd1",
+        "tonalRamp": [
+          "#0a2343",
+          "#124078",
+          "#1a5cad",
+          "#2579df",
+          "#5b9ae7",
+          "#90baef",
+          "#c1d9f6",
+          "#e9f1fc"
+        ]
+      },
+      "floor-dark": {
+        "role": "neutral",
+        "displayName": "Night Backing",
+        "canonical": "#17162a",
+        "tonalRamp": [
+          "#1b1a32",
+          "#312f5a",
+          "#474483",
+          "#5f5ba9",
+          "#8683be",
+          "#adabd3",
+          "#d1d0e6",
+          "#efeef6"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Night Paper",
+        "canonical": "#221f38",
+        "tonalRamp": [
+          "#1e1b31",
+          "#363159",
+          "#4e4780",
+          "#675ea6",
+          "#8c86bc",
+          "#b1add2",
+          "#d4d1e6",
+          "#efeff6"
+        ]
+      },
+      "surface-2-dark": {
+        "role": "neutral",
+        "displayName": "Night Raised Paper",
+        "canonical": "#2d2a48",
+        "tonalRamp": [
+          "#1e1c30",
+          "#363357",
+          "#4f497e",
+          "#6861a3",
+          "#8d88b9",
+          "#b2aed0",
+          "#d4d2e5",
+          "#f0eff6"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "#f4f3ff",
+        "tonalRamp": [
+          "#06004c",
+          "#0b008a",
+          "#1100c7",
+          "#1a05ff",
+          "#5242ff",
+          "#8a80ff",
+          "#beb8ff",
+          "#e8e5ff"
+        ]
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "Night Muted",
+        "canonical": "#b1afcc",
+        "tonalRamp": [
+          "#1f1e2f",
+          "#383654",
+          "#504d79",
+          "#6a669e",
+          "#8f8cb6",
+          "#b3b1cd",
+          "#d4d3e3",
+          "#f0eff5"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "#3a3760",
+        "tonalRamp": [
+          "#1d1c31",
+          "#353258",
+          "#4c487e",
+          "#6560a4",
+          "#8b87ba",
+          "#b0aed1",
+          "#d3d2e5",
+          "#efeff6"
+        ]
+      },
+      "die-dark": {
+        "role": "neutral",
+        "displayName": "Night Die-cut White",
+        "canonical": "#fbfbff",
+        "tonalRamp": [
+          "#00004c",
+          "#00008a",
+          "#0000c7",
+          "#0505ff",
+          "#4242ff",
+          "#8080ff",
+          "#b8b8ff",
+          "#e5e5ff"
+        ]
+      },
+      "sun-text-dark": {
+        "role": "tertiary",
+        "displayName": "Night Sun Text",
+        "canonical": "#ffc83d",
+        "tonalRamp": [
+          "#4c3700",
+          "#8a6300",
+          "#c78f00",
+          "#ffb805",
+          "#ffca42",
+          "#ffdb80",
+          "#ffebb8",
+          "#fff8e5"
+        ]
+      },
+      "up-dark": {
+        "role": "neutral",
+        "displayName": "Night Up",
+        "canonical": "#b8e62e",
+        "tonalRamp": [
+          "#354408",
+          "#607b0f",
+          "#8bb215",
+          "#b3e420",
+          "#c6eb56",
+          "#d8f18d",
+          "#e9f7bf",
+          "#f7fce8"
+        ]
+      },
+      "down-dark": {
+        "role": "neutral",
+        "displayName": "Night Down",
+        "canonical": "#ff8a73",
+        "tonalRamp": [
+          "#4c0d00",
+          "#8a1700",
+          "#c72100",
+          "#ff2e05",
+          "#ff6142",
+          "#ff9480",
+          "#ffc3b8",
+          "#ffeae5"
+        ]
+      },
+      "focus-dark": {
+        "role": "neutral",
+        "displayName": "Night Focus",
+        "canonical": "#3ba7ff",
+        "tonalRamp": [
+          "#002a4c",
+          "#004c8a",
+          "#006ec7",
+          "#058fff",
+          "#42aaff",
+          "#80c6ff",
+          "#b8dfff",
+          "#e5f4ff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing question only."
+      },
+      "display-lg": {
+        "displayName": "Display Lg",
+        "purpose": "Landing question from 640px."
+      },
+      "score": {
+        "displayName": "Score",
+        "purpose": "Score on the notes score sticker."
+      },
+      "score-lg": {
+        "displayName": "Score Lg",
+        "purpose": "Score on the session report sticker."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles."
+      },
+      "headline-lg": {
+        "displayName": "Headline Lg",
+        "purpose": "Setup title from 640px."
+      },
+      "question": {
+        "displayName": "Question",
+        "purpose": "The interview question."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "In-page section headings."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Wordmark on its tomato sticker."
+      },
+      "tape": {
+        "displayName": "Tape",
+        "purpose": "Text on stickers."
+      },
+      "body-lg": {
+        "displayName": "Body Lg",
+        "purpose": "Fix line, landing intro from 640px."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text, buttons, fields."
+      },
+      "body-sm": {
+        "displayName": "Body Sm",
+        "purpose": "Secondary rows and captions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Skill names, field labels."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Due-count badge only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sticker",
+        "value": "0 1px 0 rgb(28 27 46 / 0.1), 0 4px 10px -4px rgb(28 27 46 / 0.28)",
+        "purpose": "Every sticker, score sticker, go button, record sticker, step markers. Dark: 0 1px 0 rgb(0 0 0 / 0.25), 0 6px 14px -6px rgb(0 0 0 / 0.6)."
+      },
+      {
+        "name": "sheet",
+        "value": "0 1px 2px rgb(28 27 46 / 0.05), 0 10px 28px -18px rgb(28 27 46 / 0.3)",
+        "purpose": "Panels. Dark: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7)."
+      },
+      {
+        "name": "cue-pulse",
+        "value": "0 0 0 0 to 0 0 0 20px, tomato 45% to 0%",
+        "purpose": "Record sticker while recording, 1.6s expo-out loop."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Button press and hover, cue pulse."
+      },
+      {
+        "name": "score-slap",
+        "value": "spring stiffness 360 damping 17, from scale 1.35 rotate tilt-10deg",
+        "purpose": "Score sticker arriving on a retake."
+      },
+      {
+        "name": "delta-slap",
+        "value": "spring stiffness 380 damping 16, delay 120ms, from scale 1.7 rotate -22deg",
+        "purpose": "Improvement sticker landing beside the score."
+      },
+      {
+        "name": "skill-slap",
+        "value": "spring stiffness 380 damping 18, from scale 1.6 rotate tilt-20deg",
+        "purpose": "Skill sticker when earned."
+      },
+      {
+        "name": "press",
+        "value": "150ms scale 0.97",
+        "purpose": "Button press."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Go Button",
+      "kind": "button",
+      "refersTo": "button-go",
+      "description": "The tomato sticker you press to move forward.",
+      "html": "<button class=\"ds-btn-go\">Start</button>",
+      "css": ".ds-btn-go{display:inline-flex;align-items:center;min-height:44px;padding:0 1.15rem;border-radius:14px;background:var(--tomato,#ff5a3c);color:var(--on-ink,#1c1b2e);border:3px solid var(--die,#fdfdff);box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28));font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;transition:transform 150ms cubic-bezier(.16,1,.3,1)}.ds-btn-go:hover{transform:translateY(-1px) rotate(-1deg)}.ds-btn-go:active{transform:scale(.97)}.ds-btn-go:focus-visible{outline:3px solid var(--focus,#1f6fd1);outline-offset:3px}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink fill for finishing actions.",
+      "html": "<button class=\"ds-btn-primary\">See my results</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;min-height:44px;padding:0 1.15rem;border-radius:14px;border:0;background:var(--ink,#1c1b2e);color:var(--floor,#f3f4fb);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;transition:background-color 150ms,transform 150ms}.ds-btn-primary:hover{background:color-mix(in oklab,var(--ink,#1c1b2e) 86%,var(--floor,#f3f4fb))}.ds-btn-primary:active{transform:scale(.97)}.ds-btn-primary:focus-visible{outline:3px solid var(--focus,#1f6fd1);outline-offset:3px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Paper button with a line border for secondary actions.",
+      "html": "<button class=\"ds-btn-ghost\">Continue</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;min-height:44px;padding:0 1.15rem;border-radius:14px;background:var(--surface,#fdfdff);color:var(--ink,#1c1b2e);border:2px solid var(--line,#d8dbee);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;transition:border-color 150ms}.ds-btn-ghost:hover{border-color:color-mix(in oklab,var(--line,#d8dbee) 40%,var(--muted,#56566e))}.ds-btn-ghost:focus-visible{outline:3px solid var(--focus,#1f6fd1);outline-offset:3px}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Text input on paper.",
+      "html": "<input class=\"ds-field\" placeholder=\"e.g. Customer service advisor\">",
+      "css": ".ds-field{width:100%;background:var(--surface,#fdfdff);color:var(--ink,#1c1b2e);border:2px solid var(--line,#d8dbee);border-radius:14px;padding:.75rem .95rem;font-family:'Atkinson Hyperlegible Next',sans-serif;font-size:1rem;caret-color:var(--tomato,#ff5a3c);transition:border-color 150ms}.ds-field:hover{border-color:color-mix(in oklab,var(--line,#d8dbee) 40%,var(--muted,#56566e))}.ds-field:focus-visible{outline:3px solid var(--focus,#1f6fd1);outline-offset:1px;border-color:transparent}"
+    },
+    {
+      "name": "Sticker",
+      "kind": "chip",
+      "refersTo": "sticker",
+      "description": "Die-cut label sticker; ink by role.",
+      "html": "<span class=\"ds-sticker\">Lv 3</span> <span class=\"ds-sticker ds-sticker-sky\">Take 2</span> <span class=\"ds-sticker ds-sticker-lime\">+1.8</span> <span class=\"ds-sticker ds-sticker-empty\">Same score</span>",
+      "css": ".ds-sticker{display:inline-flex;align-items:center;background:var(--sun,#ffc83d);color:var(--on-ink,#1c1b2e);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.8125rem;line-height:1;padding:.42rem .7rem .4rem;border:3px solid var(--die,#fdfdff);border-radius:999px;box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28));transform:rotate(-2deg);white-space:nowrap}.ds-sticker-sky{background:var(--sky,#3ba7ff)}.ds-sticker-lime{background:var(--lime,#b8e62e)}.ds-sticker-empty{background:transparent;color:var(--muted,#56566e);border:2px dashed var(--line,#d8dbee);box-shadow:none}"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "White paper sheet on the backing.",
+      "html": "<div class=\"ds-panel\"><strong>What worked</strong><p>You named a specific action you took yourself.</p></div>",
+      "css": ".ds-panel{background:var(--surface,#fdfdff);color:var(--ink,#1c1b2e);border:1.5px solid var(--line,#d8dbee);border-radius:20px;box-shadow:var(--sheet-shadow,0 1px 2px rgb(28 27 46 / .05),0 10px 28px -18px rgb(28 27 46 / .3));padding:20px;font-family:'Atkinson Hyperlegible Next',sans-serif}"
+    },
+    {
+      "name": "Score Sticker",
+      "kind": "custom",
+      "refersTo": "score-sticker",
+      "description": "The score on a white die-cut sticker with a sky Take tab; slaps in on a retake.",
+      "html": "<span class=\"ds-score\"><span class=\"ds-score-tab\">Take 2</span><span class=\"ds-score-num\">7<span style=\"font-feature-settings:'tnum' 0\">.</span>6</span></span>",
+      "css": ".ds-score{position:relative;display:inline-flex;margin:18px 10px;padding:12px 16px 8px;background:var(--surface,#fdfdff);border:4px solid var(--die,#fdfdff);border-radius:22px;box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28));transform:rotate(-3deg);animation:ds-slap 600ms cubic-bezier(.34,1.56,.64,1)}.ds-score-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:3.25rem;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums lining-nums;color:var(--ink,#1c1b2e)}.ds-score-tab{position:absolute;left:-8px;top:-16px;background:var(--sky,#3ba7ff);color:var(--on-ink,#1c1b2e);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.8125rem;line-height:1;padding:.42rem .7rem .4rem;border:3px solid var(--die,#fdfdff);border-radius:999px;box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28));transform:rotate(-2deg)}@keyframes ds-slap{from{opacity:0;transform:scale(1.35) rotate(-13deg)}to{opacity:1;transform:scale(1) rotate(-3deg)}}@media (prefers-reduced-motion:reduce){.ds-score{animation:none}}"
+    },
+    {
+      "name": "Record Sticker",
+      "kind": "button",
+      "refersTo": "record-sticker",
+      "description": "Round tomato record button; pulses while recording.",
+      "html": "<button class=\"ds-record\" aria-label=\"Start recording\"><svg width=\"36\" height=\"36\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M80 128V64a48 48 0 0 1 96 0v64a48 48 0 0 1-96 0Zm128 0a8 8 0 0 0-16 0 64 64 0 0 1-128 0 8 8 0 0 0-16 0 80.11 80.11 0 0 0 72 79.6V232a8 8 0 0 0 16 0v-24.4a80.11 80.11 0 0 0 72-79.6Z\"/></svg></button>",
+      "css": ".ds-record{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:999px;background:var(--tomato,#ff5a3c);color:var(--on-ink,#1c1b2e);border:4px solid var(--die,#fdfdff);box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28));transform:rotate(-3deg);transition:transform 150ms}.ds-record:hover{transform:rotate(0) scale(1.04)}.ds-record:active{transform:scale(.97)}.ds-record:focus-visible{outline:3px solid var(--focus,#1f6fd1);outline-offset:3px}"
+    },
+    {
+      "name": "Step Markers",
+      "kind": "nav",
+      "refersTo": "step-marker-current",
+      "description": "Question steps: sun current, lime done, dashed to do.",
+      "html": "<ol class=\"ds-steps\"><li class=\"ds-step ds-step-done\">1</li><li class=\"ds-step ds-step-current\">2</li><li class=\"ds-step\">3</li></ol>",
+      "css": ".ds-steps{display:flex;gap:10px;list-style:none;padding:0}.ds-step{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;border:2px dashed color-mix(in oklab,var(--muted,#56566e) 60%,transparent);color:var(--muted,#56566e);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-variant-numeric:tabular-nums}.ds-step-current,.ds-step-done{border:3px solid var(--die,#fdfdff);color:var(--on-ink,#1c1b2e);box-shadow:var(--sticker-shadow,0 1px 0 rgb(28 27 46 / .1),0 4px 10px -4px rgb(28 27 46 / .28))}.ds-step-current{background:var(--sun,#ffc83d);transform:rotate(3deg)}.ds-step-done{background:var(--lime,#b8e62e);transform:rotate(-3deg)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sticker Book",
+    "overview": "Rehearse is a sticker sheet. The backing is a cool lilac-white in light mode and a deep ink-violet at night. White paper sheets (panels) sit on it, and everything that marks progress is a bold die-cut sticker stuck on top: the wordmark, the level, the take tab, the score change, the step you are on, the skill you earned. Every skill you practise is a sticker waiting on the sheet as a dashed outline; score 7 or more and it slaps on in full colour.\n\nFour flat inks do all the talking, each with one job. Tomato is go and record. Sky names takes and carries info. Lime is earned and improved. Sun is XP, level, streak and the step you are on. Text on any ink is always the same dark ink, so every sticker reads the same way. Reading text is ink and muted grey set in Atkinson Hyperlegible Next; everything chunky (headlines, the question, scores, sticker text) is Bricolage Grotesque.\n\nThe signature moment is the slap. On a retake the new score arrives on a white die-cut score sticker that drops in larger and tilted and springs onto the sheet, then the improvement sticker lands beside it. It refuses the green-mascot learning-app default and the dark productivity-tool default: the world is playful through material (paper, die-cut, tilt), not through characters or confetti.",
+    "keyCharacteristics": [
+      "Cool lilac-white backing (dark: deep ink-violet), white paper panels with 20px corners.",
+      "Four flat sticker inks with fixed roles; text on ink is always the dark ink.",
+      "Every sticker tilts slightly, has a thick white die-cut border and a short soft shadow.",
+      "Not earned yet is a dashed outline where the sticker will go.",
+      "Bricolage Grotesque for display and numbers, Atkinson Hyperlegible Next for reading.",
+      "Phosphor fill icons inside round die-cut stickers.",
+      "Scores out of 10 with one decimal, rendered through the Score component."
+    ],
+    "rules": [
+      {
+        "name": "The Four Inks Rule",
+        "body": "Each ink has one job: tomato for go and recording, sky for takes and info, lime for earned and improved, sun for XP, level, streak and the current step. A new sticker picks its ink by meaning, not by what looks nice next to it. (Skill stickers are the exception: each skill has its own fixed ink as its art.)",
+        "section": "colors"
+      },
+      {
+        "name": "The One Text Colour On Ink Rule",
+        "body": "Text and icons on any ink are `on-ink`, in both themes. Never white on tomato, never ink-coloured stickers.",
+        "section": "colors"
+      },
+      {
+        "name": "The Token Ramp Rule",
+        "body": "The type ramp only comes from tokens. A size that is not a `--text-*` token does not ship; if a new size is needed, add a token first.",
+        "section": "typography"
+      },
+      {
+        "name": "The Score Rule",
+        "body": "Scores always read out of 10 with one decimal and render through the Score component: Bricolage, tabular lining digits, with the decimal point switched back to normal width so it never reads \"7 . 9\".",
+        "section": "typography"
+      },
+      {
+        "name": "The No Kicker Rule",
+        "body": "No eyebrow or kicker labels over headings. A sticker carries content (a take, a level, \"Next take\", where you stopped), never section decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The Die-Cut Rule",
+        "body": "Every sticker tilts slightly (between about -6 and 6 degrees), has a white die-cut border (3px on labels, 4px on large stickers) and the short sticker shadow. There is no flat sticker in use.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Dashed Slot Rule",
+        "body": "Unearned means a dashed outline: no fill, no shadow, no tilt, muted mark. The skill slot, an unstarted step and a flat or negative delta all use it.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** give every sticker a slight tilt, a white die-cut border and the short sticker shadow.",
+      "**Do** pick a sticker's ink by role: tomato for go and recording, sky for takes and info, lime for earned and improved, sun for XP, level, streak and the current step.",
+      "**Do** show anything not yet earned as a dashed outline.",
+      "**Do** show the current score on the white die-cut score sticker with a sky Take tab, and let it slap in on a retake.",
+      "**Do** mark where the user stopped with the flag sticker.",
+      "**Do** render every score through the Score component, out of 10 with one decimal.",
+      "**Do** take every font size from the `--text-*` token ramp.",
+      "**Do** keep the landing two columns at lg, with the sample score row visible in the mobile first view."
+    ],
+    "donts": [
+      "**Don't** ship a flat, untilted, borderless or shadowless sticker.",
+      "**Don't** put white text on an ink, or use an ink outside its role.",
+      "**Don't** use a literal or framework-default font size.",
+      "**Don't** add eyebrow or kicker labels over headings.",
+      "**Don't** use mascots or green celebration screens; progress is the sticker sheet filling up."
+    ]
+  }
+}

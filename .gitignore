@@ -55,5 +55,3 @@ next-env.d.ts
 /.wrangler/
 .dev.vars
 
-# Private notes (technical docs, deploy steps, design system). Never pushed.
-/private/
