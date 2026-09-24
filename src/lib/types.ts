@@ -163,9 +163,13 @@ export type Profile = {
   keptStickers?: string[];
   /** The real interview the user is getting ready for. */
   interview?: UpcomingInterview | null;
+  /** Rounds to finish each week (Monday to Sunday). Missing means 3. */
+  weeklyGoal?: number;
+  /** Morning checklist ticks on interview day, keyed by the interview's date. */
+  dayTicks?: { when: string; done: number[] };
 };
 
-export const MODES = ["quick", "speed", "daily", "boss", "mock", "live"] as const;
+export const MODES = ["quick", "speed", "daily", "boss", "mock", "live", "phone", "video", "offer"] as const;
 export type Mode = (typeof MODES)[number];
 
 export const PERSONAS = ["friendly", "busy", "tough"] as const;

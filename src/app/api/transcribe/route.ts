@@ -1,4 +1,4 @@
-import { GroqLimitError, groqEnabled, groqTranscribe } from "@/lib/ai/groq";
+import { GroqLimitError, groqAudioEnabled, groqTranscribe } from "@/lib/ai/groq";
 import { clientKey, takeToken } from "@/lib/rate-limit";
 
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const seconds = Math.min(600, Math.max(0, Number(form?.get("seconds")) || 60));
   const context = String(form?.get("context") ?? "").slice(0, 600);
 
-  if (!groqEnabled() || !takeToken("transcribe", clientKey(request)).ok) return Response.json({ fallback: true });
+  if (!groqAudioEnabled() || !takeToken("transcribe", clientKey(request)).ok) return Response.json({ fallback: true });
   try {
     return Response.json({ text: await groqTranscribe(audio, seconds, context) });
   } catch (error) {

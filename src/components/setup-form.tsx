@@ -199,7 +199,7 @@ export function SetupForm({
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-label font-medium">Mode</legend>
         <div className="grid gap-3 sm:grid-cols-2">
-          {(["quick", "live", "mock", "speed", "boss"] as Mode[]).map((m) => {
+          {(["quick", "live", "mock", "phone", "video", "speed", "boss"] as Mode[]).map((m) => {
             const mi = MODES[m];
             const englishOnly = m === "live" && !english;
             const locked = (hydrated && level < mi.unlockLevel) || englishOnly;

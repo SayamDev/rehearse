@@ -3,6 +3,11 @@ import Link from "next/link";
 import {
   ArrowRightIcon,
   StackIcon,
+  ListNumbersIcon,
+  LifebuoyIcon,
+  CoinsIcon,
+  SunHorizonIcon,
+  FileTextIcon,
   ChatCircleTextIcon,
   CoffeeIcon,
   PersonSimpleIcon,
@@ -16,6 +21,27 @@ import { InterviewCountdown } from "@/components/interview-countdown";
 export const metadata: Metadata = { title: "Get ready", description: "Tools for the big day: a full mock interview, your intro, and questions to ask." };
 
 const TOOLS = [
+  {
+    href: "/prepare/cv",
+    title: "CV helper",
+    note: "Paste your CV. Find your best stories and the questions they answer, then practise them.",
+    ink: "sticker-grape",
+    icon: FileTextIcon,
+  },
+  {
+    href: "/prepare/answer",
+    title: "Answer builder",
+    note: "Freeze on \u201ctell me about a time\u201d? Build an answer one small box at a time.",
+    ink: "sticker-lime",
+    icon: ListNumbersIcon,
+  },
+  {
+    href: "/prepare/tricky",
+    title: "Tricky topics",
+    note: "CV gaps, being fired, no experience, disability, a criminal record: honest ways to talk about them.",
+    ink: "bg-mint",
+    icon: LifebuoyIcon,
+  },
   {
     href: "/prepare/packs",
     title: "Question packs",
@@ -57,6 +83,20 @@ const TOOLS = [
     note: "Get nervous or panicky? Breathing, grounding, and what to say if your mind goes blank.",
     ink: "bg-mint",
     icon: WindIcon,
+  },
+  {
+    href: "/prepare/offer",
+    title: "Pay Talk",
+    note: "Got an offer? Practise asking for more pay, politely, with Mr. Grant.",
+    ink: "sticker-sun",
+    icon: CoinsIcon,
+  },
+  {
+    href: "/prepare/today",
+    title: "Interview-day mode",
+    note: "Your checklist, a warm-up, your card and one minute of breathing on one screen.",
+    ink: "sticker-sky",
+    icon: SunHorizonIcon,
   },
   {
     href: "/prepare/card",

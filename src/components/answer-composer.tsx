@@ -35,6 +35,7 @@ export function AnswerComposer({
   help,
   keepAudio = false,
   placeholder = "Start with the situation, then what you did and how it turned out.",
+  setting,
 }: {
   takeNumber: number;
   /** Tape label; defaults to "Take N". */
@@ -55,6 +56,8 @@ export function AnswerComposer({
   /** Record spoken answers so the best can be replayed (stays on this device). */
   keepAudio?: boolean;
   placeholder?: string;
+  /** Phone rounds hide the camera; video rounds keep it on. */
+  setting?: "phone" | "video";
 }) {
   const supported = useSpeechSupported();
   const [chosenMode, setMode] = useState<AnswerMode>(initialMode ?? defaultMode);
@@ -74,7 +77,7 @@ export function AnswerComposer({
   const [reviewing, setReviewing] = useState(initialMode === "voice" && Boolean(initialText));
   const typedRef = useRef<HTMLTextAreaElement>(null);
   const [calmOpen, setCalmOpen] = useState(false);
-  const [camera, setCamera] = useState(false);
+  const [camera, setCamera] = useState(setting === "video");
   const textareaId = useId();
   const reviewId = useId();
   const errorId = useId();
@@ -205,15 +208,17 @@ export function AnswerComposer({
               Need a moment?
             </button>
           )}
-          <button
-            type="button"
-            className="btn btn-quiet min-h-9 px-2.5 text-label"
-            aria-pressed={camera}
-            onClick={() => setCamera((c) => !c)}
-          >
-            <VideoCameraIcon size={16} weight={camera ? "fill" : "bold"} aria-hidden />
-            {camera ? "Hide camera" : "Camera check"}
-          </button>
+          {setting !== "phone" && (
+            <button
+              type="button"
+              className="btn btn-quiet min-h-9 px-2.5 text-label"
+              aria-pressed={camera}
+              onClick={() => setCamera((c) => !c)}
+            >
+              <VideoCameraIcon size={16} weight={camera ? "fill" : "bold"} aria-hidden />
+              {camera ? "Hide camera" : "Camera check"}
+            </button>
+          )}
         </span>
         {supported !== false && (
           <div role="radiogroup" aria-label="Answer by" className="flex rounded-full border border-line p-1">
@@ -238,6 +243,13 @@ export function AnswerComposer({
       </div>
 
       {camera && <CameraCheck />}
+
+      {setting === "phone" && (
+        <p className="text-label leading-relaxed text-muted">
+          On the phone they can&apos;t see you, so your voice does all the work. Smile as you speak (it really can be heard),
+          keep your notes in front of you, and stop once you&apos;ve made your point.
+        </p>
+      )}
 
       {supported === false && (
         <p className="text-label text-muted">

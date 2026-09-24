@@ -1,5 +1,6 @@
 import { levelFromXp } from "./scoring";
 import { STICKER_THRESHOLD } from "./stickers";
+import { goalEverMet, weeklyGoal } from "./goal";
 import type { Competency, Profile, SavedAnswer, Session } from "./types";
 
 export type Rarity = "common" | "rare" | "legendary";
@@ -58,6 +59,8 @@ export const COLLECTION: Collectible[] = [
   { id: "a:intro", name: "Intro ready", group: "achievements", rarity: "common", how: "Build and save your \"Tell me about yourself\" answer.", art: { type: "word", shape: "bubble", ink: "sun", words: ["INTRO", "READY"] } },
   { id: "a:live", name: "On air", group: "achievements", rarity: "rare", how: "Finish a hands-free Live Interview.", art: { type: "word", shape: "burst", ink: "tomato", words: ["ON", "AIR"] } },
   { id: "a:calm", name: "Cool head", group: "achievements", rarity: "common", how: "Finish a breathing exercise in the Calm corner.", art: { type: "word", shape: "blob", ink: "mint", words: ["COOL", "HEAD"] } },
+  { id: "a:week", name: "Goal getter", group: "achievements", rarity: "common", how: "Reach your weekly goal of finished rounds.", art: { type: "word", shape: "scallop", ink: "lime", words: ["GOAL", "GETTER"] } },
+  { id: "a:offer", name: "Asked for more", group: "achievements", rarity: "rare", how: "Finish a Pay Talk round with Mr. Grant.", art: { type: "word", shape: "ticket", ink: "sun", words: ["ASKED", "FOR MORE"] } },
   { id: "a:coach", name: "Asked Cobi", group: "achievements", rarity: "common", how: "Ask Cobi, your interview coach, a question.", art: { type: "word", shape: "bubble", ink: "mint", words: ["ASKED", "COBI"] } },
   { id: "a:level5", name: "Rising star", group: "achievements", rarity: "rare", how: "Reach level 5.", art: { type: "word", shape: "star", ink: "grape", words: ["RISING", "STAR"] } },
   { id: "l:mic", name: "Golden mic", group: "legendary", rarity: "legendary", how: "Score 9 or more on any answer.", art: { type: "character", character: "mic" } },
@@ -107,6 +110,8 @@ export function earnedIds({ sessions, bank, profile }: Ctx): Set<string> {
   if (sessions.some((s) => s.mode === "live" && s.completedAt)) earned.add("a:live");
   if (bank.some((a) => a.question.id === "mock-opener")) earned.add("a:intro");
   if (profile.stats.coachChats > 0) earned.add("a:coach");
+  if (goalEverMet(sessions, weeklyGoal(profile))) earned.add("a:week");
+  if (sessions.some((s) => s.mode === "offer" && s.completedAt)) earned.add("a:offer");
   if (levelFromXp(profile.xp).level >= 5) earned.add("a:level5");
   if (takes.some(({ t }) => t.overall >= 9)) earned.add("l:mic");
   if (sessions.some(bossWon)) earned.add("l:tie");

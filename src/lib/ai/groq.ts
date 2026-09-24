@@ -2,6 +2,8 @@ import "server-only";
 import { z } from "zod";
 import { takeSiteBudget } from "../rate-limit";
 import { ReactOutput } from "./react";
+import { ollamaChat, ollamaEnabled, ollamaJson } from "./ollama";
+import { CV_SYSTEM, CvOutput, cvUserPrompt, type CvRequest } from "./cv";
 import {
   GeneratedQuestions,
   GradingOutput,
@@ -17,8 +19,18 @@ import { GRADER_SYSTEM, QUESTION_SYSTEM, gradeUserPrompt, questionUserPrompt } f
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 export const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
-export function groqEnabled(): boolean {
+function groqKey(): boolean {
   return Boolean(process.env.GROQ_API_KEY);
+}
+
+/** True when any free AI is set up: Ollama on this machine, or Groq's free tier. */
+export function groqEnabled(): boolean {
+  return groqKey() || ollamaEnabled();
+}
+
+/** True only when Groq itself is set up (needed for speech and transcription, which Ollama can't do). */
+export function groqAudioEnabled(): boolean {
+  return groqKey();
 }
 
 /** Thrown when Groq's free daily or per-minute limit is used up. */
@@ -43,7 +55,7 @@ function strictSchema(schema: z.ZodType): Record<string, unknown> {
   return json;
 }
 
-type CallOptions = { model?: string; budget?: "chat" | "react"; temperature?: number; timeoutMs?: number };
+type CallOptions = { model?: string; budget?: "chat" | "react"; temperature?: number; timeoutMs?: number; localTimeoutMs?: number };
 
 async function call<T>(
   system: string,
@@ -53,6 +65,19 @@ async function call<T>(
   maxTokens: number,
   opts: CallOptions = {},
 ): Promise<T> {
+  // Ollama first when it's set up: free, unlimited, and it saves Groq's daily allowance.
+  if (ollamaEnabled()) {
+    try {
+      return await ollamaJson(system, user, schema, strictSchema(schema), {
+        maxTokens,
+        temperature: opts.temperature,
+        timeoutMs: opts.localTimeoutMs ?? 60_000,
+      });
+    } catch (err) {
+      console.warn(`${name}: Ollama failed, trying Groq`, err instanceof Error ? err.message : err);
+    }
+  }
+  if (!groqKey()) throw new GroqError("No AI available");
   if (!takeSiteBudget(opts.budget ?? "chat")) throw new GroqLimitError("Free daily share used");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 25_000);
@@ -100,6 +125,10 @@ async function call<T>(
 export async function groqQuestions(req: QuestionsRequest) {
   const out = await call(QUESTION_SYSTEM, questionUserPrompt(req), "interview_questions", GeneratedQuestions, 3000);
   return out.questions;
+}
+
+export async function groqCv(req: CvRequest): Promise<CvOutput> {
+  return call(CV_SYSTEM, cvUserPrompt(req), "cv_stories", CvOutput, 4000);
 }
 
 export async function groqGrade(req: GradeRequest): Promise<GradingOutput> {
@@ -152,6 +181,8 @@ export async function groqReact(system: string, user: string): Promise<ReactOutp
     budget: "react",
     temperature: 0.6,
     timeoutMs: 5000,
+    // A local model gets a little longer, but the conversation still can't stall.
+    localTimeoutMs: 6000,
   });
 }
 
@@ -159,6 +190,14 @@ export type ChatMessage = { role: "user" | "assistant"; content: string };
 
 /** Plain chat reply (used by the interview coach). */
 export async function groqChat(system: string, messages: ChatMessage[]): Promise<string> {
+  if (ollamaEnabled()) {
+    try {
+      return await ollamaChat(system, messages);
+    } catch (err) {
+      console.warn("coach: Ollama failed, trying Groq", err instanceof Error ? err.message : err);
+    }
+  }
+  if (!groqKey()) throw new GroqError("No AI available");
   if (!takeSiteBudget("chat")) throw new GroqLimitError("Free daily share used");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25_000);

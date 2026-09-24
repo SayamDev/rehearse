@@ -7,6 +7,11 @@ import { offlineGrading, offlineQuestions } from "./offline";
 import { demoQuestions } from "./ai/demo";
 import { questionUserPrompt, gradeUserPrompt } from "./ai/prompts";
 import type { Grading, RubricKey, Session } from "./types";
+import { goalEverMet, roundsThisWeek, weekStart } from "./goal";
+import { scrubCv } from "./cv";
+import { lowOffer, offerQuestions } from "./offer";
+import { TRICKY } from "./tricky";
+import { ruleCv } from "./ai/cv";
 
 function grading(scores: Partial<Record<RubricKey, number>> = {}): Grading {
   const item = (k: RubricKey) => ({ score: scores[k] ?? 7, why: "" });
@@ -147,5 +152,45 @@ describe("languages", () => {
     });
     expect(g).toContain("Arabic");
     expect(g).toContain("copied exactly");
+  });
+});
+
+describe("weekly goal", () => {
+  it("starts weeks on Monday and counts finished rounds", () => {
+    expect(weekStart(new Date(2026, 8, 27))).toBe("2026-09-21"); // Sunday
+    expect(weekStart(new Date(2026, 8, 21))).toBe("2026-09-21"); // Monday
+    const done = [round(22, 6), round(23, 6), { ...round(24, 6), completedAt: null }];
+    expect(roundsThisWeek(done, new Date(2026, 8, 25))).toBe(2);
+    expect(goalEverMet(done, 2)).toBe(true);
+    expect(goalEverMet(done, 3)).toBe(false);
+  });
+});
+
+describe("CV helper", () => {
+  it("removes contact details but keeps dates and numbers", () => {
+    const out = scrubCv("jo@x.com 07700 900123 M1 1AA www.site.com\nTesco 2019 - 2021, team of 5");
+    expect(out).toBe("[email] [phone] [postcode] [link]\nTesco 2019 - 2021, team of 5");
+  });
+
+  it("finds stories without AI", () => {
+    const out = ruleCv({ cv: "Shop assistant 2022\n- Trained 3 new starters on the till\n- Led the Christmas window display that raised sales 10%", advert: "", role: "", language: "en" });
+    expect(out.stories.length).toBeGreaterThan(0);
+    expect(out.questions).toHaveLength(5);
+  });
+});
+
+describe("Pay Talk and tricky topics", () => {
+  it("offers a little under the target, rounded", () => {
+    expect(lowOffer(30000, "year")).toBe(27500);
+    expect(lowOffer(14, "hour")).toBe(13);
+    expect(offerQuestions(14, "hour", "GBP")[0].text).toContain("£13.00 an hour");
+  });
+
+  it("has a practice question and a way to say it for every tricky topic", () => {
+    expect(new Set(TRICKY.map((t) => t.id)).size).toBe(TRICKY.length);
+    for (const t of TRICKY) {
+      expect(t.shape.length).toBeGreaterThanOrEqual(3);
+      expect(t.practice.looking_for.length).toBeGreaterThan(10);
+    }
   });
 });

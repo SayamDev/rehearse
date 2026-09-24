@@ -117,6 +117,11 @@ export function InterviewCountdown() {
               ))}
             </ol>
           </div>
+          {days <= 1 && (
+            <Link href="/prepare/today" className="btn btn-primary w-fit">
+              Open interview-day mode <ArrowRightIcon size={18} weight="bold" aria-hidden />
+            </Link>
+          )}
           <div className="flex flex-col gap-1.5">
             <button type="button" className="btn btn-ghost w-fit" onClick={addToCalendar}>
               <CalendarPlusIcon size={18} weight="bold" aria-hidden /> Add reminders to my calendar

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GroqLimitError, groqEnabled, groqSpeech } from "@/lib/ai/groq";
+import { GroqLimitError, groqAudioEnabled, groqSpeech } from "@/lib/ai/groq";
 import { PERSONAS } from "@/lib/game";
 import { clientKey, takeToken } from "@/lib/rate-limit";
 import { PERSONAS as PERSONA_IDS } from "@/lib/types";
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   const hit = cache.get(key);
   if (hit) return audio(hit);
   // No key, or this visitor has used their share: the browser voice takes over.
-  if (!groqEnabled() || !takeToken("speak", clientKey(request)).ok) return Response.json({ fallback: true }, { status: 503 });
+  if (!groqAudioEnabled() || !takeToken("speak", clientKey(request)).ok) return Response.json({ fallback: true }, { status: 503 });
 
   try {
     const buf = await groqSpeech(text, voice);

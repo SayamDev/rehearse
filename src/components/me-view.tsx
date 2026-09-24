@@ -17,6 +17,7 @@ import { LANGUAGES, isEnglish } from "@/lib/languages";
 import { scoreGain, scoreHistory, skillAverages, weakestSkill } from "@/lib/skills";
 import { ScoreChart, SkillBars } from "./progress-chart";
 import { ShareProgress } from "./share-progress";
+import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
 
 type Tab = "progress" | "stickers" | "settings";
@@ -160,6 +161,8 @@ function ProgressTab({ onStickers }: { onStickers: () => void }) {
         </p>
         {answers > 0 && <ShareProgress />}
       </section>
+
+      <WeeklyGoal />
 
       <section aria-labelledby="scores" className="flex flex-col gap-3">
         <h2 id="scores" className="text-title font-bold tracking-[-0.01em]">

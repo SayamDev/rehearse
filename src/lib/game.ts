@@ -85,6 +85,31 @@ export const MODES: Record<Mode, ModeInfo> = {
     timeLimit: null,
     unlockLevel: 1,
   },
+  phone: {
+    id: "phone",
+    name: "Phone Interview",
+    blurb: "No faces, just voices. 4 questions, one minute each. Short, clear answers win.",
+    questions: 4,
+    timeLimit: 60,
+    unlockLevel: 1,
+  },
+  video: {
+    id: "video",
+    name: "Video Interview",
+    blurb: "Like a Zoom or Teams call. Your camera stays on with lighting and framing checks.",
+    questions: 3,
+    timeLimit: null,
+    unlockLevel: 1,
+  },
+  offer: {
+    id: "offer",
+    name: "Pay Talk",
+    blurb: "Mr. Grant makes you an offer. Practise asking for more, politely.",
+    questions: 3,
+    timeLimit: null,
+    unlockLevel: 1,
+    persona: "tough",
+  },
   daily: { id: "daily", name: "Daily Challenge", blurb: "One new question every day. Keep your streak going.", questions: 1, timeLimit: null, unlockLevel: 1 },
   speed: { id: "speed", name: "Speed Round", blurb: "5 questions, 60 seconds each. Think fast.", questions: 5, timeLimit: 60, unlockLevel: 2 },
   boss: {
@@ -98,10 +123,11 @@ export const MODES: Record<Mode, ModeInfo> = {
   },
 };
 
-export const MODE_ORDER: Mode[] = ["quick", "live", "mock", "daily", "speed", "boss"];
+export const MODE_ORDER: Mode[] = ["quick", "live", "mock", "phone", "video", "daily", "speed", "boss", "offer"];
 
 /** Follow-ups: every interview mode except Speed gets one follow-up per question. */
 export function allowsFollowUp(mode: Mode): boolean {
   // Live Interview asks its follow-ups out loud as part of the conversation.
-  return mode !== "speed" && mode !== "live";
+  // Phone rounds are timed like Speed; Pay Talk questions already follow on from each other.
+  return mode !== "speed" && mode !== "live" && mode !== "phone" && mode !== "offer";
 }

@@ -228,13 +228,14 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
         <AnswerComposer
           key={`${qIndex}-${sq.takes.length}`}
           takeNumber={sq.takes.length + 1}
-          defaultMode={profile.settings.defaultAnswerMode}
+          defaultMode={session.mode === "phone" ? "voice" : profile.settings.defaultAnswerMode}
           initialText={draft?.text}
           initialMode={draft?.mode}
           error={error}
           onSubmit={submit}
           onCancel={hasTakes ? () => setPhase("notes") : undefined}
           timeLimit={MODES[session.mode ?? "quick"].timeLimit}
+          setting={session.mode === "phone" || session.mode === "video" ? session.mode : undefined}
           interviewer={session.persona ? PERSONAS[session.persona].name : undefined}
           keepAudio={profile.settings.keepRecordings}
           help={profile.settings.helpers ? { category: sq.question.category, lookingFor: sq.question.lookingFor, questionId: sq.question.id } : undefined}

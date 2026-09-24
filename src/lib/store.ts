@@ -222,6 +222,19 @@ export function setInterview(interview: UpcomingInterview | null) {
   commit({ profile: { ...s.profile, interview } });
 }
 
+export function setWeeklyGoal(goal: number) {
+  const s = current();
+  commit({ profile: { ...s.profile, weeklyGoal: Math.min(14, Math.max(1, Math.round(goal))) } });
+}
+
+/** Ticks an item on the interview-morning checklist. */
+export function toggleDayTick(when: string, index: number) {
+  const s = current();
+  const prev = s.profile.dayTicks?.when === when ? s.profile.dayTicks.done : [];
+  const done = prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index];
+  commit({ profile: { ...s.profile, dayTicks: { when, done } } });
+}
+
 /** Counts a finished breathing exercise. */
 export function countBreathing() {
   const s = current();

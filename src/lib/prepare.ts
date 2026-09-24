@@ -125,3 +125,61 @@ export const ASK_TIPS = [
   "Skip questions a quick look at their website would answer, like \"What do you do?\"",
   "Asking about next steps shows you're keen, and tells you when to follow up.",
 ];
+
+/* ---------------- Answer builder (STAR) ---------------- */
+
+export type StarPart = { id: "situation" | "task" | "action" | "result"; title: string; prompt: string; tip: string; starters: string[] };
+
+export const STAR_PARTS: StarPart[] = [
+  {
+    id: "situation",
+    title: "What happened",
+    prompt: "Where were you, and what was going on? One or two sentences.",
+    tip: "Just enough to set the scene. School, home, volunteering and hobbies all count.",
+    starters: ["At my last job, ", "Last summer, ", "At college, ", "When I was volunteering at "],
+  },
+  {
+    id: "task",
+    title: "Your job in it",
+    prompt: "What did you need to do, or what was the problem you had to solve?",
+    tip: "Make it clear this was yours to sort out.",
+    starters: ["I had to ", "My job was to ", "The problem was ", "I was asked to "],
+  },
+  {
+    id: "action",
+    title: "What you did",
+    prompt: "The steps you took, in order. This is the most important part.",
+    tip: "Say “I”, not only “we”. Two or three clear steps beat a long list.",
+    starters: ["First I ", "I decided to ", "So I ", "Then I "],
+  },
+  {
+    id: "result",
+    title: "How it turned out",
+    prompt: "What changed because of what you did? Add a number if you can.",
+    tip: "End on the result, and what you learned if there's time.",
+    starters: ["In the end, ", "As a result, ", "Because of that, ", "I learned "],
+  },
+];
+
+export type StarDraft = Record<StarPart["id"], string>;
+
+export function starText(d: StarDraft): string {
+  return STAR_PARTS.map((p) => d[p.id].trim())
+    .filter(Boolean)
+    .map((t) => (/[.!?]$/.test(t) ? t : `${t}.`))
+    .join(" ");
+}
+
+/** Common "tell me about a time" questions for the answer builder. */
+export const STAR_QUESTIONS = [
+  "Tell me about a time you solved a problem.",
+  "Tell me about a time you worked well in a team.",
+  "Tell me about a time you dealt with a difficult customer or person.",
+  "Tell me about a time you made a mistake and what you did about it.",
+  "Tell me about a time you had to learn something new quickly.",
+  "Tell me about a time you went above and beyond.",
+  "Tell me about a time you managed lots of tasks at once.",
+  "Tell me about a time you disagreed with someone.",
+  "Tell me about a time you took the lead.",
+  "Tell me about a time you worked under pressure.",
+];
