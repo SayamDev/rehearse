@@ -64,13 +64,15 @@ export function LiveInterview({ session }: { session: Session }) {
     // Always recorded (in memory) so each answer can be transcribed accurately; only kept if the user opts in.
     record: true,
     onLevel: (l) => {
-      if (l > 0.3) lastActivity.current = performance.now();
-      if (orb.current && !reduceMotion.current) orb.current.style.transform = `scale(${1 + l * 0.18})`;
-      if (micBadge.current) micBadge.current.style.transform = `scale(${1 + l * 0.35})`;
+      // Normal speech only reaches about 0.1 to 0.4 on the raw meter; this curve makes it clearly visible.
+      const v = Math.min(1, Math.sqrt(l) * 1.4);
+      if (v > 0.45) lastActivity.current = performance.now();
+      if (orb.current && !reduceMotion.current) orb.current.style.transform = `scale(${1 + v * 0.12})`;
+      if (micBadge.current) micBadge.current.style.transform = `scale(${1 + v * 0.3})`;
       // Sound bars follow the voice, each a little different, so talking visibly moves them.
       meter.current?.querySelectorAll<HTMLSpanElement>("span").forEach((bar, n) => {
-        const shape = [0.55, 0.85, 1, 0.8, 0.6][n] ?? 0.7;
-        bar.style.transform = `scaleY(${Math.max(0.12, Math.min(1, l * 1.6 * shape + 0.08))})`;
+        const shape = [0.45, 0.7, 0.9, 1, 0.9, 0.7, 0.45][n] ?? 0.7;
+        bar.style.transform = `scaleY(${Math.max(0.15, v * shape)})`;
       });
     },
   });
@@ -505,7 +507,14 @@ export function LiveInterview({ session }: { session: Session }) {
           )}
         </div>
 
-        <p className="flex min-h-6 items-center justify-center gap-2 text-label font-semibold" aria-live="polite">
+        {/* Voice meter: moves with your voice so you can see you're being heard. */}
+        <span ref={meter} aria-hidden className={`flex h-12 items-center gap-1.5 ${listening ? "" : "invisible"}`}>
+          {[0, 1, 2, 3, 4, 5, 6].map((n) => (
+            <span key={n} className="h-full w-2 origin-center rounded-full bg-mint transition-transform duration-75 [transform:scaleY(0.15)]" />
+          ))}
+        </span>
+
+        <p className="-mt-3 flex min-h-6 items-center justify-center gap-2 text-label font-semibold" aria-live="polite">
           {shown === "speaking" && (
             <>
               <VoiceBars className="text-tomato" /> {persona.name} is talking
@@ -513,11 +522,7 @@ export function LiveInterview({ session }: { session: Session }) {
           )}
           {phase === "listening" && (
             <>
-              <span ref={meter} aria-hidden className="inline-flex h-5 items-center gap-[3px]">
-                {[0, 1, 2, 3, 4].map((n) => (
-                  <span key={n} className="h-full w-1 origin-center scale-y-[0.12] rounded-full bg-mint transition-transform duration-75" />
-                ))}
-              </span>
+              <MicrophoneIcon size={16} weight="fill" className="text-mint" aria-hidden />
               Your turn. {persona.name} is listening
             </>
           )}

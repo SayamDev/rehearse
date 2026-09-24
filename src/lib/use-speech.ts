@@ -128,6 +128,8 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
     // Mic level meter.
     try {
       const ctx = new AudioContext();
+      // Browsers can start an audio context paused when it isn't created by a tap (Live Interview listens on its own).
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
       const src = ctx.createMediaStreamSource(stream.current);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 512;
