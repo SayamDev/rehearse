@@ -83,11 +83,11 @@ export function MeView() {
               aria-selected={tab === id}
               aria-controls={`${baseId}-panel`}
               onClick={() => choose(id)}
-              className={`flex min-h-11 items-center gap-2 rounded-full px-4 text-label font-semibold transition-[background-color,color,transform] duration-150 active:scale-[0.97] sm:px-5 ${
+              className={`flex min-h-11 items-center gap-2 rounded-full px-3 text-label min-[380px]:px-4 font-semibold transition-[background-color,color,transform] duration-150 active:scale-[0.97] sm:px-5 ${
                 tab === id ? "bg-ink text-floor" : "text-muted hover:text-ink"
               }`}
             >
-              <Icon size={18} weight={tab === id ? "fill" : "regular"} aria-hidden />
+              <Icon size={18} weight={tab === id ? "fill" : "regular"} className="max-[359px]:hidden" aria-hidden />
               {t(label)}
             </button>
           ))}

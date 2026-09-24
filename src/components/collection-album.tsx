@@ -57,7 +57,7 @@ export function CollectionAlbum({ compact = false }: { compact?: boolean }) {
           aria-valuenow={mine.length}
         >
           <div
-            className="h-full rounded-full bg-[linear-gradient(90deg,var(--tomato),var(--sun),var(--lime),var(--sky),var(--grape))] transition-[width] duration-500"
+            className="h-full rounded-full bg-tomato transition-[width] duration-500"
             style={{ width: `${Math.max(pct, mine.length ? 4 : 0)}%` }}
           />
         </div>
