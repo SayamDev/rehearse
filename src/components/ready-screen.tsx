@@ -3,14 +3,13 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { ArrowRightIcon, CheckCircleIcon } from "@phosphor-icons/react";
 import { MODES, PERSONAS } from "@/lib/game";
-import { kokoroState, onKokoroChange } from "@/lib/kokoro";
+import { KOKORO_SERVER_STATE, kokoroState, onKokoroChange } from "@/lib/kokoro";
 import { prepareSpeech, warmVoice } from "@/lib/tts";
 import type { Session } from "@/lib/types";
 import { FeelCheck } from "./feel-check";
 import { PersonaAvatar } from "./persona-avatar";
 import { VoiceProgress } from "./voice-progress";
 
-const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
 /**
  * Shown before the first question: a one-tap check-in on how you feel, while the
@@ -29,7 +28,7 @@ export function ReadyScreen({
 }) {
   const persona = PERSONAS[session.persona ?? "friendly"];
   const first = session.questions[0]?.question.text ?? "";
-  const kokoro = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
+  const kokoro = useSyncExternalStore(onKokoroChange, kokoroState, () => KOKORO_SERVER_STATE);
 
   // Get the greeting and first question ready while the user picks.
   useEffect(() => {
@@ -70,7 +69,7 @@ export function ReadyScreen({
       {readAloud && (
         <div className="flex min-h-6 w-full max-w-sm justify-center text-label text-muted" aria-live="polite">
           {loadingVoice ? (
-            <VoiceProgress progress={kokoro.progress} cached={kokoro.cached} name={`${persona.name}'s voice`} />
+            <VoiceProgress state={kokoro} name={`${persona.name}'s voice`} />
           ) : (
             <span className="inline-flex items-center gap-1.5">
               <CheckCircleIcon size={16} weight="fill" className="text-up" aria-hidden />
