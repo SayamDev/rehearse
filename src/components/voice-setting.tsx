@@ -7,17 +7,10 @@ import { updateSettings } from "@/lib/store";
 import { Segmented } from "./segmented";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
-let snapshot = kokoroState();
-function subscribe(cb: () => void) {
-  return onKokoroChange(() => {
-    snapshot = kokoroState();
-    cb();
-  });
-}
 
 /** Me setting: the on-device Kokoro voice (default, one-time download) or the standard voice. */
 export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
-  const state = useSyncExternalStore(subscribe, () => snapshot, () => SERVER_STATE);
+  const state = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [error, setError] = useState("");
 
@@ -60,9 +53,10 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
           <span className="tnum text-label text-muted">{state.cached ? "Getting the voice ready..." : "Downloading the voice..."} {state.progress}%</span>
         </div>
       )}
-      {engine === "kokoro" && (state.status === "ready" || (state.status === "idle" && state.cached)) && (
+      {(state.status === "ready" || (state.status === "idle" && state.cached)) && (
         <p className="flex items-center gap-2 text-label text-muted">
-          <span className="sticker sticker-lime">Installed</span> Already saved on this device, so it works offline too.
+          <span className="sticker sticker-lime">Installed</span>
+          {engine === "kokoro" ? "Already saved on this device, so it works offline too." : "Already saved on this device. Pick Most human to use it."}
         </p>
       )}
       {engine === "kokoro" && (state.status === "error" || (state.status === "idle" && state.cached === false)) && supported !== false && (

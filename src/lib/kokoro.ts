@@ -30,12 +30,16 @@ let settleLoad: { resolve: () => void; reject: (e: Error) => void } | null = nul
 /** Whether the model files are already saved in this browser (null until checked). */
 let cached: boolean | null = null;
 
+/** The latest state as one object, replaced on every change so React can read it directly. */
+let snapshot: { status: KokoroStatus; progress: number; cached: boolean | null } = { status, progress, cached };
+
 function emit() {
+  snapshot = { status, progress, cached };
   listeners.forEach((l) => l());
 }
 
 export function kokoroState() {
-  return { status, progress, cached };
+  return snapshot;
 }
 
 /**

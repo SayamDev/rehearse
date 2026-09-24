@@ -8,13 +8,6 @@ import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
-let snapshot = kokoroState();
-function subscribe(cb: () => void) {
-  return onKokoroChange(() => {
-    snapshot = kokoroState();
-    cb();
-  });
-}
 
 /**
  * First visit only: a short guide to getting the best out of Rehearse, with a
@@ -24,7 +17,7 @@ function subscribe(cb: () => void) {
 export function WelcomeGuide() {
   const { hydrated, sessions, profile } = useStore();
   const pathname = usePathname();
-  const voice = useSyncExternalStore(subscribe, () => snapshot, () => SERVER_STATE);
+  const voice = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
   const ref = useRef<HTMLDialogElement>(null);
   const [device, setDevice] = useState<{ supported: boolean; metered: boolean } | null>(null);
   const [error, setError] = useState("");

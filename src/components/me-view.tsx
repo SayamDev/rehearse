@@ -247,6 +247,12 @@ function StickersTab() {
   );
 }
 
+const THEMES: { value: "system" | "light" | "dark"; label: string }[] = [
+  { value: "system", label: "Match device" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
+
 /* ---------------- Settings ---------------- */
 
 function SettingsTab() {
@@ -325,6 +331,19 @@ function SettingsTab() {
       </Group>
 
       <Group title="Easier to use" hint="Make the app work better for you.">
+        <Row
+          stacked
+          label="Light or dark"
+          description="Match device follows your phone or computer's own setting."
+          control={
+            <Segmented
+              label="Light or dark"
+              value={s.theme}
+              options={THEMES}
+              onChange={(v) => updateSettings({ theme: v })}
+            />
+          }
+        />
         <Row
           stacked
           label={<label htmlFor={ids.lang}>Practise in</label>}

@@ -11,13 +11,6 @@ import { PersonaAvatar } from "./persona-avatar";
 import { StickerLoader } from "./sticker-loader";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
-let snapshot = kokoroState();
-function subscribe(cb: () => void) {
-  return onKokoroChange(() => {
-    snapshot = kokoroState();
-    cb();
-  });
-}
 
 /**
  * Shown before the first question: a one-tap check-in on how you feel, while the
@@ -36,7 +29,7 @@ export function ReadyScreen({
 }) {
   const persona = PERSONAS[session.persona ?? "friendly"];
   const first = session.questions[0]?.question.text ?? "";
-  const kokoro = useSyncExternalStore(subscribe, () => snapshot, () => SERVER_STATE);
+  const kokoro = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
 
   // Get the greeting and first question ready while the user picks.
   useEffect(() => {

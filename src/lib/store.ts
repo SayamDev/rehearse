@@ -20,7 +20,7 @@ const DEFAULT_PROFILE: Profile = {
   streak: 0,
   bestStreak: 0,
   lastPracticeDay: null,
-  settings: { deliveryMetrics: true, defaultAnswerMode: "voice", readAloud: true, voiceEngine: "kokoro", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false, language: "en" },
+  settings: { deliveryMetrics: true, defaultAnswerMode: "voice", readAloud: true, voiceEngine: "kokoro", voiceSpeed: 1, helpers: true, softMode: false, keepRecordings: false, largeText: false, plainWords: false, language: "en", theme: "system" },
   seen: [],
   askList: [],
   stats: { perfectRecalls: 0, coachChats: 0, breathing: 0 },

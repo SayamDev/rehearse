@@ -30,8 +30,9 @@
   color-scheme: light;
 }
 
+/* Dark colours: when the device is dark (unless Me > Settings picks Light), or when Dark is picked. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --floor: #17162a;
     --surface: #221f38;
     --surface-2: #2d2a48;
@@ -48,6 +49,23 @@
     --sheet-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7);
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --floor: #17162a;
+  --surface: #221f38;
+  --surface-2: #2d2a48;
+  --ink: #f4f3ff;
+  --muted: #b1afcc;
+  --line: #3a3760;
+  --die: #fbfbff;
+  --sun-text: #ffc83d;
+  --grape-text: #c2b0ff;
+  --up: #b8e62e;
+  --down: #ff8a73;
+  --focus: #3ba7ff;
+  --sticker-shadow: 0 1px 0 rgb(0 0 0 / 0.25), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+  --sheet-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
 }
 
 @theme inline {
