@@ -46,8 +46,10 @@ and the package details. Re-read a host's terms before using any other provider.
 npm run cf:deploy
 ```
 
-It prints your address, like `https://rehearse.<your-name>.workers.dev`. Run the same command
-again after any change.
+It prints your address (this app: https://rehearse.sayamdev.workers.dev). Run the same
+command again after any change. It sets `.env.local` aside while building, because the
+Cloudflare adapter would otherwise copy those local settings (your key and the Ollama setting)
+into the uploaded worker.
 
 ## Try it on your computer first (optional)
 

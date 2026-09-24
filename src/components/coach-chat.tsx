@@ -188,7 +188,7 @@ export function CoachChat() {
                 <span className="sticker sticker-empty mb-2 flex w-fit">Quick guide</span>
               )}
               <span className="sr-only">{m.role === "user" ? "You: " : "Cobi: "}</span>
-              {m.content}
+              {m.role === "assistant" ? plain(m.content) : m.content}
               {m.role === "assistant" && i > 0 && <ToolLinks text={m.content} />}
             </div>
           </li>
@@ -250,6 +250,15 @@ export function CoachChat() {
       </form>
     </div>
   );
+}
+
+/** Models sometimes answer in Markdown; the chat shows plain text, so drop the symbols. */
+function plain(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/(^|\s)\*(\S.*?)\*(?=\s|$)/g, "$1$2")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[*]\s+/gm, "- ");
 }
 
 function ToolLinks({ text }: { text: string }) {

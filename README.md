@@ -4,6 +4,8 @@ Free, game-like interview practice. Name a job, answer three questions by voice 
 
 This is **Phase 1**: guest mode only, progress saved in the browser.
 
+Live: https://rehearse.sayamdev.workers.dev
+
 ## Run it (costs nothing)
 
 ```bash

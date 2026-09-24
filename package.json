@@ -10,9 +10,9 @@
     "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
-    "cf:build": "opennextjs-cloudflare build",
-    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "cf:build": "sh scripts/cf.sh build-only",
+    "cf:preview": "sh scripts/cf.sh preview",
+    "cf:deploy": "sh scripts/cf.sh deploy"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
