@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { TargetIcon } from "@phosphor-icons/react";
 import { SKILL_FOCUS, type ScorePoint, type SkillAverage } from "@/lib/skills";
 
@@ -43,7 +43,7 @@ export function ScoreChart({ points, gain }: { points: ScorePoint[]; gain: numbe
             </text>
           </g>
         ))}
-        <motion.path
+        <m.path
           d={d}
           fill="none"
           stroke="var(--ink)"

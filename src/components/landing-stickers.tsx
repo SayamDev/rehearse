@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRightIcon } from "@phosphor-icons/react";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { StickerArt } from "./sticker-art";
 import { COLLECTION, COLLECTION_BY_ID, earnedIds } from "@/lib/collection";
 import { useStore } from "@/lib/store";
@@ -32,7 +32,7 @@ export function LandingStickers() {
           return (
             <li key={id} className="flex flex-col items-center gap-2 text-center">
               {/* Each sticker slaps onto the page in turn whenever the sheet scrolls into view. */}
-              <motion.span
+              <m.span
                 initial={reduce ? false : { scale: 1.4, rotate: TILTS[i] - 14, opacity: 0 }}
                 whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
                 viewport={{ once: false, amount: 0.5 }}
@@ -40,7 +40,7 @@ export function LandingStickers() {
                 className="inline-flex"
               >
                 <StickerArt item={item} earned size={item.group === "legendary" ? 104 : 92} tilt={TILTS[i]} />
-              </motion.span>
+              </m.span>
               <span className="text-label font-semibold leading-tight">{item.name}</span>
               <span className="text-tape leading-tight text-muted">{item.how}</span>
             </li>

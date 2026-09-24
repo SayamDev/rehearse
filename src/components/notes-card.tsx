@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import { ScoreSticker } from "./score-sticker";
 import { StickerLoader } from "./sticker-loader";
 import { CaretDownIcon, CheckIcon, MinusIcon } from "@phosphor-icons/react";
@@ -288,7 +288,7 @@ function ScoreSwap({ take, previous, animate }: { take: Take; previous: Take | n
       )}
       <ScoreSticker key={take.id} value={take.overall} tab={`Take ${take.number}`} slap={slap} />
       {delta !== null && (
-        <motion.span
+        <m.span
           key={`delta-${take.id}`}
           initial={slap ? { opacity: 0, rotate: -22, scale: 1.7 } : false}
           animate={{ opacity: 1, rotate: -3, scale: 1 }}
@@ -296,7 +296,7 @@ function ScoreSwap({ take, previous, animate }: { take: Take; previous: Take | n
           className={`mb-2 ${deltaStickerClass(delta)}`}
         >
           {deltaLabel(delta)}
-        </motion.span>
+        </m.span>
       )}
     </div>
   );

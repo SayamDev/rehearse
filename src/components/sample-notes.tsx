@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { deltaStickerClass, deltaLabel } from "./delta-sticker";
 import { Score } from "./score";
@@ -84,7 +84,7 @@ export function SampleNotes() {
       <span className="absolute right-4 top-4 rounded-full border border-line px-2 py-0.5 text-tape text-muted">Sample</span>
 
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={i} {...fade}>
+        <m.div key={i} {...fade}>
           <p className="min-h-[2lh] pr-16 text-body-sm text-muted sm:min-h-0">
             {s.role} · {s.question}
           </p>
@@ -95,14 +95,14 @@ export function SampleNotes() {
               <Score value={s.before} className="text-score-sm font-semibold text-muted line-through decoration-1" />
             </div>
             <ScoreSticker value={s.after} tab="Take 2" slap={!reduce} countFrom={s.before} />
-            <motion.span
+            <m.span
               className={`${deltaStickerClass(s.after - s.before)} mb-2`}
               initial={reduce ? false : { scale: 0.4, opacity: 0, rotate: -12 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 420, damping: 16, delay: reduce ? 0 : 1.05 }}
             >
               {deltaLabel(s.after - s.before)}
-            </motion.span>
+            </m.span>
           </div>
 
           <dl className="mt-6 grid gap-4 border-t border-line pt-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -117,7 +117,7 @@ export function SampleNotes() {
               <dd className="mt-1 text-body-sm leading-relaxed text-muted">{s.next}</dd>
             </div>
           </dl>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       <div className="mt-5 flex items-center gap-1" role="group" aria-label="Choose a sample">

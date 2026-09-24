@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { LottieBurst } from "./lottie-burst";
 import { RARITY_LABEL, StickerArt } from "./sticker-art";
 import { COLLECTION_BY_ID, earnedIds } from "@/lib/collection";
@@ -30,7 +30,7 @@ export function StickerCelebration() {
   return (
     <AnimatePresence>
       {current && (
-        <motion.section
+        <m.section
           key={current.id}
           role="status"
           aria-label={`New sticker: ${current.name}`}
@@ -43,14 +43,14 @@ export function StickerCelebration() {
           <div className="panel relative flex items-center gap-4 overflow-visible p-4 pr-5">
             <div className="relative flex size-28 shrink-0 items-center justify-center">
               <LottieBurst className="absolute -inset-16" />
-              <motion.span
+              <m.span
                 initial={reduce ? false : { scale: 1.8, rotate: -24, opacity: 0 }}
                 animate={{ scale: 1, rotate: -4, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 360, damping: 15, delay: reduce ? 0 : 0.1 }}
                 className="relative"
               >
                 <StickerArt item={current} earned size={104} />
-              </motion.span>
+              </m.span>
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
               <p className="flex flex-wrap items-center gap-2">
@@ -72,7 +72,7 @@ export function StickerCelebration() {
               </div>
             </div>
           </div>
-        </motion.section>
+        </m.section>
       )}
     </AnimatePresence>
   );

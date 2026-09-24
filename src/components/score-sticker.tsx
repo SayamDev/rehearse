@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { animate, m, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { Score } from "./score";
 
 /**
@@ -27,7 +27,7 @@ export function ScoreSticker({
   const reduce = useReducedMotion();
   const text = size === "lg" ? "text-score-lg" : "text-score";
   return (
-    <motion.span
+    <m.span
       initial={slap && !reduce ? { scale: 1.35, rotate: tilt - 10, opacity: 0 } : false}
       animate={{ scale: 1, rotate: tilt, opacity: 1 }}
       transition={{ type: "spring", stiffness: 360, damping: 17 }}
@@ -41,7 +41,7 @@ export function ScoreSticker({
       ) : (
         <Score value={value} className={`${text} font-extrabold leading-none tracking-[-0.03em]`} />
       )}
-    </motion.span>
+    </m.span>
   );
 }
 
@@ -53,5 +53,5 @@ function CountUp({ from, to, className }: { from: number; to: number; className:
     const c = animate(mv, to, { duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] });
     return () => c.stop();
   }, [mv, to]);
-  return <motion.span className={className}>{shown}</motion.span>;
+  return <m.span className={className}>{shown}</m.span>;
 }

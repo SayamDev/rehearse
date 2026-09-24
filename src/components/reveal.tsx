@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
-const TAGS = { div: motion.div, li: motion.li, section: motion.section };
+const TAGS = { div: m.div, li: m.li, section: m.section };
 
 /**
  * Content that rises into place whenever it scrolls into view, down or back up. Used for
