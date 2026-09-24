@@ -42,7 +42,7 @@ It feels more like a game than homework. You can collect stickers, level up and 
 </tr>
 </table>
 
-## 🌈 A peek inside
+##  A peek inside
 
 <p align="center">
   <img src=".github/readme/home.png" alt="Home screen on a phone" width="30%">
