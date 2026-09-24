@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useEffect } from "react";
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { Score } from "./score";
 
 /**
@@ -13,12 +14,15 @@ export function ScoreSticker({
   size = "md",
   slap = false,
   tilt = -3,
+  countFrom,
 }: {
   value: number;
   tab?: string;
   size?: "md" | "lg";
   slap?: boolean;
   tilt?: number;
+  /** Counts up from this score to `value` (the landing page sample). */
+  countFrom?: number;
 }) {
   const reduce = useReducedMotion();
   const text = size === "lg" ? "text-score-lg" : "text-score";
@@ -32,7 +36,22 @@ export function ScoreSticker({
       role="img"
     >
       {tab && <span className="sticker sticker-sky absolute -left-2 -top-4">{tab}</span>}
-      <Score value={value} className={`${text} font-extrabold leading-none tracking-[-0.03em]`} />
+      {countFrom !== undefined && !reduce ? (
+        <CountUp from={countFrom} to={value} className={`tnum font-display ${text} font-extrabold leading-none tracking-[-0.03em]`} />
+      ) : (
+        <Score value={value} className={`${text} font-extrabold leading-none tracking-[-0.03em]`} />
+      )}
     </motion.span>
   );
+}
+
+/** A number that counts up without re-rendering React on every frame. */
+function CountUp({ from, to, className }: { from: number; to: number; className: string }) {
+  const mv = useMotionValue(from);
+  const shown = useTransform(mv, (v) => v.toFixed(1));
+  useEffect(() => {
+    const c = animate(mv, to, { duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] });
+    return () => c.stop();
+  }, [mv, to]);
+  return <motion.span className={className}>{shown}</motion.span>;
 }

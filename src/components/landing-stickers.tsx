@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRightIcon } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "motion/react";
 import { StickerArt } from "./sticker-art";
 import { COLLECTION, COLLECTION_BY_ID, earnedIds } from "@/lib/collection";
 import { useStore } from "@/lib/store";
@@ -13,6 +14,7 @@ const TILTS = [-6, 4, -3, 5, -5, 3];
 export function LandingStickers() {
   const { hydrated, sessions, bank, profile } = useStore();
   const count = hydrated ? earnedIds({ sessions, bank, profile }).size : 0;
+  const reduce = useReducedMotion();
 
   return (
     <section aria-labelledby="stickers" className="flex flex-col gap-5">
@@ -29,7 +31,16 @@ export function LandingStickers() {
           const item = COLLECTION_BY_ID[id];
           return (
             <li key={id} className="flex flex-col items-center gap-2 text-center">
-              <StickerArt item={item} earned size={item.group === "legendary" ? 104 : 92} tilt={TILTS[i]} />
+              {/* Each sticker slaps onto the page in turn the first time the sheet scrolls into view. */}
+              <motion.span
+                initial={reduce ? false : { scale: 1.4, rotate: TILTS[i] - 14, opacity: 0 }}
+                whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ type: "spring", stiffness: 360, damping: 17, delay: i * 0.09 }}
+                className="inline-flex"
+              >
+                <StickerArt item={item} earned size={item.group === "legendary" ? 104 : 92} tilt={TILTS[i]} />
+              </motion.span>
               <span className="text-label font-semibold leading-tight">{item.name}</span>
               <span className="text-tape leading-tight text-muted">{item.how}</span>
             </li>
