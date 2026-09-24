@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 440" width="1280" height="440" role="img" aria-label="Rehearse: practise interviews out loud, free">
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="2" fill="#1c1b2e" opacity="0.07"/>
+    </pattern>
+    <filter id="lift" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="0" flood-color="#1c1b2e" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="440" rx="36" fill="#f3f4fb"/>
+  <rect width="1280" height="440" rx="36" fill="url(#dots)"/>
+
+  <!-- soft colour blobs -->
+  <circle cx="1130" cy="70" r="120" fill="#ffc83d" opacity="0.35"/>
+  <circle cx="1210" cy="380" r="90" fill="#3ddbb4" opacity="0.3"/>
+  <circle cx="80" cy="400" r="100" fill="#a58bff" opacity="0.22"/>
+
+  <!-- mic badge -->
+  <g transform="translate(92 118)" filter="url(#lift)">
+    <circle cx="96" cy="96" r="96" fill="#ff5a3c" stroke="#fdfdff" stroke-width="10"/>
+    <g transform="translate(38 36) scale(0.46)" fill="#1c1b2e">
+      <path d="M128,180a52.06,52.06,0,0,0,52-52V64A52,52,0,0,0,76,64v64A52.06,52.06,0,0,0,128,180ZM100,64a28,28,0,0,1,56,0v64a28,28,0,0,1-56,0Zm40,155.22V240a12,12,0,0,1-24,0V219.22A92.14,92.14,0,0,1,36,128a12,12,0,0,1,24,0,68,68,0,0,0,136,0,12,12,0,0,1,24,0A92.14,92.14,0,0,1,140,219.22Z"/>
+    </g>
+  </g>
+  <g fill="none" stroke="#3ba7ff" stroke-width="12" stroke-linecap="round">
+    <path d="M318 170 q26 44 0 88"/>
+    <path d="M346 146 q42 68 0 136"/>
+    <path d="M374 122 q58 92 0 184"/>
+  </g>
+
+  <!-- wordmark sticker -->
+  <g transform="translate(470 96) rotate(-3)" filter="url(#lift)">
+    <rect width="470" height="118" rx="59" fill="#ff5a3c" stroke="#fdfdff" stroke-width="8"/>
+    <text x="235" y="82" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="72" fill="#1c1b2e" letter-spacing="-1">Rehearse</text>
+  </g>
+
+  <text x="478" y="282" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" fill="#1c1b2e">Practise interviews out loud.</text>
+  <text x="478" y="330" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="500" font-size="28" fill="#56566e">Get a score, one clear fix, and watch yourself improve.</text>
+
+  <!-- little stickers -->
+  <g transform="translate(985 40) rotate(8)" filter="url(#lift)">
+    <rect width="190" height="56" rx="28" fill="#b8e62e" stroke="#fdfdff" stroke-width="5"/>
+    <text x="95" y="37" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="22" fill="#1c1b2e">Free, no signup</text>
+  </g>
+  <g transform="translate(482 364) rotate(-2)" filter="url(#lift)">
+    <rect width="128" height="46" rx="23" fill="#3ba7ff" stroke="#fdfdff" stroke-width="5"/>
+    <text x="64" y="31" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="20" fill="#1c1b2e">Take 2 ✦</text>
+  </g>
+  <g transform="translate(628 362) rotate(3)" filter="url(#lift)">
+    <rect width="100" height="46" rx="23" fill="#ffc83d" stroke="#fdfdff" stroke-width="5"/>
+    <text x="50" y="31" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="20" fill="#1c1b2e">+1.8</text>
+  </g>
+  <g transform="translate(748 364) rotate(-4)" filter="url(#lift)">
+    <rect width="150" height="46" rx="23" fill="#a58bff" stroke="#fdfdff" stroke-width="5"/>
+    <text x="75" y="31" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="20" fill="#1c1b2e">12 languages</text>
+  </g>
+</svg>

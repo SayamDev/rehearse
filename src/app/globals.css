@@ -71,7 +71,7 @@
   --color-down: var(--down);
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-bricolage), var(--font-body), ui-sans-serif, sans-serif;
-  /* Type ramp. Every size in the app comes from here (see DESIGN.md). */
+  /* Type ramp. Every size in the app comes from here (see docs/DESIGN.md). */
   --text-micro: 0.6875rem;
   --text-tape: 0.8125rem;
   --text-label: 0.875rem;
