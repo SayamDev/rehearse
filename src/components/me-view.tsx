@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { ArrowRightIcon, ChartLineUpIcon, FireIcon, GearSixIcon, SpeakerHighIcon, StickerIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ChartLineUpIcon, DeviceMobileIcon, FireIcon, GearSixIcon, LockIcon, MicrophoneIcon, SparkleIcon, SpeakerHighIcon, StickerIcon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { liveStreak, resetAll, updateSettings, useStore } from "@/lib/store";
 import { levelFromXp } from "@/lib/scoring";
 import { COLLECTION, earnedIds } from "@/lib/collection";
@@ -265,7 +266,7 @@ function SettingsTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Group title="Your interviewer" hint="How questions sound when they're read to you.">
+      <Group title="Your interviewer" hint="How questions sound when they're read to you." icon={SpeakerHighIcon} ink="bg-sky">
         <Row
           label={<label htmlFor={ids.read}>Read questions aloud</label>}
           description="Your interviewer says each question out loud."
@@ -296,7 +297,7 @@ function SettingsTab() {
         />
       </Group>
 
-      <Group title="Answering" hint="How you answer and what help you get.">
+      <Group title="Answering" hint="How you answer and what help you get." icon={MicrophoneIcon} ink="bg-tomato">
         <Row
           stacked
           label="Answer by default with"
@@ -330,7 +331,7 @@ function SettingsTab() {
         />
       </Group>
 
-      <Group title="Easier to use" hint="Make the app work better for you.">
+      <Group title="Easier to use" hint="Make the app work better for you." icon={SparkleIcon} ink="bg-lime">
         <Row
           stacked
           label="Light or dark"
@@ -379,12 +380,14 @@ function SettingsTab() {
         />
       </Group>
 
-      <Group title="Use it like an app" hint="Put Rehearse on your home screen.">
+      <Group title="Use it like an app" hint="Put Rehearse on your home screen." icon={DeviceMobileIcon} ink="bg-sun">
         <InstallRow />
       </Group>
 
       <Group
         title="Your data"
+        icon={LockIcon}
+        ink="bg-grape"
         hint="Everything stays in this browser. Use the same browser to keep your progress: other browsers, other devices and private or incognito windows start fresh."
       >
         <Row
@@ -476,15 +479,23 @@ function InstallRow() {
   );
 }
 
-function Group({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
+/** A settings group, headed by a small sticker icon in its own colour so each group is easy to spot. */
+function Group({ title, hint, icon: GroupIcon, ink, children }: { title: string; hint: string; icon: Icon; ink: string; children: ReactNode }) {
   const id = useId();
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
-      <div>
-        <h2 id={id} className="text-title font-bold tracking-[-0.01em]">
-          {title}
-        </h2>
-        <p className="text-body-sm text-muted">{hint}</p>
+      <div className="flex items-start gap-3">
+        <span
+          className={`mt-0.5 flex size-10 shrink-0 -rotate-3 items-center justify-center rounded-full border-[3px] border-[var(--die)] text-on-ink shadow-[var(--sticker-shadow)] ${ink}`}
+        >
+          <GroupIcon size={20} weight="fill" aria-hidden />
+        </span>
+        <div>
+          <h2 id={id} className="text-title font-bold tracking-[-0.01em]">
+            {title}
+          </h2>
+          <p className="text-body-sm text-muted">{hint}</p>
+        </div>
       </div>
       <div className="panel flex flex-col divide-y divide-line">{children}</div>
     </section>
