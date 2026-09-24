@@ -8,7 +8,7 @@ import { prepareSpeech, warmVoice } from "@/lib/tts";
 import type { Session } from "@/lib/types";
 import { FeelCheck } from "./feel-check";
 import { PersonaAvatar } from "./persona-avatar";
-import { StickerLoader } from "./sticker-loader";
+import { VoiceProgress } from "./voice-progress";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
@@ -68,16 +68,16 @@ export function ReadyScreen({
       <FeelCheck session={session} when="before" onPicked={onStart} centered />
 
       {readAloud && (
-        <p className="min-h-6 text-label text-muted" aria-live="polite">
+        <div className="flex min-h-6 w-full max-w-sm justify-center text-label text-muted" aria-live="polite">
           {loadingVoice ? (
-            <StickerLoader size="sm" label={`Getting ${persona.name}'s voice ready... ${kokoro.progress}%`} />
+            <VoiceProgress progress={kokoro.progress} cached={kokoro.cached} name={`${persona.name}'s voice`} />
           ) : (
             <span className="inline-flex items-center gap-1.5">
               <CheckCircleIcon size={16} weight="fill" className="text-up" aria-hidden />
               {persona.name}&apos;s voice is ready
             </span>
           )}
-        </p>
+        </div>
       )}
 
       <button type="button" className="btn btn-quiet text-label" onClick={onStart}>

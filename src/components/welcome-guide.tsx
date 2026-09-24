@@ -6,6 +6,7 @@ import { CheckCircleIcon, DownloadSimpleIcon, HeadphonesIcon, MicrophoneIcon, Sh
 import { kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
+import { VoiceProgress } from "./voice-progress";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
@@ -114,13 +115,9 @@ export function WelcomeGuide() {
               </p>
             )}
             {device?.supported && loading && (
-              <div className="flex flex-col gap-2" role="status" aria-live="polite">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
-                  <div className="h-full bg-sky transition-[width] duration-300" style={{ width: `${voice.progress}%` }} />
-                </div>
-                <span className="tnum text-label text-muted">
-                  Downloading... {voice.progress}%. You can close this and start; it keeps going.
-                </span>
+              <div className="flex flex-col gap-2">
+                <VoiceProgress progress={voice.progress} cached={voice.cached} name="my voice" />
+                <span className="text-label text-muted">You can close this and start; it keeps going.</span>
               </div>
             )}
             {device?.supported && !ready && !loading && (

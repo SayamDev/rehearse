@@ -5,6 +5,7 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { updateSettings } from "@/lib/store";
 import { Segmented } from "./segmented";
+import { VoiceProgress } from "./voice-progress";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
 
@@ -45,14 +46,7 @@ export function VoiceSetting({ engine }: { engine: "standard" | "kokoro" }) {
           { value: "standard", label: "Standard" },
         ]}
       />
-      {loading && (
-        <div className="flex flex-col gap-2" role="status" aria-live="polite">
-          <div className="h-2 w-full max-w-sm overflow-hidden rounded-full bg-surface-2">
-            <div className="h-full bg-sky transition-[width] duration-300" style={{ width: `${state.progress}%` }} />
-          </div>
-          <span className="tnum text-label text-muted">{state.cached ? "Getting the voice ready..." : "Downloading the voice..."} {state.progress}%</span>
-        </div>
-      )}
+      {loading && <VoiceProgress progress={state.progress} cached={state.cached} />}
       {(state.status === "ready" || (state.status === "idle" && state.cached)) && (
         <p className="flex items-center gap-2 text-label text-muted">
           <span className="sticker sticker-lime">Installed</span>
