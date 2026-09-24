@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { animate, m, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { useEffect, useState } from "react";
+import { m, useReducedMotion } from "motion/react";
 import { Score } from "./score";
 
 /**
@@ -36,8 +36,9 @@ export function ScoreSticker({
       role="img"
     >
       {tab && <span className="sticker sticker-sky absolute -left-2 -top-4">{tab}</span>}
-      {countFrom !== undefined && !reduce ? (
-        <CountUp from={countFrom} to={value} className={`tnum font-display ${text} font-extrabold leading-none tracking-[-0.03em]`} />
+      {countFrom !== undefined ? (
+        // Rendered the same on the server and in the browser; with reduced motion it jumps straight to the score.
+        <CountUp from={countFrom} to={value} instant={Boolean(reduce)} className={`tnum font-display ${text} font-extrabold leading-none tracking-[-0.03em]`} />
       ) : (
         <Score value={value} className={`${text} font-extrabold leading-none tracking-[-0.03em]`} />
       )}
@@ -45,13 +46,21 @@ export function ScoreSticker({
   );
 }
 
-/** A number that counts up without re-rendering React on every frame. */
-function CountUp({ from, to, className }: { from: number; to: number; className: string }) {
-  const mv = useMotionValue(from);
-  const shown = useTransform(mv, (v) => v.toFixed(1));
+/** A number that counts up from the first take's score. The server and browser start on the same number. */
+function CountUp({ from, to, instant, className }: { from: number; to: number; instant: boolean; className: string }) {
+  const [shown, setShown] = useState(from);
   useEffect(() => {
-    const c = animate(mv, to, { duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] });
-    return () => c.stop();
-  }, [mv, to]);
-  return <m.span className={className}>{shown}</m.span>;
+    let raf = 0;
+    // With reduced motion there's no counting: the score just appears on the next frame.
+    const begin = instant ? -Infinity : performance.now() + 250;
+    const tick = (now: number) => {
+      const t = Math.min(1, Math.max(0, (now - begin) / 900));
+      // Ease out: fast at first, settling gently on the score.
+      setShown(from + (to - from) * (1 - Math.pow(1 - t, 4)));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [from, to, instant]);
+  return <span className={className}>{shown.toFixed(1)}</span>;
 }
