@@ -49,3 +49,8 @@ next-env.d.ts
 # Playwright
 /test-results/
 /playwright-report/
+
+# Cloudflare build output
+/.open-next/
+/.wrangler/
+.dev.vars

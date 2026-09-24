@@ -60,6 +60,8 @@ npm run lint
 - **Interview countdown:** on Get ready. Add the date for a day-by-day plan, and download a calendar file with two reminders (no accounts or notifications needed).
 - **Progress:** Me shows a score line over time, average per skill, and the weakest skill with a one-tap focused round (`/practice/new?focus=specificity`). A progress card image can be shared; it's drawn on the device and shows no job titles or answers.
 - **Other languages:** Me > Settings > Practise in. Questions, notes and Cobi reply in 12 languages via the same free Groq model. Menus stay English; non-English questions use the device voice; Live Interview is English only.
+- **Ollama (optional, local):** set `OLLAMA_URL` in `.env.local` and all text AI (questions, notes, Cobi, CV helper, Live reactions) runs on your own computer first, free and unlimited, with Groq as backup. Speech still uses Groq or the on-device voice.
+- **Tests:** `npm test` (unit), `npm run test:e2e` (Playwright in your installed Chrome: a full Live Interview with a fake mic, plus axe accessibility checks on 22 pages in light and dark mode).
 - **Installable and offline:** `app/manifest.ts` and `public/sw.js` (production only). Offline, rounds use built-in questions and notes, and Remember, Calm corner and Get ready keep working.
 
 **Voices.** Interviewers try three voices in order: **Kokoro** (`src/lib/kokoro.ts`), an open-source voice that runs in a Web Worker in the browser after a one-time ~90MB download; then Groq's Orpheus voices when a key is set (clips cached per line); then the most natural device voice. Kokoro downloads by itself only on capable devices (4+ GB memory, 4+ cores) on an unmetered connection; on mobile data or Data Saver, users download it from Me. `next.config.ts` sets COOP/COEP headers so Kokoro can use several threads.
@@ -86,7 +88,7 @@ npm run lint
 
 - Groq's free tier allows about 1,000 AI requests a day for `gpt-oss-120b`, shared by all visitors. When it runs out, rule-based notes take over until the next day.
 - AI-written question sets are cached per role, so most of the quota goes to scoring.
-- Host free on Cloudflare Workers (via the OpenNext adapter) or similar. Vercel's free plan is for non-commercial use; check it fits your project.
+- Host free on Cloudflare Workers with the OpenNext adapter: see DEPLOY.md (`npm run cf:deploy`). Vercel's free plan is for non-commercial use; check it fits your project.
 - Do not use Gemini's free tier for this app: Google may use free-tier prompts to improve its products and have humans review them (outside the UK/EEA/Switzerland), and it requires every user to be 18 or older.
 
 ## Known limits (Phase 1)

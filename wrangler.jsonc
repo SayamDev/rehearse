@@ -1,0 +1,20 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	// Free Cloudflare Workers plan. No R2, KV or paid bindings are used, so nothing here can bill.
+	"main": ".open-next/worker.js",
+	"name": "rehearse",
+	"compatibility_date": "2026-09-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			// Self-reference, required by the adapter. Must match "name" above.
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "rehearse"
+		}
+	],
+	"observability": { "enabled": false }
+}
