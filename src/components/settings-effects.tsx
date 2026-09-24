@@ -10,5 +10,6 @@ export function SettingsEffects() {
   useEffect(() => {
     document.documentElement.dataset.text = large ? "large" : "normal";
   }, [large]);
+
   return null;
 }

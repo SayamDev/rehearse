@@ -7,6 +7,7 @@ import { FEELINGS } from "@/lib/calm";
 import { setFeel } from "@/lib/store";
 import type { Session } from "@/lib/types";
 import { CalmMoment } from "./calm-moment";
+import { useT } from "@/lib/i18n";
 
 /**
  * One tap: how nervous do you feel? Asked before and after a round, so people can
@@ -27,6 +28,7 @@ export function FeelCheck({
   const value = session.feel?.[when];
   const before = session.feel?.before;
   const [calm, setCalm] = useState(false);
+  const t = useT();
 
   if (value !== undefined) {
     const calmer = when === "after" && before !== undefined && value > before;
@@ -59,7 +61,7 @@ export function FeelCheck({
   return (
     <fieldset className={`flex flex-col gap-3 ${centered ? "items-center" : ""}`}>
       <legend className={`mb-3 font-semibold ${centered ? "mx-auto" : ""}`}>
-        {when === "before" ? "How are you feeling?" : "How are you feeling now?"}
+        {when === "before" ? t("feel.before") : t("feel.after")}
       </legend>
       <div className={`flex flex-wrap gap-2 ${centered ? "justify-center" : ""}`}>
         {FEELINGS.map((f, i) => (

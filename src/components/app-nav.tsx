@@ -6,13 +6,14 @@ import { ArchiveIcon, CardsIcon, ChatCircleDotsIcon, FireIcon, MicrophoneStageIc
 import { liveStreak, localDay, useStore } from "@/lib/store";
 import { isDue } from "@/lib/memory";
 import { levelFromXp } from "@/lib/scoring";
+import { useT, type UiKey } from "@/lib/i18n";
 
 const LINKS = [
-  { href: "/", label: "Practice", icon: MicrophoneStageIcon, match: (p: string) => p === "/" || p.startsWith("/practice") },
-  { href: "/remember", label: "Remember", icon: CardsIcon, match: (p: string) => p.startsWith("/remember") },
-  { href: "/coach", label: "Cobi", icon: ChatCircleDotsIcon, match: (p: string) => p.startsWith("/coach") },
-  { href: "/archive", label: "Archive", icon: ArchiveIcon, match: (p: string) => p.startsWith("/archive") },
-  { href: "/me", label: "Me", icon: UserCircleIcon, match: (p: string) => p.startsWith("/me") },
+  { href: "/", label: "Practice", key: "nav.practice" as UiKey, icon: MicrophoneStageIcon, match: (p: string) => p === "/" || p.startsWith("/practice") },
+  { href: "/remember", label: "Remember", key: "nav.remember" as UiKey, icon: CardsIcon, match: (p: string) => p.startsWith("/remember") },
+  { href: "/coach", label: "Cobi", key: null, icon: ChatCircleDotsIcon, match: (p: string) => p.startsWith("/coach") },
+  { href: "/archive", label: "Archive", key: "nav.archive" as UiKey, icon: ArchiveIcon, match: (p: string) => p.startsWith("/archive") },
+  { href: "/me", label: "Me", key: "nav.me" as UiKey, icon: UserCircleIcon, match: (p: string) => p.startsWith("/me") },
 ];
 
 export function AppNav() {
@@ -22,6 +23,7 @@ export function AppNav() {
   const due = hydrated ? bank.filter((a) => isDue(a, today)).length : 0;
   const level = levelFromXp(profile.xp);
   const streak = liveStreak(profile);
+  const t = useT();
 
   return (
     <>
@@ -31,7 +33,8 @@ export function AppNav() {
             Rehearse
           </Link>
           <ul className="hidden items-center gap-1 md:flex">
-            {LINKS.map(({ href, label, match }) => {
+            {LINKS.map(({ href, label: english, key, match }) => {
+              const label = key ? t(key) : english;
               const active = match(pathname);
               return (
                 <li key={href}>
@@ -74,7 +77,8 @@ export function AppNav() {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-floor/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
         <ul className="mx-auto grid max-w-lg grid-cols-5">
-          {LINKS.map(({ href, label, icon: Icon, match }) => {
+          {LINKS.map(({ href, label: english, key, icon: Icon, match }) => {
+            const label = key ? t(key) : english;
             const active = match(pathname);
             return (
               <li key={href}>

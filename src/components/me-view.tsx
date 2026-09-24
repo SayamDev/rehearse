@@ -19,13 +19,14 @@ import { ScoreChart, SkillBars } from "./progress-chart";
 import { ShareProgress } from "./share-progress";
 import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
+import { useT, type UiKey } from "@/lib/i18n";
 
 type Tab = "progress" | "stickers" | "settings";
 
-const TABS: { id: Tab; label: string; icon: typeof GearSixIcon }[] = [
-  { id: "progress", label: "Progress", icon: ChartLineUpIcon },
-  { id: "stickers", label: "Stickers", icon: StickerIcon },
-  { id: "settings", label: "Settings", icon: GearSixIcon },
+const TABS: { id: Tab; label: UiKey; icon: typeof GearSixIcon }[] = [
+  { id: "progress", label: "me.progress", icon: ChartLineUpIcon },
+  { id: "stickers", label: "me.stickers", icon: StickerIcon },
+  { id: "settings", label: "me.settings", icon: GearSixIcon },
 ];
 
 const SPEEDS = [
@@ -41,6 +42,7 @@ export function MeView() {
   const { hydrated } = store;
   const [tab, setTab] = useState<Tab>("progress");
   const baseId = useId();
+  const t = useT();
 
   // Opening /me#settings (or #stickers) lands on that tab.
   useEffect(() => {
@@ -69,7 +71,7 @@ export function MeView() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
-        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em]">Me</h1>
+        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em]">{t("me.title")}</h1>
         <div role="tablist" aria-label="Your page" className="flex w-fit max-w-full gap-1 rounded-full border-2 border-line bg-surface p-1">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
@@ -85,7 +87,7 @@ export function MeView() {
               }`}
             >
               <Icon size={18} weight={tab === id ? "fill" : "regular"} aria-hidden />
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -328,8 +330,8 @@ function SettingsTab() {
           label={<label htmlFor={ids.lang}>Practise in</label>}
           description={
             isEnglish(s.language)
-              ? "Answer questions and get your notes in another language. Menus stay in English for now."
-              : "Questions, your notes and Cobi's replies are in this language. Menus stay in English for now. Questions are read by your device's voice, and Live Interview is English only."
+              ? "Answer questions and get your notes in another language. The main menus and buttons switch too."
+              : "Questions, your notes, Cobi's replies and the main menus are in this language (some screens are still English). Questions are read by your device's voice, or a free human voice for Arabic. Live Interview is English only."
           }
           control={
             <select

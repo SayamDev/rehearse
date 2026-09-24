@@ -8,6 +8,7 @@ import { nextStep } from "@/lib/helpers";
 import { StuckHelper } from "./stuck-helper";
 import { CalmMoment } from "./calm-moment";
 import { CameraCheck } from "./camera-check";
+import { useT } from "@/lib/i18n";
 import type { AnswerMode, Category } from "@/lib/types";
 
 export type SubmittedAnswer = { text: string; mode: AnswerMode; durationSec: number; /** Spoken answers, when recordings are kept. */ audio?: Blob | null };
@@ -23,7 +24,7 @@ function clock(secs: number) {
 export function AnswerComposer({
   takeNumber,
   label,
-  submitLabel = "Get notes",
+  submitLabel,
   defaultMode,
   initialText,
   initialMode,
@@ -60,6 +61,8 @@ export function AnswerComposer({
   setting?: "phone" | "video";
 }) {
   const supported = useSpeechSupported();
+  const t = useT();
+  const submitText = submitLabel ?? t("answer.getNotes");
   const [chosenMode, setMode] = useState<AnswerMode>(initialMode ?? defaultMode);
   const mode: AnswerMode = supported === false ? "type" : chosenMode;
   const [typed, setTyped] = useState(initialMode === "type" ? (initialText ?? "") : "");
@@ -205,7 +208,7 @@ export function AnswerComposer({
           {!timeLimit && (
             <button type="button" className="btn btn-quiet min-h-9 px-2.5 text-label" onClick={() => setCalmOpen(true)} disabled={recording}>
               <WindIcon size={16} weight="bold" aria-hidden />
-              Need a moment?
+              {t("answer.moment")}
             </button>
           )}
           {setting !== "phone" && (
@@ -216,7 +219,7 @@ export function AnswerComposer({
               onClick={() => setCamera((c) => !c)}
             >
               <VideoCameraIcon size={16} weight={camera ? "fill" : "bold"} aria-hidden />
-              {camera ? "Hide camera" : "Camera check"}
+              {camera ? t("answer.hideCamera") : t("answer.camera")}
             </button>
           )}
         </span>
@@ -235,7 +238,7 @@ export function AnswerComposer({
                 }`}
               >
                 {m === "voice" ? <MicrophoneIcon size={16} aria-hidden /> : <KeyboardIcon size={16} aria-hidden />}
-                {m === "voice" ? "Speak" : "Type"}
+                {m === "voice" ? t("answer.speak") : t("answer.type")}
               </button>
             ))}
           </div>
@@ -347,7 +350,7 @@ export function AnswerComposer({
           )}
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" className="btn btn-go" onClick={submitVoice} disabled={!voiceText.trim()}>
-              {submitLabel}
+              {submitText}
             </button>
             <button type="button" className="btn btn-ghost" onClick={toggleRecording}>
               Record again
@@ -381,7 +384,7 @@ export function AnswerComposer({
           />
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" className="btn btn-go" onClick={submitTyped} disabled={!typed.trim()}>
-              {submitLabel}
+              {submitText}
             </button>
             <span className="tnum ml-auto text-label text-muted">{countWords(typed)} words</span>
           </div>

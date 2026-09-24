@@ -9,6 +9,7 @@ import { countCoachChat, getSettings, useStore } from "@/lib/store";
 import { daysUntil } from "@/lib/countdown";
 import { roundsThisWeek, weeklyGoal } from "@/lib/goal";
 import { skillAverages, weakestSkill } from "@/lib/skills";
+import { useT } from "@/lib/i18n";
 
 type Msg = { role: "user" | "assistant"; content: string; source?: "ai" | "rules" };
 
@@ -61,6 +62,7 @@ function loadChat(): Msg[] | null {
 export function CoachChat() {
   const { hydrated, sessions, profile } = useStore();
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
+  const t = useT();
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -168,7 +170,7 @@ export function CoachChat() {
       </header>
       {messages.length > 1 && (
         <button type="button" className="btn btn-quiet -mt-2 w-fit min-h-9 text-label" onClick={newChat} disabled={busy}>
-          <ArrowCounterClockwiseIcon size={16} weight="bold" aria-hidden /> New chat
+          <ArrowCounterClockwiseIcon size={16} weight="bold" aria-hidden /> {t("coach.new")}
         </button>
       )}
 
@@ -239,7 +241,7 @@ export function CoachChat() {
           }}
           rows={1}
           maxLength={1500}
-          placeholder="Ask Cobi..."
+          placeholder={t("coach.ask")}
           className="field max-h-40 min-h-12 resize-none leading-relaxed"
         />
         <button type="submit" className="btn btn-go h-12 shrink-0 px-4" disabled={busy || !input.trim()} aria-label="Send">

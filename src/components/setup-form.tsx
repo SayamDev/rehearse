@@ -18,6 +18,7 @@ import { isEnglish, languageFor } from "@/lib/languages";
 import { isOffline, offlineQuestions } from "@/lib/offline";
 import { SKILL_FOCUS } from "@/lib/skills";
 import { RUBRIC_LABELS } from "@/lib/scoring";
+import { useT } from "@/lib/i18n";
 
 const MAX_JD = 6000;
 
@@ -43,6 +44,7 @@ export function SetupForm({
   const [focus, setFocus] = useState<RubricKey | undefined>(initialFocus);
   const language = languageFor(profile.settings.language);
   const english = isEnglish(language.code);
+  const t = useT();
 
   // Load the voice and prepare the chosen interviewer's greeting while the form is filled in.
   useEffect(() => {
@@ -137,7 +139,7 @@ export function SetupForm({
   return (
     <form onSubmit={start} className="flex flex-col gap-8" aria-busy={loading}>
       <div className="flex flex-col gap-2">
-        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">Set up your round</h1>
+        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">{t("setup.title")}</h1>
         <p className="text-muted">
           Pick how you want to practise and who interviews you. Interview soon?{" "}
           <Link href="/prepare" className="font-semibold text-ink underline underline-offset-4">
@@ -149,7 +151,7 @@ export function SetupForm({
 
       <div className="flex flex-col gap-2">
         <label htmlFor={roleId} className="text-label font-medium">
-          Job title
+          {t("form.job")}
         </label>
         <JobCombobox id={roleId} value={role} onChange={setRole} className="max-w-xl" />
         <p className="text-label text-muted">
@@ -173,7 +175,7 @@ export function SetupForm({
       )}
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-label font-medium">Level</legend>
+        <legend className="mb-2 text-label font-medium">{t("setup.level")}</legend>
         <div className="flex flex-wrap gap-2">
           {SENIORITIES.map((s) => (
             <label
@@ -197,7 +199,7 @@ export function SetupForm({
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-label font-medium">Mode</legend>
+        <legend className="mb-2 text-label font-medium">{t("setup.mode")}</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {(["quick", "live", "mock", "phone", "video", "speed", "boss"] as Mode[]).map((m) => {
             const mi = MODES[m];
@@ -231,7 +233,7 @@ export function SetupForm({
 
       {!info.persona ? (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-label font-medium">Interviewer</legend>
+          <legend className="mb-2 text-label font-medium">{t("setup.interviewer")}</legend>
           <div className="grid gap-3 sm:grid-cols-2">
             {(["friendly", "busy"] as PersonaId[]).map((p) => {
               const pi = PERSONAS[p];

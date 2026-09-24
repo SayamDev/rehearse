@@ -20,6 +20,7 @@ import { prepareSpeech } from "@/lib/tts";
 import { isOffline, offlineGrading } from "@/lib/offline";
 import { saveRecording } from "@/lib/recordings";
 import { isMockBookend } from "@/lib/prepare";
+import { useT } from "@/lib/i18n";
 import { deliveryScore, overallScore } from "@/lib/scoring";
 import { nextUnanswered } from "@/lib/session";
 import type { FallbackReason, Grading, NotesSource } from "@/lib/types";
@@ -30,6 +31,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
   const router = useRouter();
   const { hydrated, session } = useSession(sessionId);
   const { profile } = useStore();
+  const t = useT();
   const [index, setIndex] = useState<number | null>(null);
   const [phase, setPhase] = useState<Phase | null>(null);
   const [error, setError] = useState("");
@@ -281,7 +283,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
                   }}
                 >
                   <ChatCircleTextIcon size={16} weight="fill" aria-hidden />
-                  Answer the follow-up
+                  {t("run.followUp")}
                 </button>
               </div>
             </section>
@@ -293,12 +295,12 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
             </button>
             {!isLast ? (
               <button type="button" className="btn btn-ghost h-12 px-6" onClick={() => goTo(qIndex + 1)}>
-                Next question
+                {t("run.next")}
                 <ArrowRightIcon size={16} weight="bold" aria-hidden />
               </button>
             ) : (
               <button type="button" className="btn btn-primary h-12 px-6" onClick={finish} disabled={!allAnswered}>
-                {allAnswered ? "See results" : "Answer all to finish"}
+                {allAnswered ? t("run.results") : t("run.answerAll")}
                 {allAnswered && <ArrowRightIcon size={16} weight="bold" aria-hidden />}
               </button>
             )}

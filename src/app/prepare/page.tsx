@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { PersonaAvatar } from "@/components/persona-avatar";
 import { InterviewCountdown } from "@/components/interview-countdown";
+import { UiText } from "@/components/ui-text";
 
 export const metadata: Metadata = { title: "Get ready", description: "Tools for the big day: a full mock interview, your intro, and questions to ask." };
 
@@ -111,7 +112,9 @@ export default function PreparePage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">Get ready</h1>
+        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">
+          <UiText k="prepare.title" />
+        </h1>
         <p className="max-w-[56ch] text-muted">Got an interview coming up? These help with the parts almost every interview has.</p>
       </div>
 

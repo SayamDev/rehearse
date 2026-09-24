@@ -1,6 +1,7 @@
 "use client";
 
 import { m, useReducedMotion } from "motion/react";
+import { useT } from "@/lib/i18n";
 import { ScoreSticker } from "./score-sticker";
 import { StickerLoader } from "./sticker-loader";
 import { CaretDownIcon, CheckIcon, MinusIcon } from "@phosphor-icons/react";
@@ -44,6 +45,7 @@ export function NotesCard({
   soft?: boolean;
 }) {
   const g = take.grading;
+  const t = useT();
   const level = levelFromXp(xpLevel);
 
   return (
@@ -81,7 +83,7 @@ export function NotesCard({
         <>
           <dl className="grid gap-5 border-t border-line p-5 sm:grid-cols-2 sm:p-6">
             <div>
-              <dt className="text-label font-semibold">What worked</dt>
+              <dt className="text-label font-semibold">{t("notes.worked")}</dt>
               <dd className="mt-1.5 leading-relaxed text-muted">
                 {g.strength.quote && (
                   <>
@@ -93,7 +95,7 @@ export function NotesCard({
             </div>
             <div>
               <dt className="flex items-center gap-2 text-label font-semibold">
-                <span className="sticker">Next take</span>
+                <span className="sticker">{t("notes.next")}</span>
               </dt>
               <dd className="mt-2 text-body-lg font-medium leading-snug">{g.fix}</dd>
             </div>
@@ -102,7 +104,7 @@ export function NotesCard({
           {!soft && (
           <section aria-labelledby={`rubric-${take.id}`} className="border-t border-line p-5 sm:p-6">
             <h2 id={`rubric-${take.id}`} className="text-label font-semibold">
-              Scores
+              {t("notes.scores")}
             </h2>
             <ul className="mt-3">
               {RUBRIC_KEYS.map((k) => {

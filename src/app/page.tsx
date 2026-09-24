@@ -7,6 +7,7 @@ import { DailyCard } from "@/components/daily-challenge";
 import { SampleNotes } from "@/components/sample-notes";
 import { HeroMic } from "@/components/hero-mic";
 import { Reveal } from "@/components/reveal";
+import { UiText } from "@/components/ui-text";
 
 export default function Home() {
   return (
@@ -16,22 +17,21 @@ export default function Home() {
           <HeroMic className="-mb-4 -ml-2 w-32 sm:w-40" />
           <div className="relative w-fit pr-4 pt-7 sm:pt-6">
             <h1 id="start" className="max-w-[16ch] text-display font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-display-lg">
-              What job are you practicing for?
+              <UiText k="home.title" />
             </h1>
             <span className="sticker sticker-lime absolute right-2 top-0 rotate-6 sm:-right-8 sm:-top-1" aria-hidden>
-              Free, no signup
+              <UiText k="home.free" />
             </span>
           </div>
           <RoleForm />
           <p className="max-w-[52ch] text-body leading-relaxed text-muted sm:text-body-lg">
-            Answer three real interview questions by voice or typing. Each answer gets a score and one clear fix. Then take it
-            again and watch the score move. It&apos;s free and you don&apos;t need an account.
+            <UiText k="home.blurb" />
           </p>
         </section>
 
         <section aria-labelledby="sample" className="flex flex-col gap-3 lg:gap-4 lg:pt-8">
           <h2 id="sample" className="text-title font-bold tracking-[-0.01em]">
-            What your notes look like
+            <UiText k="home.notes" />
           </h2>
           <SampleNotes />
         </section>

@@ -12,6 +12,7 @@ import { scrubCv } from "./cv";
 import { lowOffer, offerQuestions } from "./offer";
 import { TRICKY } from "./tricky";
 import { ruleCv } from "./ai/cv";
+import { UI_LANGUAGES, missingKeys, translate } from "./i18n";
 
 function grading(scores: Partial<Record<RubricKey, number>> = {}): Grading {
   const item = (k: RubricKey) => ({ score: scores[k] ?? 7, why: "" });
@@ -192,5 +193,15 @@ describe("Pay Talk and tricky topics", () => {
       expect(t.shape.length).toBeGreaterThanOrEqual(3);
       expect(t.practice.looking_for.length).toBeGreaterThan(10);
     }
+  });
+});
+
+describe("menu translations", () => {
+  it("covers every practice language and every key", () => {
+    const practice = LANGUAGES.filter((l) => l.code !== "en").map((l) => l.code);
+    expect(UI_LANGUAGES.sort()).toEqual(practice.sort());
+    for (const lang of UI_LANGUAGES) expect(missingKeys(lang)).toEqual([]);
+    expect(translate("es", "nav.practice")).toBe("Practicar");
+    expect(translate("en", "nav.practice")).toBe("Practice");
   });
 });
