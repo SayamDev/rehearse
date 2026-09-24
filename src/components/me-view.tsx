@@ -247,6 +247,12 @@ function StickersTab() {
   );
 }
 
+const THEMES: { value: "system" | "light" | "dark"; label: string }[] = [
+  { value: "system", label: "Match device" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
+
 /* ---------------- Settings ---------------- */
 
 function SettingsTab() {
@@ -327,6 +333,19 @@ function SettingsTab() {
       <Group title="Easier to use" hint="Make the app work better for you.">
         <Row
           stacked
+          label="Light or dark"
+          description="Match device follows your phone or computer's own setting."
+          control={
+            <Segmented
+              label="Light or dark"
+              value={s.theme}
+              options={THEMES}
+              onChange={(v) => updateSettings({ theme: v })}
+            />
+          }
+        />
+        <Row
+          stacked
           label={<label htmlFor={ids.lang}>Practise in</label>}
           description={
             isEnglish(s.language)
@@ -364,7 +383,10 @@ function SettingsTab() {
         <InstallRow />
       </Group>
 
-      <Group title="Your data" hint="Everything stays in this browser.">
+      <Group
+        title="Your data"
+        hint="Everything stays in this browser. Use the same browser to keep your progress: other browsers, other devices and private or incognito windows start fresh."
+      >
         <Row
           label={<label htmlFor={ids.rec}>Keep recordings of my spoken answers</label>}
           description="Saved only on this device, never uploaded. Your 10 best are kept so you can replay them in the Calm corner."

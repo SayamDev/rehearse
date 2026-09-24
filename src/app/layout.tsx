@@ -42,10 +42,14 @@ export const viewport: Viewport = {
   ],
 };
 
+const THEME_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("rehearse:v1")||"{}").profile.settings.theme;if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${atkinson.variable} antialiased`}>
+    <html lang="en" className={`${bricolage.variable} ${atkinson.variable} antialiased`} suppressHydrationWarning>
       <body className="min-h-[100dvh]">
+        {/* Applies a Light or Dark choice from Me before the first paint, so the page never flashes the other colours. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-surface focus:px-3 focus:py-2"

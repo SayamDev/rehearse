@@ -30,8 +30,9 @@
   color-scheme: light;
 }
 
+/* Dark colours: when the device is dark (unless Me > Settings picks Light), or when Dark is picked. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --floor: #17162a;
     --surface: #221f38;
     --surface-2: #2d2a48;
@@ -48,6 +49,23 @@
     --sheet-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7);
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --floor: #17162a;
+  --surface: #221f38;
+  --surface-2: #2d2a48;
+  --ink: #f4f3ff;
+  --muted: #b1afcc;
+  --line: #3a3760;
+  --die: #fbfbff;
+  --sun-text: #ffc83d;
+  --grape-text: #c2b0ff;
+  --up: #b8e62e;
+  --down: #ff8a73;
+  --focus: #3ba7ff;
+  --sticker-shadow: 0 1px 0 rgb(0 0 0 / 0.25), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+  --sheet-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 32px -20px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -382,6 +400,29 @@ a {
       background-position: -200% 0;
     }
   }
+
+  /* Download bars: a sliding stripe while the size is unknown, moving stripes on the fill once it's known. */
+  .progress-slide {
+    animation: progress-slide 1.2s ease-in-out infinite;
+  }
+  @keyframes progress-slide {
+    from {
+      left: -35%;
+    }
+    to {
+      left: 100%;
+    }
+  }
+  .progress-stripes {
+    background-image: linear-gradient(45deg, rgb(255 255 255 / 0.28) 25%, transparent 25% 50%, rgb(255 255 255 / 0.28) 50% 75%, transparent 75%);
+    background-size: 16px 16px;
+    animation: progress-stripes 0.8s linear infinite;
+  }
+  @keyframes progress-stripes {
+    to {
+      background-position: 16px 0;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -394,6 +435,14 @@ a {
   }
   /* Loaders still show that something is happening, with a slow fade instead of movement. */
   .sticker-hop {
+    animation: typing 1.6s ease-in-out infinite !important;
+  }
+  .progress-slide {
+    left: 0;
+    width: 100%;
+    animation: typing 1.6s ease-in-out infinite !important;
+  }
+  .progress-stripes {
     animation: typing 1.6s ease-in-out infinite !important;
   }
   .voice-bar {

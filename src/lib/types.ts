@@ -138,6 +138,8 @@ export type Settings = {
   plainWords: boolean;
   /** Language to practise in (see languages.ts). Menus stay in English. */
   language: string;
+  /** Light or dark colours. "system" follows the device. */
+  theme: "system" | "light" | "dark";
 };
 
 /** The user's real interview, for the countdown on Get ready. */

@@ -2,19 +2,13 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { CheckCircleIcon, DownloadSimpleIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, DownloadSimpleIcon, FloppyDiskIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
 import { kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
+import { VoiceProgress } from "./voice-progress";
 
 const SERVER_STATE = { status: "idle" as const, progress: 0, cached: null };
-let snapshot = kokoroState();
-function subscribe(cb: () => void) {
-  return onKokoroChange(() => {
-    snapshot = kokoroState();
-    cb();
-  });
-}
 
 /**
  * First visit only: a short guide to getting the best out of Rehearse, with a
@@ -24,7 +18,7 @@ function subscribe(cb: () => void) {
 export function WelcomeGuide() {
   const { hydrated, sessions, profile } = useStore();
   const pathname = usePathname();
-  const voice = useSyncExternalStore(subscribe, () => snapshot, () => SERVER_STATE);
+  const voice = useSyncExternalStore(onKokoroChange, kokoroState, () => SERVER_STATE);
   const ref = useRef<HTMLDialogElement>(null);
   const [device, setDevice] = useState<{ supported: boolean; metered: boolean } | null>(null);
   const [error, setError] = useState("");
@@ -121,13 +115,9 @@ export function WelcomeGuide() {
               </p>
             )}
             {device?.supported && loading && (
-              <div className="flex flex-col gap-2" role="status" aria-live="polite">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
-                  <div className="h-full bg-sky transition-[width] duration-300" style={{ width: `${voice.progress}%` }} />
-                </div>
-                <span className="tnum text-label text-muted">
-                  Downloading... {voice.progress}%. You can close this and start; it keeps going.
-                </span>
+              <div className="flex flex-col gap-2">
+                <VoiceProgress progress={voice.progress} cached={voice.cached} name="my voice" />
+                <span className="text-label text-muted">You can close this and start; it keeps going.</span>
               </div>
             )}
             {device?.supported && !ready && !loading && (
@@ -179,6 +169,14 @@ export function WelcomeGuide() {
             </div>
           </li>
         </ol>
+
+        <p className="flex gap-2.5 rounded-control border-2 border-dashed border-line p-3 text-body-sm text-muted">
+          <FloppyDiskIcon size={20} weight="fill" className="mt-0.5 shrink-0 text-ink" aria-hidden />
+          <span>
+            <strong className="text-ink">Your progress stays in this browser.</strong> Come back in the same browser to keep your streak
+            and scores. Private or incognito windows forget everything when you close them.
+          </span>
+        </p>
 
         <button type="button" className="btn btn-ghost w-full" onClick={close}>
           Let&apos;s go
