@@ -66,6 +66,16 @@ export async function saveRecording(rec: Recording): Promise<void> {
   }
 }
 
+/** Removes the recordings for specific answers (used when their sessions are deleted). */
+export async function deleteRecordingsFor(takeIds: string[]): Promise<void> {
+  if (!takeIds.length || typeof indexedDB === "undefined") return;
+  try {
+    await run("readwrite", (s) => takeIds.forEach((id) => s.delete(id)));
+  } catch {
+    // Nothing stored.
+  }
+}
+
 export async function deleteRecordings(): Promise<void> {
   try {
     await run("readwrite", (s) => s.clear());

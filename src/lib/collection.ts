@@ -80,7 +80,7 @@ export function bossWon(session: Session): boolean {
 
 /** Every collectible id the player has earned, derived from saved progress. */
 export function earnedIds({ sessions, bank, profile }: Ctx): Set<string> {
-  const earned = new Set<string>();
+  const earned = new Set<string>(profile.keptStickers ?? []);
   const takes = allTakes(sessions).filter(({ t }) => t.grading.isGenuineAnswer);
 
   for (const { q, t } of takes) if (t.overall >= STICKER_THRESHOLD) earned.add(`skill:${q.question.competency}`);

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useId, useMemo, useState } from "react";
-import { CaretRightIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { useStore } from "@/lib/store";
+import { CaretRightIcon, MagnifyingGlassIcon, TrashIcon } from "@phosphor-icons/react";
+import { deleteSessions, useStore } from "@/lib/store";
 import { formatDate, sessionScore } from "@/lib/session";
 import { Score } from "./score";
 
@@ -11,6 +11,8 @@ export function ArchiveList() {
   const { hydrated, sessions } = useStore();
   const [query, setQuery] = useState("");
   const [role, setRole] = useState("all");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [confirmAll, setConfirmAll] = useState(false);
   const searchId = useId();
   const roleId = useId();
 
@@ -87,6 +89,37 @@ export function ArchiveList() {
         )}
       </div>
 
+      {confirmAll ? (
+        <div role="alert" className="flex flex-col gap-3 rounded-control border border-down/40 p-4">
+          <p className="font-medium">
+            {filtered.length === sessions.length
+              ? `Delete all ${sessions.length} sessions?`
+              : `Delete the ${filtered.length} ${filtered.length === 1 ? "session" : "sessions"} shown?`}{" "}
+            Your XP, streak, stickers and saved answers in Remember stay.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn bg-down text-white hover:opacity-90"
+              onClick={() => {
+                deleteSessions(filtered.map((x) => x.id));
+                setConfirmAll(false);
+              }}
+            >
+              Delete sessions
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => setConfirmAll(false)}>
+              Keep them
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="btn btn-quiet -ml-2 w-fit min-h-10 text-label" onClick={() => setConfirmAll(true)} disabled={filtered.length === 0}>
+          <TrashIcon size={16} aria-hidden />
+          {filtered.length === sessions.length ? "Clear all sessions" : "Clear the sessions shown"}
+        </button>
+      )}
+
       {filtered.length === 0 ? (
         <p className="py-6 text-muted">
           Nothing matches. Try a different word or{" "}
@@ -110,8 +143,27 @@ export function ArchiveList() {
             const takes = s.questions.reduce((a, q) => a + q.takes.length, 0);
             const href = s.completedAt ? `/archive/${s.id}` : `/practice/${s.id}`;
             return (
-              <li key={s.id} className="border-b border-line last:border-b-0">
-                <Link href={href} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-2 sm:px-6">
+              <li key={s.id} className="flex items-stretch border-b border-line last:border-b-0">
+                {confirmId === s.id ? (
+                  <div role="alert" className="flex flex-1 flex-wrap items-center gap-3 px-5 py-4 sm:px-6">
+                    <span className="mr-auto font-medium">Delete this {s.role} session?</span>
+                    <button
+                      type="button"
+                      className="btn min-h-10 bg-down text-label text-white hover:opacity-90"
+                      onClick={() => {
+                        deleteSessions([s.id]);
+                        setConfirmId(null);
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button type="button" className="btn btn-ghost min-h-10 text-label" onClick={() => setConfirmId(null)}>
+                      Keep
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                <Link href={href} className="flex min-w-0 flex-1 items-center gap-4 py-4 pl-5 pr-2 transition-colors hover:bg-surface-2 sm:pl-6">
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate font-medium">{s.role}</span>
                     <span className="text-label text-muted">
@@ -122,6 +174,16 @@ export function ArchiveList() {
                   {score !== null ? <Score value={score} className="text-title-lg font-semibold" /> : <span className="text-title-lg font-semibold">--</span>}
                   <CaretRightIcon size={16} className="text-muted" aria-hidden />
                 </Link>
+                <button
+                  type="button"
+                  aria-label={`Delete the ${s.role} session from ${formatDate(s.createdAt)}`}
+                  onClick={() => setConfirmId(s.id)}
+                  className="flex w-12 shrink-0 items-center justify-center text-muted transition-colors hover:bg-surface-2 hover:text-down sm:w-14"
+                >
+                  <TrashIcon size={18} aria-hidden />
+                </button>
+                  </>
+                )}
               </li>
             );
           })}

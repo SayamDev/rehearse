@@ -110,3 +110,11 @@ describe("coach guide", () => {
     expect(guideReply("what's the weather")).toMatch(/I can help with things like/);
   });
 });
+
+describe("clearing history", () => {
+  it("keeps stickers earned in sessions that were deleted", () => {
+    const earned = earnedIds({ sessions: [], bank: [], profile: { ...profile, keptStickers: ["a:first", "l:mic"] } });
+    expect(earned.has("a:first")).toBe(true);
+    expect(earned.has("l:mic")).toBe(true);
+  });
+});

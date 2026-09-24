@@ -147,6 +147,8 @@ export type Profile = {
   /** Questions the user has starred to ask their interviewer. */
   askList: string[];
   stats: { perfectRecalls: number; coachChats: number; breathing: number };
+  /** Stickers earned in sessions that were later deleted, so clearing history never takes them away. */
+  keptStickers?: string[];
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live"] as const;

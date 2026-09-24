@@ -27,7 +27,10 @@ export function HeroMic({ className = "" }: { className?: string }) {
         anim.goToAndStop(130, true);
         return;
       }
-      observer = new IntersectionObserver(([entry]) => (entry.isIntersecting ? anim?.play() : anim?.pause()));
+      // Plays only while at least half of it is on screen; stops as soon as you scroll on.
+      observer = new IntersectionObserver(([entry]) => (entry.intersectionRatio >= 0.5 ? anim?.play() : anim?.pause()), {
+        threshold: [0, 0.5, 1],
+      });
       observer.observe(el);
     });
     return () => {

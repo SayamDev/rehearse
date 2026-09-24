@@ -31,11 +31,11 @@ export function LandingStickers() {
           const item = COLLECTION_BY_ID[id];
           return (
             <li key={id} className="flex flex-col items-center gap-2 text-center">
-              {/* Each sticker slaps onto the page in turn the first time the sheet scrolls into view. */}
+              {/* Each sticker slaps onto the page in turn whenever the sheet scrolls into view. */}
               <motion.span
                 initial={reduce ? false : { scale: 1.4, rotate: TILTS[i] - 14, opacity: 0 }}
                 whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-                viewport={{ once: true, amount: 0.5 }}
+                viewport={{ once: false, amount: 0.5 }}
                 transition={{ type: "spring", stiffness: 360, damping: 17, delay: i * 0.09 }}
                 className="inline-flex"
               >

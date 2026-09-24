@@ -3,6 +3,8 @@
 import { useSyncExternalStore } from "react";
 import { levelFromXp, takeXp } from "./scoring";
 import { MAX_POINTS, recallXp, scheduleAfterRecall } from "./memory";
+import { earnedIds } from "./collection";
+import { deleteRecordingsFor } from "./recordings";
 import type { ConversationLine, KeyPoint, Mode, PersonaId, Profile, Question, SavedAnswer, Session, Seniority, Settings, Take } from "./types";
 
 /**
@@ -218,9 +220,24 @@ export function countBreathing() {
   commit({ profile: { ...s.profile, stats: { ...s.profile.stats, breathing: s.profile.stats.breathing + 1 } } });
 }
 
-export function deleteSession(sessionId: string) {
+/**
+ * Deletes practice sessions. XP stays, and any stickers they earned are kept, so
+ * clearing history never takes rewards away. Their saved recordings are removed too.
+ */
+export function deleteSessions(sessionIds: string[]) {
   const s = current();
-  commit({ sessions: s.sessions.filter((x) => x.id !== sessionId), profile: s.profile });
+  const gone = new Set(sessionIds);
+  const kept = earnedIds({ sessions: s.sessions, bank: s.bank, profile: s.profile });
+  const takeIds = s.sessions.filter((x) => gone.has(x.id)).flatMap((x) => x.questions.flatMap((q) => q.takes.map((t) => t.id)));
+  commit({
+    sessions: s.sessions.filter((x) => !gone.has(x.id)),
+    profile: { ...s.profile, keptStickers: [...kept] },
+  });
+  void deleteRecordingsFor(takeIds);
+}
+
+export function deleteSession(sessionId: string) {
+  deleteSessions([sessionId]);
 }
 
 export function updateSettings(patch: Partial<Settings>) {
