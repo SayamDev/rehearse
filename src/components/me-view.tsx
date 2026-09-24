@@ -383,7 +383,10 @@ function SettingsTab() {
         <InstallRow />
       </Group>
 
-      <Group title="Your data" hint="Everything stays in this browser.">
+      <Group
+        title="Your data"
+        hint="Everything stays in this browser. Use the same browser to keep your progress: other browsers, other devices and private or incognito windows start fresh."
+      >
         <Row
           label={<label htmlFor={ids.rec}>Keep recordings of my spoken answers</label>}
           description="Saved only on this device, never uploaded. Your 10 best are kept so you can replay them in the Calm corner."

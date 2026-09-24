@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { CheckCircleIcon, DownloadSimpleIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, DownloadSimpleIcon, FloppyDiskIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
 import { kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
 import { markWelcomed, updateSettings, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
@@ -169,6 +169,14 @@ export function WelcomeGuide() {
             </div>
           </li>
         </ol>
+
+        <p className="flex gap-2.5 rounded-control border-2 border-dashed border-line p-3 text-body-sm text-muted">
+          <FloppyDiskIcon size={20} weight="fill" className="mt-0.5 shrink-0 text-ink" aria-hidden />
+          <span>
+            <strong className="text-ink">Your progress stays in this browser.</strong> Come back in the same browser to keep your streak
+            and scores. Private or incognito windows forget everything when you close them.
+          </span>
+        </p>
 
         <button type="button" className="btn btn-ghost w-full" onClick={close}>
           Let&apos;s go
