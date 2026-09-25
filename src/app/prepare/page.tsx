@@ -33,7 +33,7 @@ const TOOLS = [
   {
     href: "/prepare/cv",
     title: "CV helper",
-    note: "Paste your CV. Find your best stories and the questions they answer, then practise them.",
+    note: "Upload or paste your CV. Find your best stories, then do a mock interview built from them.",
     ink: "sticker-grape",
     icon: FileTextIcon,
   },

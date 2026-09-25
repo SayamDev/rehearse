@@ -17,7 +17,7 @@ export default function CvPage() {
         </Link>
         <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em] sm:text-headline-lg">CV helper</h1>
         <p className="max-w-[58ch] text-muted">
-          Your CV is full of interview answers. Paste it in to find your strongest stories and the questions they answer, then
+          Your CV is full of interview answers. Upload or paste it to find your strongest stories and the questions they answer, then
           practise saying them.
         </p>
       </div>
