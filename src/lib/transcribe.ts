@@ -6,13 +6,15 @@ import { countWords } from "./delivery";
  * Accurate transcripts for spoken answers: the recording is transcribed by Whisper
  * (via /api/transcribe) and checked against the browser's live transcript.
  */
-export async function accurateTranscript(audio: Blob | null, seconds: number, browserText: string, context: string): Promise<string> {
+export async function accurateTranscript(audio: Blob | null, seconds: number, browserText: string, context: string, language = "en"): Promise<string> {
   if (!audio || audio.size < 1000) return browserText;
   try {
     const form = new FormData();
-    form.append("audio", audio, "answer.webm");
+    // Safari records MP4, Chrome and Firefox WebM; the name tells Whisper which.
+    form.append("audio", audio, /mp4|m4a|aac/.test(audio.type) ? "answer.mp4" : /ogg/.test(audio.type) ? "answer.ogg" : "answer.webm");
     form.append("seconds", String(Math.round(seconds)));
     form.append("context", context);
+    form.append("language", language);
     const res = await fetch("/api/transcribe", { method: "POST", body: form, signal: AbortSignal.timeout(25_000) });
     const data = (await res.json()) as { text?: string };
     return chooseTranscript(data.text ?? "", browserText);
@@ -26,13 +28,17 @@ export async function accurateTranscript(audio: Blob | null, seconds: number, br
  * ("Thank you."), and very rarely it repeats itself. When its length is far off from
  * what the browser heard, trust the browser instead.
  */
+/** What Whisper tends to "hear" in silence. */
+const SILENCE = /^(thank you( (so much|for watching))?|thanks( for watching)?|you|bye|okay|so)[.!\s]*$/i;
+
 export function chooseTranscript(whisper: string, browser: string): string {
   const w = whisper.replace(/\s+/g, " ").trim();
   const b = browser.replace(/\s+/g, " ").trim();
   const bw = countWords(b);
   const ww = countWords(w);
   if (!w) return b;
-  if (bw === 0) return ww >= 6 ? w : "";
+  // Nothing from the browser (phones record first): trust Whisper, unless it's a stock phrase it says on silence.
+  if (bw === 0) return SILENCE.test(w) ? "" : w;
   if (ww < bw * 0.5 || ww > bw * 2 + 10) return b;
   return w;
 }

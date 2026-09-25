@@ -139,14 +139,14 @@ export async function groqGrade(req: GradeRequest): Promise<GradingOutput> {
  * Accurate transcription of a spoken answer with Whisper (free plan: 2,000 requests and
  * 8 hours of audio a day; every request counts as at least 10 seconds).
  */
-export async function groqTranscribe(audio: Blob, seconds: number, context: string): Promise<string> {
+export async function groqTranscribe(audio: Blob, seconds: number, context: string, language = "en"): Promise<string> {
   if (!takeSiteBudget("transcribe") || !takeSiteBudget("audioSeconds", Math.max(10, Math.ceil(seconds)))) {
     throw new GroqLimitError("Free daily share used");
   }
   const form = new FormData();
-  form.append("file", audio, "answer.webm");
+  form.append("file", audio, audio instanceof File && audio.name ? audio.name : "answer.webm");
   form.append("model", "whisper-large-v3");
-  form.append("language", "en");
+  form.append("language", language);
   form.append("response_format", "json");
   form.append("temperature", "0");
   if (context) form.append("prompt", context.slice(0, 600));

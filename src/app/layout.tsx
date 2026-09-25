@@ -7,6 +7,7 @@ import { SettingsEffects } from "@/components/settings-effects";
 import { RegisterServiceWorker } from "@/components/pwa";
 import { MotionProvider } from "@/components/motion-provider";
 import { SaveNudge } from "@/components/save-nudge";
+import { RouteScroll } from "@/components/route-scroll";
 import { VoiceNudge } from "@/components/voice-nudge";
 import { WelcomeGuide } from "@/components/welcome-guide";
 import "./globals.css";
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <WelcomeGuide />
           <VoiceNudge />
           <SaveNudge />
+          <RouteScroll />
         </MotionProvider>
         <SettingsEffects />
         <RegisterServiceWorker />

@@ -37,11 +37,15 @@ import { ScoreChart, SkillBars } from "./progress-chart";
 import { ShareProgress } from "./share-progress";
 import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
+import { scrollToHash } from "./route-scroll";
 import { BackupButton, LoadBackup } from "./progress-backup";
 import { lastBackupLabel } from "@/lib/backup";
 import { useT, type UiKey } from "@/lib/i18n";
 
 type Tab = "progress" | "stickers" | "settings";
+
+/** Settings sections that links can open directly, like /me#voice. */
+const SETTINGS_SECTIONS = ["voice", "language", "easier", "app", "data"];
 
 const TABS: { id: Tab; label: UiKey; icon: typeof GearSixIcon }[] = [
   { id: "progress", label: "me.progress", icon: ChartLineUpIcon },
@@ -64,18 +68,29 @@ export function MeView() {
   const baseId = useId();
   const t = useT();
 
-  // Opening /me#settings (or #stickers) lands on that tab.
+  // Opening /me#settings (or #stickers) lands on that tab; a settings section (#voice, #language,
+  // #data) opens Settings and scrolls to it. Works for links clicked while already on this page too.
   useEffect(() => {
-    const fromHash = window.location.hash.slice(1);
-    if (TABS.some((t) => t.id === fromHash)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTab(fromHash as Tab);
-    }
-  }, []);
+    if (!hydrated) return;
+    const open = () => {
+      const fromHash = window.location.hash.slice(1);
+      if (TABS.some((t) => t.id === fromHash)) setTab(fromHash as Tab);
+      else if (SETTINGS_SECTIONS.includes(fromHash)) {
+        setTab("settings");
+        scrollToHash(fromHash);
+      }
+    };
+    open();
+    window.addEventListener("hashchange", open);
+    return () => window.removeEventListener("hashchange", open);
+  }, [hydrated]);
 
   function choose(next: Tab) {
     setTab(next);
     window.history.replaceState(null, "", `#${next}`);
+    // If the tabs have scrolled off the top (long pages on a phone), bring them back so the new tab starts at its top.
+    const tabs = document.getElementById(`${baseId}-tabs`);
+    if (tabs && tabs.getBoundingClientRect().top < 0) tabs.scrollIntoView({ block: "start" });
   }
 
   if (!hydrated) {
@@ -92,7 +107,7 @@ export function MeView() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
         <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em]">{t("me.title")}</h1>
-        <div role="tablist" aria-label="Your page" className="flex w-fit max-w-full gap-1 rounded-full border-2 border-line bg-surface p-1">
+        <div id={`${baseId}-tabs`} role="tablist" aria-label="Your page" className="scroll-mt-20 flex w-fit max-w-full gap-1 rounded-full border-2 border-line bg-surface p-1">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -311,7 +326,7 @@ function SettingsTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Group title="Your interviewer" hint="How questions sound when they're read to you." icon={SpeakerHighIcon} ink="bg-sky">
+      <Group anchor="voice" title="Your interviewer" hint="How questions sound when they're read to you." icon={SpeakerHighIcon} ink="bg-sky">
         <Row
           label={<label htmlFor={ids.read}>Read questions aloud</label>}
           description="Your interviewer says each question out loud."
@@ -376,7 +391,7 @@ function SettingsTab() {
         />
       </Group>
 
-      <Group title="Easier to use" hint="Make the app work better for you." icon={SparkleIcon} ink="bg-lime">
+      <Group anchor="easier" title="Easier to use" hint="Make the app work better for you." icon={SparkleIcon} ink="bg-lime">
         <Row
           stacked
           label="Light or dark"
@@ -392,6 +407,7 @@ function SettingsTab() {
         />
         <Row
           stacked
+          anchor="language"
           label={<label htmlFor={ids.lang}>Practise in</label>}
           description={
             isEnglish(s.language)
@@ -430,11 +446,12 @@ function SettingsTab() {
         />
       </Group>
 
-      <Group title="Use it like an app" hint="Put Rehearse on your home screen." icon={DeviceMobileIcon} ink="bg-sun">
+      <Group anchor="app" title="Use it like an app" hint="Put Rehearse on your home screen." icon={DeviceMobileIcon} ink="bg-sun">
         <InstallRow />
       </Group>
 
       <Group
+        anchor="data"
         title="Your data"
         icon={LockIcon}
         ink="bg-grape"
@@ -549,8 +566,11 @@ function Group({
   icon: GroupIcon,
   ink,
   padded = false,
+  anchor,
   children,
 }: {
+  /** An id links can jump to, like /me#voice. */
+  anchor?: string;
   title: string;
   hint: string;
   icon: Icon;
@@ -561,7 +581,7 @@ function Group({
 }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3">
+    <section id={anchor} aria-labelledby={id} className="flex scroll-mt-20 flex-col gap-3">
       <div className="flex items-start gap-3">
         <span
           className={`mt-0.5 flex size-10 shrink-0 -rotate-3 items-center justify-center rounded-full border-[3px] border-[var(--die)] text-on-ink shadow-[var(--sticker-shadow)] ${ink}`}
@@ -586,14 +606,16 @@ function Row({
   description,
   control,
   stacked = false,
+  anchor,
 }: {
+  anchor?: string;
   label: ReactNode;
   description: string;
   control: ReactNode;
   stacked?: boolean;
 }) {
   return (
-    <div className={`flex gap-4 p-5 ${stacked ? "flex-col" : "items-start justify-between"}`}>
+    <div id={anchor} className={`flex scroll-mt-20 gap-4 p-5 ${stacked ? "flex-col" : "items-start justify-between"}`}>
       <div className="min-w-0">
         <p className="font-semibold">{label}</p>
         <p className="mt-1 max-w-[56ch] text-label leading-relaxed text-muted">{description}</p>

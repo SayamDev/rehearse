@@ -3,6 +3,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { KeyboardIcon, MicrophoneIcon, MicrophoneSlashIcon, StopIcon, TimerIcon, VideoCameraIcon, WindIcon } from "@phosphor-icons/react";
 import { useSpeech, useSpeechSupported } from "@/lib/use-speech";
+import { accurateTranscript } from "@/lib/transcribe";
+import { getSettings } from "@/lib/store";
+import { StickerLoader } from "./sticker-loader";
 import { countWords } from "@/lib/delivery";
 import { nextStep } from "@/lib/helpers";
 import { StuckHelper } from "./stuck-helper";
@@ -39,6 +42,7 @@ export function AnswerComposer({
   keepAudio = false,
   placeholder = "Start with the situation, then what you did and how it turned out.",
   setting,
+  question,
 }: {
   takeNumber: number;
   /** Tape label; defaults to "Take N". */
@@ -61,6 +65,8 @@ export function AnswerComposer({
   placeholder?: string;
   /** Phone rounds hide the camera; video rounds keep it on. */
   setting?: "phone" | "video";
+  /** The question, to help turn a recording into the right words. */
+  question?: string;
 }) {
   const supported = useSpeechSupported();
   const t = useT();
@@ -75,8 +81,11 @@ export function AnswerComposer({
     record: keepAudio,
     onLevel: (l) => {
       if (meter.current) meter.current.style.transform = `scaleY(${0.15 + l * 0.85})`;
+      // Talking counts as activity, so the "keep going" nudge waits while they speak (phones show no live words).
+      if (l > 0.12) lastChange.current = performance.now();
     },
   });
+  const [transcribing, setTranscribing] = useState(false);
   const [voiceText, setVoiceText] = useState(initialMode === "voice" ? (initialText ?? "") : "");
   const [voiceDuration, setVoiceDuration] = useState(0);
   const [voiceAudio, setVoiceAudio] = useState<Blob | null>(null);
@@ -109,9 +118,9 @@ export function AnswerComposer({
     return () => clearInterval(id);
   }, [started]);
   const remaining = deadline === null ? timeLimit : Math.max(0, Math.ceil((deadline - now) / 1000));
-  const latest = useRef({ speech, typed, mode, onSubmit });
+  const latest = useRef({ speech, typed, mode, onSubmit, wordsFor: (...args: [number, string, Blob | null]) => Promise.resolve(args[1]) });
   useEffect(() => {
-    latest.current = { speech, typed, mode, onSubmit };
+    latest.current = { speech, typed, mode, onSubmit, wordsFor };
   });
   useEffect(() => {
     if (!timeLimit || deadline === null || remaining !== 0 || fired.current) return;
@@ -120,11 +129,25 @@ export function AnswerComposer({
     if (md === "voice") {
       const secs = sp.stop();
       const text = `${sp.transcript} ${sp.interim}`.replace(/\s+/g, " ").trim();
-      submit({ text: text || "I ran out of time before answering.", mode: "voice", durationSec: secs });
+      void sp
+        .lastRecording()
+        .then((audio) => latest.current.wordsFor(secs, text, audio))
+        .then((words) => submit({ text: words || "I ran out of time before answering.", mode: "voice", durationSec: secs }));
     } else {
       submit({ text: ty.trim() || "I ran out of time before answering.", mode: "type", durationSec: timeLimit });
     }
   }, [remaining, deadline, timeLimit]);
+
+  /** The words of a finished recording: the browser's live transcript, or Whisper when there isn't one. */
+  async function wordsFor(secs: number, liveWords: string, audio: Blob | null): Promise<string> {
+    if (liveWords && !speech.needsTranscribing()) return liveWords;
+    setTranscribing(true);
+    try {
+      return await accurateTranscript(audio, secs, liveWords, question ? `Job interview answer. Question: ${question}` : "Job interview answer.", getSettings().language);
+    } finally {
+      setTranscribing(false);
+    }
+  }
 
   async function toggleRecording() {
     if (recording) {
@@ -133,7 +156,9 @@ export function AnswerComposer({
       setVoiceText(text);
       setVoiceDuration(secs);
       setReviewing(true);
-      speech.lastRecording().then(setVoiceAudio);
+      const audio = await speech.lastRecording();
+      if (keepAudio) setVoiceAudio(audio);
+      setVoiceText(await wordsFor(secs, text, audio));
     } else {
       setReviewing(false);
       setVoiceText("");
@@ -331,33 +356,41 @@ export function AnswerComposer({
 
           {recording && (
             <p className="min-h-[3lh] w-full max-w-[60ch] text-center leading-relaxed text-muted" aria-live="off">
-              {liveText || "Listening..."}
+              {speech.engine === "whisper" ? "Recording. Your words appear when you tap stop." : liveText || "Listening..."}
             </p>
           )}
         </div>
       )}
 
       {mode === "voice" && reviewing && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" aria-busy={transcribing}>
           <label htmlFor={reviewId} className="text-label font-medium">
             Your answer, transcribed. Fix any words it got wrong.
           </label>
-          <textarea
-            id={reviewId}
-            value={voiceText}
-            onChange={(e) => setVoiceText(e.target.value)}
-            maxLength={MAX_CHARS}
-            rows={7}
-            className="field resize-y leading-relaxed"
-          />
-          {!voiceText.trim() && (
-            <p className="text-label text-muted">We didn&apos;t catch any words. Record again, closer to the microphone, or type it.</p>
+          {transcribing ? (
+            <div role="status" className="flex min-h-40 items-center justify-center gap-3 rounded-control border-2 border-dashed border-line text-body-sm text-muted">
+              <StickerLoader size="sm" /> Turning your answer into text...
+            </div>
+          ) : (
+            <textarea
+              id={reviewId}
+              value={voiceText}
+              onChange={(e) => setVoiceText(e.target.value)}
+              maxLength={MAX_CHARS}
+              rows={7}
+              className="field resize-y leading-relaxed"
+            />
+          )}
+          {!transcribing && !voiceText.trim() && (
+            <p role="alert" className="text-label text-muted">
+              We didn&apos;t catch any words. Record again, closer to the microphone, or type it in the box above.
+            </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" className="btn btn-go" onClick={submitVoice} disabled={!voiceText.trim()}>
+            <button type="button" className="btn btn-go" onClick={submitVoice} disabled={transcribing || !voiceText.trim()}>
               {submitText}
             </button>
-            <button type="button" className="btn btn-ghost" onClick={toggleRecording}>
+            <button type="button" className="btn btn-ghost" onClick={toggleRecording} disabled={transcribing}>
               Record again
             </button>
             <span className="tnum ml-auto text-label text-muted">
@@ -396,7 +429,7 @@ export function AnswerComposer({
         </div>
       )}
 
-      {starOn && (mode === "type" || recording || reviewing) && <StarChecklist text={mode === "type" ? typed : reviewing ? voiceText : liveText} />}
+      {starOn && (mode === "type" || (recording && speech.engine === "browser") || (reviewing && !transcribing)) && <StarChecklist text={mode === "type" ? typed : reviewing ? voiceText : liveText} />}
 
       {help && !reviewing && (
         <StuckHelper category={help.category} lookingFor={help.lookingFor} questionId={help.questionId} mode={mode} onInsert={insertStarter} />

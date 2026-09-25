@@ -250,6 +250,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
           setting={session.mode === "phone" || session.mode === "video" ? session.mode : undefined}
           interviewer={session.persona ? PERSONAS[session.persona].name : undefined}
           keepAudio={profile.settings.keepRecordings}
+          question={sq.question.text}
           help={profile.settings.helpers ? { category: sq.question.category, lookingFor: sq.question.lookingFor, questionId: sq.question.id } : undefined}
         />
       )}

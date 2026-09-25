@@ -26,17 +26,26 @@ export function LandingStickers() {
           {COLLECTION.length} to collect, from skill stickers to three rare shiny ones. Here are a few you could win.
         </p>
       </div>
-      <ul className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-6">
+      {/*
+        The sheet (not each sticker) decides when to play, and only once: a sticker that grows
+        and shrinks changes how much of it is on screen, which made it flicker in and out on phones.
+      */}
+      <m.ul
+        className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-6"
+        initial={reduce ? false : "hidden"}
+        whileInView="shown"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         {SHOWCASE.map((id, i) => {
           const item = COLLECTION_BY_ID[id];
           return (
             <li key={id} className="flex flex-col items-center gap-2 text-center">
-              {/* Each sticker slaps onto the page in turn whenever the sheet scrolls into view. */}
+              {/* Each sticker slaps onto the page in turn. */}
               <m.span
-                initial={reduce ? false : { scale: 1.4, rotate: TILTS[i] - 14, opacity: 0 }}
-                whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
-                viewport={{ once: false, amount: 0.5 }}
-                transition={{ type: "spring", stiffness: 360, damping: 17, delay: i * 0.09 }}
+                variants={{
+                  hidden: { scale: 1.4, rotate: TILTS[i] - 14, opacity: 0 },
+                  shown: { scale: 1, rotate: 0, opacity: 1, transition: { type: "spring", stiffness: 360, damping: 17, delay: i * 0.09 } },
+                }}
                 className="inline-flex"
               >
                 <StickerArt item={item} earned size={item.group === "legendary" ? 104 : 92} tilt={TILTS[i]} />
@@ -46,7 +55,7 @@ export function LandingStickers() {
             </li>
           );
         })}
-      </ul>
+      </m.ul>
       <div className="flex flex-wrap items-center gap-3">
         <Link href="/collection" className="btn btn-ghost w-fit">
           See all {COLLECTION.length} stickers

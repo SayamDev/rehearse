@@ -30,13 +30,38 @@ function getCtor(): RecognitionCtor | null {
 
 export type SpeechStatus = "idle" | "starting" | "recording" | "denied" | "error";
 
-export function useSpeechSupported(): boolean | null {
+/**
+ * How spoken answers become text:
+ * - "browser": the browser's own recognizer, with words appearing live (desktop Chrome, Edge, Safari).
+ * - "whisper": record, then transcribe when you stop (via /api/transcribe). Used on phones, where the
+ *   browser recognizer and the app can't both use the microphone and often hear nothing, and in
+ *   browsers without a recognizer (Firefox).
+ */
+export type SpeechEngine = "browser" | "whisper";
+
+function isPhone(): boolean {
+  const ua = navigator.userAgent;
+  return /android|iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+}
+
+function canRecord(): boolean {
+  return !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
+}
+
+export function speechEngine(): SpeechEngine | null {
+  if (typeof window === "undefined") return null;
+  if (getCtor() && !isPhone()) return "browser";
+  return canRecord() ? "whisper" : getCtor() ? "browser" : null;
+}
+
+export function useSpeechSupported(opts: { needsLive?: boolean } = {}): boolean | null {
   const [supported, setSupported] = useState<boolean | null>(null);
+  const needsLive = opts.needsLive;
   useEffect(() => {
     // Detection has to wait for the browser; this runs once after mount.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSupported(getCtor() !== null && !!navigator.mediaDevices?.getUserMedia);
-  }, []);
+    setSupported(needsLive ? getCtor() !== null && !!navigator.mediaDevices?.getUserMedia : speechEngine() !== null);
+  }, [needsLive]);
   return supported;
 }
 
@@ -45,8 +70,19 @@ export function useSpeechSupported(): boolean | null {
  * transcript. `levelRef` receives a 0..1 mic level every frame so a
  * meter can animate without re-rendering React.
  */
-export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also keep the audio (kept on this device only). */ record?: boolean } = {}) {
+export function useSpeech(
+  opts: {
+    onLevel?: (level: number) => void;
+    /** Also keep the audio (kept on this device only). */
+    record?: boolean;
+    /** Live Interview needs words as they're spoken, so it always uses the browser's recognizer. */
+    live?: boolean;
+  } = {},
+) {
   const [status, setStatus] = useState<SpeechStatus>("idle");
+  const [engine, setEngine] = useState<SpeechEngine>("browser");
+  /** The browser's recognizer stopped hearing (lost the mic, no network): the recording is transcribed instead. */
+  const browserFailed = useRef(false);
   const [finalText, setFinalText] = useState("");
   const [interim, setInterim] = useState("");
   const [elapsed, setElapsed] = useState(0);
@@ -60,10 +96,6 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const recording = useRef<Promise<Blob | null>>(Promise.resolve(null));
-  const record = useRef(opts.record);
-  useEffect(() => {
-    record.current = opts.record;
-  });
   const onLevel = useRef(opts.onLevel);
   useEffect(() => {
     onLevel.current = opts.onLevel;
@@ -97,21 +129,30 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
 
   const start = useCallback(async () => {
     const Ctor = getCtor();
-    if (!Ctor) {
+    const mode: SpeechEngine = opts.live ? "browser" : (speechEngine() ?? "browser");
+    if (mode === "browser" && !Ctor) {
       setStatus("error");
       return;
     }
+    setEngine(mode);
+    browserFailed.current = false;
     setStatus("starting");
-    try {
-      stream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      setStatus("denied");
-      return;
+    // On phones only one thing can listen to the microphone at a time. When the browser's
+    // recognizer is listening (Live Interview), leave the mic to it: no meter, no recording.
+    const shareMic = !(mode === "browser" && isPhone());
+    if (shareMic) {
+      try {
+        stream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch {
+        setStatus("denied");
+        return;
+      }
     }
 
-    // Optional recording, finished when stop() is called.
+    // The recording, finished when stop() is called. Always made (in memory) so it can be
+    // transcribed if the browser hears nothing; only kept if the user turned recordings on.
     recording.current = Promise.resolve(null);
-    if (record.current && typeof MediaRecorder !== "undefined") {
+    if (stream.current && typeof MediaRecorder !== "undefined") {
       try {
         const mr = new MediaRecorder(stream.current);
         const chunks: Blob[] = [];
@@ -129,6 +170,7 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
 
     // Mic level meter.
     try {
+      if (!stream.current) throw new Error("No stream");
       const ctx = new AudioContext();
       // Browsers can start an audio context paused when it isn't created by a tap (Live Interview listens on its own).
       if (ctx.state === "suspended") ctx.resume().catch(() => {});
@@ -150,6 +192,19 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
       // The meter is optional.
     }
 
+    setFinalText("");
+    setInterim("");
+    setElapsed(0);
+    startedAt.current = performance.now();
+    timer.current = setInterval(() => setElapsed((performance.now() - startedAt.current) / 1000), 250);
+
+    // Phones and browsers without a recognizer: just record; the words come when you stop.
+    if (mode === "whisper" || !Ctor) {
+      wantRunning.current = true;
+      setStatus("recording");
+      return;
+    }
+
     const r = new Ctor();
     r.continuous = true;
     r.interimResults = true;
@@ -168,10 +223,14 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
       setInterim(tmp);
     };
     r.onerror = (e) => {
-      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      if (e.error === "not-allowed") {
         wantRunning.current = false;
         teardownAudio();
         setStatus("denied");
+      } else if (e.error === "service-not-allowed" || e.error === "audio-capture" || e.error === "network" || e.error === "language-not-supported") {
+        // The recognizer can't work here, but the recording still can: keep recording and transcribe it at the end.
+        browserFailed.current = true;
+        wantRunning.current = false;
       }
       // "no-speech" and "aborted" are recoverable; onend restarts.
     };
@@ -187,19 +246,14 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
     };
     rec.current = r;
     wantRunning.current = true;
-    setFinalText("");
-    setInterim("");
-    setElapsed(0);
-    startedAt.current = performance.now();
-    timer.current = setInterval(() => setElapsed((performance.now() - startedAt.current) / 1000), 250);
     try {
       r.start();
-      setStatus("recording");
     } catch {
-      teardownAudio();
-      setStatus("error");
+      // Recording carries on; the words come from the recording instead.
+      browserFailed.current = true;
     }
-  }, [teardownAudio]);
+    setStatus("recording");
+  }, [teardownAudio, opts.live]);
 
   useEffect(
     () => () => {
@@ -220,5 +274,8 @@ export function useSpeech(opts: { onLevel?: (level: number) => void; /** Also ke
   /** The audio from the last recording, once stop() has finished it (null when not recording audio). */
   const lastRecording = useCallback(() => recording.current, []);
 
-  return { status, transcript: finalText, interim, elapsed, start, stop, reset, setTranscript: setFinalText, lastRecording };
+  /** Whether the words must come from the recording (no live words were possible). */
+  const needsTranscribing = useCallback(() => engine === "whisper" || browserFailed.current, [engine]);
+
+  return { status, engine, transcript: finalText, interim, elapsed, start, stop, reset, setTranscript: setFinalText, lastRecording, needsTranscribing };
 }

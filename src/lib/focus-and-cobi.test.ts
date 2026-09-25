@@ -45,3 +45,16 @@ describe("Cobi builds a round", () => {
     expect(reply).toContain("for Barista");
   });
 });
+
+import { chooseTranscript } from "./transcribe";
+
+describe("phone voice answers", () => {
+  it("uses Whisper's words when the browser heard nothing, even short answers", () => {
+    expect(chooseTranscript("I trained two new starters.", "")).toBe("I trained two new starters.");
+  });
+
+  it("ignores what Whisper invents on silence", () => {
+    expect(chooseTranscript("Thank you.", "")).toBe("");
+    expect(chooseTranscript("Thanks for watching!", "")).toBe("");
+  });
+});

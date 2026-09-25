@@ -156,7 +156,7 @@ export function SetupForm({
         <JobCombobox id={roleId} value={role} onChange={setRole} className="max-w-xl" />
         <p className="text-label text-muted">
           Practising in <span lang={language.code} className="font-semibold text-ink">{language.native}</span>.{" "}
-          <Link href="/me#settings" className="font-semibold text-ink underline underline-offset-4">
+          <Link href="/me#language" className="font-semibold text-ink underline underline-offset-4">
             Change language
           </Link>
         </p>

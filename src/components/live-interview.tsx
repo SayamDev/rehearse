@@ -41,7 +41,8 @@ export function LiveInterview({ session }: { session: Session }) {
   const persona = PERSONAS[session.persona ?? "friendly"];
   const engine = settings.voiceEngine;
   const questions = session.questions.map((q) => q.question);
-  const supported = useSpeechSupported();
+  // Live Interview needs words as they are spoken to know when an answer ends.
+  const supported = useSpeechSupported({ needsLive: true });
   const voice = useVoiceState();
 
   const [phase, setPhase] = useState<Phase>("speaking");
@@ -61,6 +62,7 @@ export function LiveInterview({ session }: { session: Session }) {
   const micBadge = useRef<HTMLSpanElement>(null);
   const reduceMotion = useRef(false);
   const speech = useSpeech({
+    live: true,
     // Always recorded (in memory) so each answer can be transcribed accurately; only kept if the user opts in.
     record: true,
     onLevel: (l) => {

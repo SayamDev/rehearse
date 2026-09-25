@@ -140,6 +140,7 @@ function Drill({ queue: initial, defaultMode, mode }: { queue: SavedAnswer[]; de
             label="From memory"
             submitLabel="Check my recall"
             defaultMode={defaultMode}
+            question={current.question.text}
             onSubmit={check}
           />
         )
