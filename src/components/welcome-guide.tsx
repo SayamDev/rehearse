@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { CheckCircleIcon, DownloadSimpleIcon, FloppyDiskIcon, HeadphonesIcon, MicrophoneIcon, ShieldCheckIcon, XIcon } from "@phosphor-icons/react";
-import { KOKORO_SERVER_STATE, kokoroAutoOk, kokoroState, kokoroSupported, loadKokoro, onKokoroChange } from "@/lib/kokoro";
-import { markWelcomed, updateSettings, useStore } from "@/lib/store";
+import { FloppyDiskIcon, HeadphonesIcon, MicrophoneIcon, XIcon } from "@phosphor-icons/react";
+import { KOKORO_SERVER_STATE, kokoroAutoOk, kokoroState, kokoroSupported, onKokoroChange } from "@/lib/kokoro";
+import { markWelcomed, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
-import { VoiceProgress } from "./voice-progress";
-
+import { VoiceOffer, voiceReady, type VoiceDevice } from "./voice-offer";
 
 /**
  * First visit only: a short guide to getting the best out of Rehearse, with a
@@ -19,8 +18,7 @@ export function WelcomeGuide() {
   const pathname = usePathname();
   const voice = useSyncExternalStore(onKokoroChange, kokoroState, () => KOKORO_SERVER_STATE);
   const ref = useRef<HTMLDialogElement>(null);
-  const [device, setDevice] = useState<{ supported: boolean; metered: boolean } | null>(null);
-  const [error, setError] = useState("");
+  const [device, setDevice] = useState<VoiceDevice | null>(null);
 
   // Only for brand-new visitors: people who already practised know their way around.
   const show = hydrated && !profile.welcomed && sessions.length === 0 && pathname !== "/privacy";
@@ -34,23 +32,12 @@ export function WelcomeGuide() {
     d.showModal();
   }, [show]);
 
-  async function download() {
-    setError("");
-    updateSettings({ voiceEngine: "kokoro" });
-    try {
-      await loadKokoro();
-    } catch {
-      setError("The voice couldn't download. Check your connection, or try again later from Me.");
-    }
-  }
-
   function close() {
     ref.current?.close();
   }
 
-  const loading = voice.status === "loading";
   // Downloaded on an earlier visit: nothing to fetch, even if it hasn't loaded yet this time.
-  const ready = voice.status === "ready" || (voice.status === "idle" && voice.cached === true);
+  const ready = voiceReady(voice);
 
   return (
     <dialog
@@ -92,51 +79,7 @@ export function WelcomeGuide() {
                 </p>
               </div>
             </div>
-            {!ready && (
-              <p className="flex gap-2 rounded-control bg-surface p-3 text-body-sm">
-                <ShieldCheckIcon size={20} weight="fill" className="mt-0.5 shrink-0 text-up" aria-hidden />
-                <span>
-                  <strong>Safe and private.</strong> It&apos;s free and open-source, it downloads from Hugging Face (a well-known home for
-                  free AI voices), and it runs only on your device. Nothing you say is sent anywhere by it, and you can switch back to the
-                  standard voice any time in Me.
-                </span>
-              </p>
-            )}
-            {device && !device.supported && (
-              <p className="text-body-sm text-muted">
-                This device may be a bit slow for it, so I&apos;ll use your device&apos;s own voice instead. Everything else works the same.
-              </p>
-            )}
-            {device?.supported && ready && (
-              <p className="flex items-center gap-2 text-body-sm font-semibold" role="status">
-                <CheckCircleIcon size={20} weight="fill" className="text-up" aria-hidden /> All set! My voice is already on this device, so
-                there&apos;s nothing to download.
-              </p>
-            )}
-            {device?.supported && loading && (
-              <div className="flex flex-col gap-2">
-                <VoiceProgress state={voice} name="my voice" />
-                <span className="text-label text-muted">You can close this and start; it keeps going.</span>
-              </div>
-            )}
-            {device?.supported && !ready && !loading && (
-              <div className="flex flex-col gap-2">
-                <button type="button" className="btn btn-go w-full sm:w-fit" onClick={download}>
-                  <DownloadSimpleIcon size={18} weight="bold" aria-hidden />
-                  Download my voice (90MB)
-                </button>
-                <span className="text-label text-muted">
-                  {device.metered
-                    ? "You seem to be on mobile data. Best to wait for Wi-Fi, or download later from Me."
-                    : "No rush: if you skip it, it downloads by itself later on Wi-Fi."}
-                </span>
-              </div>
-            )}
-            {error && (
-              <p role="alert" className="text-label text-down">
-                {error}
-              </p>
-            )}
+            <VoiceOffer device={device} />
           </li>
 
           <li className="flex gap-3 rounded-control bg-surface-2 p-4">

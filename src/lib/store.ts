@@ -361,6 +361,12 @@ export function markWelcomed() {
   commit({ profile: { ...s.profile, welcomed: true } });
 }
 
+/** Stops the voice pop-up for returning visitors from ever opening again. */
+export function turnOffVoiceNudge() {
+  const s = current();
+  commit({ profile: { ...s.profile, voiceNudgeOff: true } });
+}
+
 export function countCoachChat() {
   const s = current();
   commit({ profile: { ...s.profile, stats: { ...s.profile.stats, coachChats: s.profile.stats.coachChats + 1 } } });

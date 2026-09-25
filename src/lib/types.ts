@@ -171,6 +171,8 @@ export type Profile = {
   dayTicks?: { when: string; done: number[] };
   /** The first-visit welcome guide has been shown. */
   welcomed?: boolean;
+  /** Ticked "Don't show this again" on the returning-visitor voice pop-up. */
+  voiceNudgeOff?: boolean;
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live", "phone", "video", "offer"] as const;
