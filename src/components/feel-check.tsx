@@ -45,7 +45,7 @@ export function FeelCheck({
               first.
             </>
           ) : (
-            "Thanks. Let's go."
+            "Thanks. Start when you're ready."
           )
         ) : calmer ? (
           `You went from "${FEELINGS[before!].toLowerCase()}" to "${FEELINGS[value].toLowerCase()}". Practice is working.`
@@ -79,8 +79,8 @@ export function FeelCheck({
         ))}
       </div>
       {when === "before" && (
-        <button type="button" className={`btn btn-quiet w-fit min-h-9 text-label ${centered ? "" : "-ml-2"}`} onClick={() => setCalm(true)}>
-          <WindIcon size={16} weight="bold" aria-hidden />
+        <button type="button" className={`btn btn-ghost w-fit text-label ${centered ? "mx-auto" : ""}`} onClick={() => setCalm(true)}>
+          <WindIcon size={18} weight="bold" aria-hidden />
           Breathe for a minute first
         </button>
       )}

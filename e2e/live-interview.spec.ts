@@ -113,8 +113,9 @@ test("Live Interview runs hands-free from hello to notes", async ({ page }) => {
   await page.route("**/api/grade", (r) => r.fulfill({ json: { grading: GRADING, source: "ai" } }));
 
   await page.goto(`/practice/${session.id}`);
-  // Say how you feel, which starts the round.
+  // Say how you feel, then start.
   await page.getByRole("button", { name: "Okay", exact: true }).click();
+  await page.getByRole("button", { name: "Start the interview" }).click();
 
   // The interviewer asks the first question and then listens.
   await expect(page.getByRole("heading", { level: 1 })).toContainText("tell me a bit about yourself", { timeout: 15_000 });

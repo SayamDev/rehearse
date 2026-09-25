@@ -233,9 +233,10 @@ export function SetupForm({
 
       {!info.persona ? (
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-label font-medium">{t("setup.interviewer")}</legend>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(["friendly", "busy"] as PersonaId[]).map((p) => {
+          <legend className="mb-1 text-label font-medium">{t("setup.interviewer")}</legend>
+          <p className="mb-2 text-label text-muted">Start with Sam. Tougher interviewers join as you level up.</p>
+          <div className="grid gap-3">
+            {(["friendly", "busy", "tough"] as PersonaId[]).map((p) => {
               const pi = PERSONAS[p];
               const locked = hydrated && level < pi.unlockLevel;
               const on = persona === p;
@@ -253,7 +254,7 @@ export function SetupForm({
                     <span className="text-body-sm text-muted">{pi.role}</span>
                     {locked && (
                       <span className="flex items-center gap-1.5 text-label font-semibold text-muted">
-                        <LockSimpleIcon size={14} weight="bold" aria-hidden /> Level {pi.unlockLevel}
+                        <LockSimpleIcon size={14} weight="bold" aria-hidden /> Unlocks at level {pi.unlockLevel}. You&apos;re level {level}.
                       </span>
                     )}
                   </span>

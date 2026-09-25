@@ -165,7 +165,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
 
   // Before a fresh round: a check-in while the interviewer's voice gets ready.
   // "Just one question" skips it: the point is to start straight away.
-  const fresh = !session.oneQuestion && !session.questions.some((q) => q.takes.length > 0) && session.feel?.before === undefined;
+  const fresh = !session.oneQuestion && !session.questions.some((q) => q.takes.length > 0);
   if (fresh && !started) {
     return (
       <ReadyScreen

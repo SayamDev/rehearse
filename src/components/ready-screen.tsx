@@ -64,7 +64,7 @@ export function ReadyScreen({
         </p>
       )}
 
-      <FeelCheck session={session} when="before" onPicked={onStart} centered />
+      <FeelCheck session={session} when="before" centered />
 
       {readAloud && (
         <div className="flex min-h-6 w-full max-w-sm justify-center text-label text-muted" aria-live="polite">
@@ -79,8 +79,8 @@ export function ReadyScreen({
         </div>
       )}
 
-      <button type="button" className="btn btn-quiet text-label" onClick={onStart}>
-        Skip and start <ArrowRightIcon size={16} weight="bold" aria-hidden />
+      <button type="button" className="btn btn-go h-12 px-7" onClick={onStart}>
+        Start the interview <ArrowRightIcon size={18} weight="bold" aria-hidden />
       </button>
     </section>
   );
