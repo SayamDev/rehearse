@@ -11,7 +11,7 @@ export default async function ArchiveSessionPage({ params }: PageProps<"/archive
     <div className="flex flex-col gap-6">
       <Link href="/archive" className="btn btn-quiet -ml-2 w-fit">
         <ArrowLeftIcon size={16} aria-hidden />
-        All sessions
+        All past rounds
       </Link>
       <SessionView sessionId={id} heading="Session review" showTranscripts />
     </div>

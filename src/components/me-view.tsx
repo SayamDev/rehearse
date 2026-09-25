@@ -200,7 +200,7 @@ function ProgressTab({ onStickers }: { onStickers: () => void }) {
           ) : (
             <div className="flex flex-wrap items-center gap-2">
               <Link href="/archive" className="btn btn-ghost">
-                See past sessions <ArrowRightIcon size={16} weight="bold" aria-hidden />
+                See past rounds <ArrowRightIcon size={16} weight="bold" aria-hidden />
               </Link>
               <ShareProgress />
             </div>

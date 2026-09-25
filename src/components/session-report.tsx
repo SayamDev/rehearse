@@ -238,7 +238,7 @@ export function SessionReport({
           <ArrowRightIcon size={16} weight="bold" aria-hidden />
         </Link>
         <Link href="/archive" className="btn btn-ghost h-12 px-6">
-          See all sessions
+          See past rounds
         </Link>
       </div>
     </div>

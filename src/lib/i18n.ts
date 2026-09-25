@@ -11,7 +11,6 @@ import { useStore } from "./store";
 const EN = {
   "nav.practice": "Practice",
   "nav.remember": "Remember",
-  "nav.archive": "Archive",
   "nav.me": "Me",
   "home.title": "What job are you practicing for?",
   "home.free": "Free, no signup",
@@ -54,7 +53,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   es: {
     "nav.practice": "Practicar",
     "nav.remember": "Recordar",
-    "nav.archive": "Archivo",
     "nav.me": "Yo",
     "home.title": "¿Para qué trabajo estás practicando?",
     "home.free": "Gratis, sin registro",
@@ -93,7 +91,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   fr: {
     "nav.practice": "S'entraîner",
     "nav.remember": "Mémoriser",
-    "nav.archive": "Archives",
     "nav.me": "Moi",
     "home.title": "Pour quel poste vous entraînez-vous ?",
     "home.free": "Gratuit, sans inscription",
@@ -132,7 +129,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   pt: {
     "nav.practice": "Praticar",
     "nav.remember": "Memorizar",
-    "nav.archive": "Arquivo",
     "nav.me": "Eu",
     "home.title": "Para que emprego está a praticar?",
     "home.free": "Grátis, sem registo",
@@ -171,7 +167,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   pl: {
     "nav.practice": "Ćwicz",
     "nav.remember": "Zapamiętaj",
-    "nav.archive": "Archiwum",
     "nav.me": "Ja",
     "home.title": "Do jakiej pracy się przygotowujesz?",
     "home.free": "Za darmo, bez rejestracji",
@@ -210,7 +205,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   ro: {
     "nav.practice": "Exersează",
     "nav.remember": "Memorează",
-    "nav.archive": "Arhivă",
     "nav.me": "Eu",
     "home.title": "Pentru ce job exersezi?",
     "home.free": "Gratuit, fără cont",
@@ -249,7 +243,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   uk: {
     "nav.practice": "Тренування",
     "nav.remember": "Запам'ятати",
-    "nav.archive": "Архів",
     "nav.me": "Я",
     "home.title": "До якої роботи ви готуєтеся?",
     "home.free": "Безкоштовно, без реєстрації",
@@ -288,7 +281,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   tr: {
     "nav.practice": "Pratik",
     "nav.remember": "Hatırla",
-    "nav.archive": "Arşiv",
     "nav.me": "Ben",
     "home.title": "Hangi iş için pratik yapıyorsunuz?",
     "home.free": "Ücretsiz, kayıt yok",
@@ -327,7 +319,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   ar: {
     "nav.practice": "تدريب",
     "nav.remember": "حفظ",
-    "nav.archive": "الأرشيف",
     "nav.me": "أنا",
     "home.title": "لأي وظيفة تتدرّب؟",
     "home.free": "مجاني، بدون تسجيل",
@@ -366,7 +357,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   ur: {
     "nav.practice": "مشق",
     "nav.remember": "یاد کریں",
-    "nav.archive": "آرکائیو",
     "nav.me": "میں",
     "home.title": "آپ کس نوکری کے لیے مشق کر رہے ہیں؟",
     "home.free": "مفت، کوئی سائن اپ نہیں",
@@ -405,7 +395,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   hi: {
     "nav.practice": "अभ्यास",
     "nav.remember": "याद करें",
-    "nav.archive": "संग्रह",
     "nav.me": "मैं",
     "home.title": "आप किस नौकरी के लिए अभ्यास कर रहे हैं?",
     "home.free": "मुफ़्त, कोई साइन अप नहीं",
@@ -444,7 +433,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   bn: {
     "nav.practice": "অনুশীলন",
     "nav.remember": "মনে রাখুন",
-    "nav.archive": "সংগ্রহ",
     "nav.me": "আমি",
     "home.title": "আপনি কোন চাকরির জন্য অনুশীলন করছেন?",
     "home.free": "বিনামূল্যে, সাইন আপ লাগবে না",
@@ -483,7 +471,6 @@ const T: Record<string, Partial<Record<UiKey, string>>> = {
   zh: {
     "nav.practice": "练习",
     "nav.remember": "记忆",
-    "nav.archive": "记录",
     "nav.me": "我的",
     "home.title": "你在为什么工作做练习？",
     "home.free": "免费，无需注册",

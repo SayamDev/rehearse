@@ -33,7 +33,7 @@ export function ArchiveList() {
 
   if (!hydrated) {
     return (
-      <div className="flex flex-col gap-3" aria-busy="true" aria-label="Loading sessions">
+      <div className="flex flex-col gap-3" aria-busy="true" aria-label="Loading past rounds">
         {Array.from({ length: 3 }, (_, i) => (
           <div key={i} className="skeleton h-20 w-full rounded-[10px]" />
         ))}
@@ -44,7 +44,7 @@ export function ArchiveList() {
   if (sessions.length === 0) {
     return (
       <div className="panel flex flex-col items-start gap-3 p-6">
-        <h2 className="text-title font-semibold">No sessions yet</h2>
+        <h2 className="text-title font-semibold">No rounds yet</h2>
         <p className="max-w-[52ch] text-muted">
           Every round you finish lands here with your answers, scores, and notes, so you can see how you&apos;re improving.
         </p>
@@ -93,8 +93,8 @@ export function ArchiveList() {
         <div role="alert" className="flex flex-col gap-3 rounded-control border border-down/40 p-4">
           <p className="font-medium">
             {filtered.length === sessions.length
-              ? `Delete all ${sessions.length} sessions?`
-              : `Delete the ${filtered.length} ${filtered.length === 1 ? "session" : "sessions"} shown?`}{" "}
+              ? `Delete all ${sessions.length} rounds?`
+              : `Delete the ${filtered.length} ${filtered.length === 1 ? "round" : "rounds"} shown?`}{" "}
             Your XP, streak, stickers and saved answers in Remember stay.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export function ArchiveList() {
                 setConfirmAll(false);
               }}
             >
-              Delete sessions
+              Delete rounds
             </button>
             <button type="button" className="btn btn-ghost" onClick={() => setConfirmAll(false)}>
               Keep them
@@ -116,7 +116,7 @@ export function ArchiveList() {
       ) : (
         <button type="button" className="btn btn-quiet -ml-2 w-fit min-h-10 text-label" onClick={() => setConfirmAll(true)} disabled={filtered.length === 0}>
           <TrashIcon size={16} aria-hidden />
-          {filtered.length === sessions.length ? "Clear all sessions" : "Clear the sessions shown"}
+          {filtered.length === sessions.length ? "Clear all rounds" : "Clear the rounds shown"}
         </button>
       )}
 
@@ -146,7 +146,7 @@ export function ArchiveList() {
               <li key={s.id} className="flex items-stretch border-b border-line last:border-b-0">
                 {confirmId === s.id ? (
                   <div role="alert" className="flex flex-1 flex-wrap items-center gap-3 px-5 py-4 sm:px-6">
-                    <span className="mr-auto font-medium">Delete this {s.role} session?</span>
+                    <span className="mr-auto font-medium">Delete this {s.role} round?</span>
                     <button
                       type="button"
                       className="btn min-h-10 bg-down text-label text-white hover:opacity-90"
@@ -176,7 +176,7 @@ export function ArchiveList() {
                 </Link>
                 <button
                   type="button"
-                  aria-label={`Delete the ${s.role} session from ${formatDate(s.createdAt)}`}
+                  aria-label={`Delete the ${s.role} round from ${formatDate(s.createdAt)}`}
                   onClick={() => setConfirmId(s.id)}
                   className="flex w-12 shrink-0 items-center justify-center text-muted transition-colors hover:bg-surface-2 hover:text-down focus-visible:outline-offset-[-3px] sm:w-14"
                 >

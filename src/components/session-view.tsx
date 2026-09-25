@@ -40,7 +40,7 @@ export function SessionView({
         <h1 className="text-headline font-bold tracking-[-0.02em]">We can&apos;t find that session</h1>
         <p className="max-w-[52ch] text-muted">Sessions are saved in the browser you practiced in. It may have been deleted or cleared.</p>
         <Link href="/archive" className="btn btn-ghost">
-          Back to your sessions
+          Back to past rounds
         </Link>
       </div>
     );
