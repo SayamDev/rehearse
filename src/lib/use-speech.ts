@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getSettings } from "./store";
 import { isEnglish, languageFor } from "./languages";
+import { accentFor } from "./accents";
 
 /* Minimal typings for the Web Speech API, which TypeScript's DOM lib omits. */
 type SpeechAlternative = { transcript: string };
@@ -209,8 +210,8 @@ export function useSpeech(
     r.continuous = true;
     r.interimResults = true;
     const code = getSettings().language;
-    // English uses the device's own accent setting; other languages use their locale.
-    r.lang = isEnglish(code) ? navigator.language || "en-US" : languageFor(code).speech;
+    // English uses the chosen accent (or the device's); other languages use their locale.
+    r.lang = isEnglish(code) ? accentFor(getSettings().accent, navigator.languages ?? [navigator.language]).code : languageFor(code).speech;
     r.onresult = (e) => {
       let fin = "";
       let tmp = "";

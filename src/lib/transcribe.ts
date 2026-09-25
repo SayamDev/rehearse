@@ -1,6 +1,14 @@
 "use client";
 
 import { countWords } from "./delivery";
+import { accentFor, whisperHint } from "./accents";
+import { getSettings } from "./store";
+
+/** The hint sent with a recording: the user's spelling style and the question. */
+export function voiceHint(question?: string): string {
+  const s = getSettings();
+  return whisperHint(accentFor(s.accent, typeof navigator === "undefined" ? [] : (navigator.languages ?? [navigator.language])).spelling, question);
+}
 
 /**
  * Accurate transcripts for spoken answers: the recording is transcribed by Whisper

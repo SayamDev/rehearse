@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { KeyboardIcon, MicrophoneIcon, MicrophoneSlashIcon, StopIcon, TimerIcon, VideoCameraIcon, WindIcon } from "@phosphor-icons/react";
 import { useSpeech, useSpeechSupported } from "@/lib/use-speech";
-import { accurateTranscript } from "@/lib/transcribe";
+import { accurateTranscript, voiceHint } from "@/lib/transcribe";
 import { getSettings } from "@/lib/store";
 import { StickerLoader } from "./sticker-loader";
 import { countWords } from "@/lib/delivery";
@@ -138,12 +138,16 @@ export function AnswerComposer({
     }
   }, [remaining, deadline, timeLimit]);
 
-  /** The words of a finished recording: the browser's live transcript, or Whisper when there isn't one. */
+  /**
+   * The words of a finished recording. Whisper checks the browser's live words (it's better
+   * with accents), unless the user turned that off; with no live words at all, it's the only way.
+   */
   async function wordsFor(secs: number, liveWords: string, audio: Blob | null): Promise<string> {
-    if (liveWords && !speech.needsTranscribing()) return liveWords;
+    const settings = getSettings();
+    if (liveWords && !speech.needsTranscribing() && settings.accurateVoice === false) return liveWords;
     setTranscribing(true);
     try {
-      return await accurateTranscript(audio, secs, liveWords, question ? `Job interview answer. Question: ${question}` : "Job interview answer.", getSettings().language);
+      return await accurateTranscript(audio, secs, liveWords, voiceHint(question), settings.language);
     } finally {
       setTranscribing(false);
     }
@@ -367,7 +371,15 @@ export function AnswerComposer({
           <label htmlFor={reviewId} className="text-label font-medium">
             Your answer, transcribed. Fix any words it got wrong.
           </label>
-          {transcribing ? (
+          {transcribing && voiceText.trim() ? (
+            // The live words stay on screen while they're checked, read-only so nothing typed gets replaced.
+            <>
+              <textarea id={reviewId} value={voiceText} readOnly rows={7} className="field resize-y leading-relaxed opacity-70" />
+              <p role="status" className="flex items-center gap-2 text-label text-muted">
+                <StickerLoader size="sm" /> Checking the words for accuracy...
+              </p>
+            </>
+          ) : transcribing ? (
             <div role="status" className="flex min-h-40 items-center justify-center gap-3 rounded-control border-2 border-dashed border-line text-body-sm text-muted">
               <StickerLoader size="sm" /> Turning your answer into text...
             </div>

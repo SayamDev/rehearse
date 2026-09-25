@@ -40,6 +40,7 @@ import { ShareProgress } from "./share-progress";
 import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
 import { scrollToHash } from "./route-scroll";
+import { ACCENTS, AUTO, accentFor } from "@/lib/accents";
 import { BackupButton, LoadBackup } from "./progress-backup";
 import { lastBackupLabel } from "@/lib/backup";
 import { useT, type UiKey } from "@/lib/i18n";
@@ -47,7 +48,7 @@ import { useT, type UiKey } from "@/lib/i18n";
 type Tab = "progress" | "stickers" | "settings";
 
 /** Settings sections that links can open directly, like /me#voice. */
-const SETTINGS_SECTIONS = ["voice", "language", "easier", "app", "data"];
+const SETTINGS_SECTIONS = ["voice", "language", "accent", "easier", "app", "data"];
 
 const TABS: { id: Tab; label: UiKey; icon: typeof GearSixIcon }[] = [
   { id: "progress", label: "me.progress", icon: ChartLineUpIcon },
@@ -322,8 +323,14 @@ function SettingsTab() {
   const { profile, sessions, bank } = useStore();
   const s = profile.settings;
   const [confirming, setConfirming] = useState(false);
+  // What "Automatic" means on this device, shown in the list. Read in an effect: the server can't know.
+  const [autoAccent, setAutoAccent] = useState(() => accentFor(AUTO));
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAutoAccent(accentFor(AUTO, navigator.languages ?? [navigator.language]));
+  }, []);
   const nothingSaved = sessions.length === 0 && profile.xp === 0 && bank.length === 0 && !profile.stories?.length && !profile.numbers?.length && !profile.company;
-  const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId(), focus: useId() };
+  const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId(), focus: useId(), accent: useId(), accurate: useId() };
   const speed = SPEEDS.find((o) => Number(o.value) === s.voiceSpeed)?.value ?? "1";
 
   return (
@@ -375,6 +382,29 @@ function SettingsTab() {
               onChange={(v) => updateSettings({ defaultAnswerMode: v })}
             />
           }
+        />
+        {isEnglish(s.language) && (
+          <Row
+            stacked
+            anchor="accent"
+            label={<label htmlFor={ids.accent}>Your English accent</label>}
+            description="Helps your spoken answers come out as the words you said. Automatic uses your device's setting."
+            control={
+              <select id={ids.accent} value={s.accent ?? AUTO} onChange={(e) => updateSettings({ accent: e.target.value })} className="field w-full max-w-xs">
+                <option value={AUTO}>Automatic ({autoAccent.label.split(" (")[0]})</option>
+                {ACCENTS.map((a) => (
+                  <option key={a.code} value={a.code}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            }
+          />
+        )}
+        <Row
+          label={<label htmlFor={ids.accurate}>More accurate transcripts</label>}
+          description="When you stop speaking, your recording is checked by a speech model that's better with accents (Whisper, through Groq, which doesn't keep it). Turn off to use only your browser's own speech recognition. Phones need this for spoken answers."
+          control={<Switch id={ids.accurate} checked={s.accurateVoice !== false} onChange={(v) => updateSettings({ accurateVoice: v })} />}
         />
         <Row
           label={<label htmlFor={ids.help}>Show hints when I&apos;m stuck</label>}
@@ -480,7 +510,7 @@ function SettingsTab() {
         <RecordingsControl key={sessions.length === 0 ? "none" : "some"} keeping={s.keepRecordings} />
         <div className="flex flex-col gap-4 p-5">
           <p className="max-w-[60ch] text-body-sm leading-relaxed text-muted">
-            Audio is only kept if you turn on recordings above, and then only on this device. On phones and in Live Interview, spoken answers are sent to our AI provider to turn them into text, and not stored. Answer text is sent to our AI provider to be scored, with data retention turned off.{" "}
+            Audio is only kept if you turn on recordings above, and then only on this device. Spoken answers are sent to our AI provider to get the words right (unless you turn off More accurate transcripts), and not stored. Answer text is sent to our AI provider to be scored, with data retention turned off.{" "}
             <Link href="/privacy" className="font-semibold text-ink underline underline-offset-4">
               Read the privacy page
             </Link>

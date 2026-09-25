@@ -142,6 +142,10 @@ export type Settings = {
   plainWords: boolean;
   /** During rounds, hide everything but the question, the answer and progress. */
   focusMode?: boolean;
+  /** English accent for speech recognition ("auto" or a code like "en-GB"). */
+  accent?: string;
+  /** Send spoken answers to Whisper for a more accurate transcript. Missing means on. */
+  accurateVoice?: boolean;
   /** Language to practise in (see languages.ts). Menus stay in English. */
   language: string;
   /** Light or dark colours. "system" follows the device. */

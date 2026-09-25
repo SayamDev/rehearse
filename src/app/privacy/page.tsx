@@ -36,9 +36,10 @@ export default function PrivacyPage() {
         </p>
         <p className="text-muted">
           Voice answers are turned into text by your browser&apos;s built-in speech recognition. In Chrome and Edge that
-          service is run by Google or Microsoft, so your voice goes to them for transcription. On phones, and whenever
-          your browser can&apos;t turn speech into text itself, the recording of that one answer is sent to Groq (with data
-          retention turned off) to transcribe it, and it isn&apos;t stored. We never keep audio on our side. If you turn on &ldquo;Keep recordings&rdquo; in Me, your spoken answers are saved only in this browser
+          service is run by Google or Microsoft, so your voice goes to them for transcription. To get your words right
+          whatever your accent, the recording of each spoken answer is also sent to Groq (with data retention turned off) to
+          check the words, and it isn&apos;t stored. On phones this is how spoken answers become text. You can turn it off
+          with &ldquo;More accurate transcripts&rdquo; in Me. We never keep audio on our side. If you turn on &ldquo;Keep recordings&rdquo; in Me, your spoken answers are saved only in this browser
           so you can replay your best ones, and you can delete them any time. The camera check shows your camera only on
           your screen: it is never recorded or sent. In Live Interview, each spoken answer is also sent to Groq (with data
           retention turned off) so the transcript is accurate, and it is not stored. If you&apos;d rather not use it, type your answers: they&apos;re scored the same way.

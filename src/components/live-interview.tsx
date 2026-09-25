@@ -12,7 +12,7 @@ import { countWords, measureDelivery } from "@/lib/delivery";
 import { deliveryScore, overallScore } from "@/lib/scoring";
 import { saveRecording } from "@/lib/recordings";
 import { addTake, completeSession, setConversation, useStore } from "@/lib/store";
-import { accurateTranscript } from "@/lib/transcribe";
+import { accurateTranscript, voiceHint } from "@/lib/transcribe";
 import type { ConversationLine, Grading, NotesSource, Session } from "@/lib/types";
 import { PersonaAvatar } from "./persona-avatar";
 import { StickerLoader, VoiceBars } from "./sticker-loader";
@@ -150,7 +150,7 @@ export function LiveInterview({ session }: { session: Session }) {
     // Shown straight away from the browser's transcript, then corrected by Whisper.
     const id = addLine("you", text || "(no answer)", Boolean(text));
     const final = text
-      ? accurateTranscript(audio, secs, text, `Job interview for a ${session.role} role. Question: ${currentQuestion.current}`).then((t) => {
+      ? accurateTranscript(audio, secs, text, `${voiceHint(currentQuestion.current)} Role: ${session.role}.`).then((t) => {
           settleLine(id, t);
           return t;
         })
