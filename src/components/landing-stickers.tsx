@@ -31,7 +31,7 @@ export function LandingStickers() {
         and shrinks changes how much of it is on screen, which made it flicker in and out on phones.
       */}
       <m.ul
-        className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-6"
+        className="grid grid-cols-3 gap-x-3 gap-y-5 overflow-x-clip sm:grid-cols-6"
         initial={reduce ? false : "hidden"}
         whileInView="shown"
         viewport={{ once: true, amount: 0.3 }}

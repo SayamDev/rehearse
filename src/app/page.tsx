@@ -41,13 +41,13 @@ export default function Home() {
         </section>
       </div>
 
+      <Reveal>
+        <GetReadyStrip />
+      </Reveal>
+
       <Reveal className="grid gap-6 lg:items-start lg:[&:has(>:nth-child(2))]:grid-cols-2">
         <DailyCard />
         <RecentPractice />
-      </Reveal>
-
-      <Reveal>
-        <GetReadyStrip />
       </Reveal>
 
       <HowItWorks />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArchiveIcon, CardsIcon, EyeIcon, ChatCircleDotsIcon, FireIcon, MicrophoneStageIcon, UserCircleIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, CardsIcon, EyeIcon, ChatCircleDotsIcon, FireIcon, MicrophoneStageIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { liveStreak, localDay, updateSettings, useStore } from "@/lib/store";
 import { useFocusScreen } from "@/lib/focus";
 import { isDue } from "@/lib/memory";
@@ -12,10 +12,12 @@ import { ThemeToggle } from "./theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Practice", key: "nav.practice" as UiKey, icon: MicrophoneStageIcon, match: (p: string) => p === "/" || p.startsWith("/practice") },
+  // Get ready holds the interview tools (likely questions, CV helper, mock interview...), so it gets a tab of its own.
+  { href: "/prepare", label: "Get ready", key: "prepare.title" as UiKey, icon: BriefcaseIcon, match: (p: string) => p.startsWith("/prepare") || p.startsWith("/calm") },
   { href: "/remember", label: "Remember", key: "nav.remember" as UiKey, icon: CardsIcon, match: (p: string) => p.startsWith("/remember") },
   { href: "/coach", label: "Cobi", key: null, icon: ChatCircleDotsIcon, match: (p: string) => p.startsWith("/coach") },
-  { href: "/archive", label: "Archive", key: "nav.archive" as UiKey, icon: ArchiveIcon, match: (p: string) => p.startsWith("/archive") },
-  { href: "/me", label: "Me", key: "nav.me" as UiKey, icon: UserCircleIcon, match: (p: string) => p.startsWith("/me") },
+  // Past rounds live under Me, next to the rest of your progress.
+  { href: "/me", label: "Me", key: "nav.me" as UiKey, icon: UserCircleIcon, match: (p: string) => p.startsWith("/me") || p.startsWith("/archive") },
 ];
 
 export function AppNav() {
@@ -107,7 +109,7 @@ export function AppNav() {
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-[60px] flex-col items-center justify-center gap-0.5 text-tape font-medium ${
+                  className={`flex min-h-[60px] flex-col items-center justify-center gap-0.5 text-center text-tape font-medium leading-tight ${
                     active ? "text-ink" : "text-muted"
                   }`}
                 >
