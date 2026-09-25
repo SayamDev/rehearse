@@ -17,6 +17,7 @@ export const LIMITS = {
   react: Number(process.env.DAILY_REACT_LIMIT ?? 60),
   transcribe: Number(process.env.DAILY_TRANSCRIBE_LIMIT ?? 120),
   cv: Number(process.env.DAILY_CV_LIMIT ?? 5),
+  advert: Number(process.env.DAILY_ADVERT_LIMIT ?? 8),
 };
 
 /**
@@ -47,7 +48,7 @@ export function clientKey(request: Request): string {
 }
 
 /** Text AI that Ollama can answer on this machine: no per-visitor share needed then. */
-const LOCAL_KINDS = new Set<keyof typeof LIMITS>(["grade", "questions", "coach", "react", "cv"]);
+const LOCAL_KINDS = new Set<keyof typeof LIMITS>(["grade", "questions", "coach", "react", "cv", "advert"]);
 
 export function takeToken(kind: keyof typeof LIMITS, key: string): { ok: boolean; remaining: number } {
   if (process.env.OLLAMA_URL && LOCAL_KINDS.has(kind)) return { ok: true, remaining: LIMITS[kind] };

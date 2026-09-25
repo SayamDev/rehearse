@@ -1,3 +1,4 @@
+import { ADVERT_SYSTEM, AdvertOutput, advertUserPrompt, type AdvertRequest } from "./advert";
 import "server-only";
 import { z } from "zod";
 import { takeSiteBudget } from "../rate-limit";
@@ -129,6 +130,10 @@ export async function groqQuestions(req: QuestionsRequest) {
 
 export async function groqCv(req: CvRequest): Promise<CvOutput> {
   return call(CV_SYSTEM, cvUserPrompt(req), "cv_stories", CvOutput, 4000);
+}
+
+export async function groqAdvert(req: AdvertRequest): Promise<AdvertOutput> {
+  return call(ADVERT_SYSTEM, advertUserPrompt(req), "likely_questions", AdvertOutput, 3000);
 }
 
 export async function groqGrade(req: GradeRequest): Promise<GradingOutput> {

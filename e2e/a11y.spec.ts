@@ -8,6 +8,7 @@ const PAGES = [
   "/practice/warmup",
   "/prepare",
   "/prepare/cv",
+  "/prepare/advert",
   "/prepare/answer",
   "/prepare/tricky",
   "/prepare/tricky/gap",

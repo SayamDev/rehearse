@@ -31,6 +31,7 @@ const TOOLS = [
   { match: /answer builder/i, label: "Answer builder", href: "/prepare/answer" },
   { match: /tricky topics/i, label: "Tricky topics", href: "/prepare/tricky" },
   { match: /cv helper/i, label: "CV helper", href: "/prepare/cv" },
+  { match: /likely questions/i, label: "Likely questions", href: "/prepare/advert" },
   { match: /question packs?/i, label: "Question packs", href: "/prepare/packs" },
   { match: /pay talk/i, label: "Pay Talk", href: "/prepare/offer" },
   { match: /mock interview/i, label: "Mock interview", href: "/practice/new?mode=mock" },

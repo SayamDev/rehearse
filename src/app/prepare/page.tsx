@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRightIcon,
+  MagnifyingGlassIcon,
   StackIcon,
   ListNumbersIcon,
   LifebuoyIcon,
@@ -22,6 +23,13 @@ import { UiText } from "@/components/ui-text";
 export const metadata: Metadata = { title: "Get ready", description: "Tools for the big day: a full mock interview, your intro, and questions to ask." };
 
 const TOOLS = [
+  {
+    href: "/prepare/advert",
+    title: "Likely questions",
+    note: "Got an interview? Paste the job advert to see the questions you'll most likely get, and why.",
+    ink: "sticker-tomato",
+    icon: MagnifyingGlassIcon,
+  },
   {
     href: "/prepare/cv",
     title: "CV helper",
