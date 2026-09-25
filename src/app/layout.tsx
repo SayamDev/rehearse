@@ -6,6 +6,7 @@ import { StickerCelebration } from "@/components/sticker-celebration";
 import { SettingsEffects } from "@/components/settings-effects";
 import { RegisterServiceWorker } from "@/components/pwa";
 import { MotionProvider } from "@/components/motion-provider";
+import { SaveNudge } from "@/components/save-nudge";
 import { VoiceNudge } from "@/components/voice-nudge";
 import { WelcomeGuide } from "@/components/welcome-guide";
 import "./globals.css";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <StickerCelebration />
           <WelcomeGuide />
           <VoiceNudge />
+          <SaveNudge />
         </MotionProvider>
         <SettingsEffects />
         <RegisterServiceWorker />

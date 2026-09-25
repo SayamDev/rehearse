@@ -14,6 +14,19 @@ export default function PrivacyPage() {
         </p>
       </section>
       <section className="flex flex-col gap-2">
+        <h2 className="text-title font-semibold">Where your progress lives</h2>
+        <p className="text-muted">
+          Because there are no accounts, your progress is only in the browser you practise in. That means it can be lost if you
+          clear your browser data, practise in a private or incognito window, or switch to another phone, computer or browser.
+          Safari (on iPhone, iPad and Mac) can also clear it after about a week without a visit; adding Rehearse to your Home
+          Screen stops that. We also ask your browser to keep this site&apos;s data, which most browsers then do.
+        </p>
+        <p className="text-muted">
+          To keep it safe, use &ldquo;Back up my progress&rdquo; in Me. It saves one small file to your device, and nothing is
+          sent to us. Load it in Me on any device to carry on. The file holds your answers, so keep it private.
+        </p>
+      </section>
+      <section className="flex flex-col gap-2">
         <h2 className="text-title font-semibold">What we send</h2>
         <p className="text-muted">
           To write questions and score answers, we send the job title, level, any job description you paste, and the text of

@@ -4,30 +4,13 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react"
 import { usePathname } from "next/navigation";
 import { XIcon } from "@phosphor-icons/react";
 import { KOKORO_SERVER_STATE, checkKokoroCache, kokoroAutoOk, kokoroState, kokoroSupported, onKokoroChange } from "@/lib/kokoro";
+import { markPopupShown, popupBlocked, popupShownThisVisit } from "@/lib/popups";
 import { turnOffVoiceNudge, useStore } from "@/lib/store";
 import { PersonaAvatar } from "./persona-avatar";
 import { VoiceOffer, type VoiceDevice } from "./voice-offer";
 
-/** Remembers the pop-up was shown this visit, so it doesn't open on every page. */
-const SHOWN_KEY = "rehearse:voice-nudge";
 /** Pages where a pop-up would get in the way. */
-const QUIET = ["/practice/", "/privacy", "/offline", "/calm"];
-
-function shownThisVisit() {
-  try {
-    return sessionStorage.getItem(SHOWN_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markShown() {
-  try {
-    sessionStorage.setItem(SHOWN_KEY, "1");
-  } catch {
-    // Storage blocked: it may show again next page, which is harmless.
-  }
-}
+export const QUIET_PAGES = ["/practice/", "/privacy", "/offline", "/calm"];
 
 /**
  * For people who've been here before but don't have the most human voice yet:
@@ -44,19 +27,19 @@ export function VoiceNudge() {
   const stopId = useId();
 
   const returning = profile.welcomed || sessions.length > 0;
-  const quiet = QUIET.some((p) => pathname.startsWith(p));
+  const quiet = QUIET_PAGES.some((p) => pathname.startsWith(p));
   const eligible = hydrated && returning && !profile.voiceNudgeOff && profile.settings.voiceEngine !== "standard" && !quiet;
 
   useEffect(() => {
-    if (!eligible || shownThisVisit() || !kokoroSupported()) return;
+    if (!eligible || popupShownThisVisit() || !kokoroSupported()) return;
     let cancelled = false;
     // A calm pause after the page settles, and only if the voice really isn't saved here.
     const t = setTimeout(async () => {
       const saved = await checkKokoroCache();
       const d = ref.current;
-      if (cancelled || saved || !d || d.open || kokoroState().status !== "idle" || document.querySelector("dialog[open]")) return;
+      if (cancelled || saved || !d || kokoroState().status !== "idle" || popupBlocked()) return;
       setDevice({ supported: true, metered: !kokoroAutoOk() });
-      markShown();
+      markPopupShown();
       d.showModal();
     }, 1200);
     return () => {

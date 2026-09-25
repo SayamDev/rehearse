@@ -6,7 +6,8 @@ import { LANGUAGES, languageInstruction } from "./languages";
 import { offlineGrading, offlineQuestions } from "./offline";
 import { demoQuestions } from "./ai/demo";
 import { questionUserPrompt, gradeUserPrompt } from "./ai/prompts";
-import type { Grading, RubricKey, Session } from "./types";
+import type { Grading, Profile, RubricKey, Session } from "./types";
+import { backupFile, backupFileName, daysSince, lastBackupLabel, progressSummary, readBackup } from "./backup";
 import { goalEverMet, roundsThisWeek, weekStart } from "./goal";
 import { scrubCv } from "./cv";
 import { lowOffer, offerQuestions } from "./offer";
@@ -203,5 +204,32 @@ describe("menu translations", () => {
     for (const lang of UI_LANGUAGES) expect(missingKeys(lang)).toEqual([]);
     expect(translate("es", "nav.practice")).toBe("Practicar");
     expect(translate("en", "nav.practice")).toBe("Practice");
+  });
+});
+
+describe("progress backups", () => {
+  const data = { sessions: [round(1, 6), { ...round(2, 7), completedAt: null }], profile: { xp: 120 } as Profile, bank: [] };
+
+  it("round-trips a backup file and summarises it", () => {
+    const { data: back, savedAt } = readBackup(backupFile(data, new Date("2026-09-25T10:00:00Z")));
+    expect(savedAt).toBe("2026-09-25T10:00:00.000Z");
+    expect(back.sessions).toHaveLength(2);
+    expect(progressSummary(back)).toBe("1 round, 120 XP");
+    expect(backupFileName(new Date(2026, 8, 5))).toBe("rehearse-progress-2026-09-05.json");
+  });
+
+  it("refuses files that aren't backups, with a message for people", () => {
+    expect(() => readBackup("hello")).toThrow(/isn't a Rehearse backup/);
+    expect(() => readBackup(JSON.stringify({ kind: "other", data: {} }))).toThrow(/isn't a Rehearse backup/);
+    expect(() => readBackup(JSON.stringify({ kind: "rehearse-backup", version: 2, data: {} }))).toThrow(/newer version/);
+    expect(() => readBackup(JSON.stringify({ kind: "rehearse-backup", version: 1, data: { sessions: "x" } }))).toThrow(/damaged/);
+  });
+
+  it("says when the last backup was", () => {
+    const now = new Date(2026, 8, 25, 12);
+    expect(lastBackupLabel(undefined, now)).toBe("You haven't made a backup yet.");
+    expect(lastBackupLabel(new Date(2026, 8, 25, 1).toISOString(), now)).toBe("Last backup: today.");
+    expect(lastBackupLabel(new Date(2026, 8, 24, 23).toISOString(), now)).toBe("Last backup: yesterday.");
+    expect(daysSince(new Date(2026, 7, 26).toISOString(), now)).toBe(30);
   });
 });

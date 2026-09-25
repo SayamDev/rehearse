@@ -5,6 +5,7 @@ import { levelFromXp, takeXp } from "./scoring";
 import { MAX_POINTS, recallXp, scheduleAfterRecall } from "./memory";
 import { earnedIds } from "./collection";
 import { deleteRecordingsFor } from "./recordings";
+import type { BackupData } from "./backup";
 import type { UpcomingInterview, ConversationLine, KeyPoint, Mode, PersonaId, Profile, Question, SavedAnswer, Session, Seniority, Settings, Take } from "./types";
 
 /**
@@ -31,25 +32,27 @@ const SERVER_STATE: State = { hydrated: false, sessions: [], profile: DEFAULT_PR
 let state: State | null = null;
 const listeners = new Set<() => void>();
 
+/** Fills in anything missing from saved (or restored) progress, so older saves keep working. */
+function normalize(parsed: Partial<State>): State {
+  return {
+    hydrated: true,
+    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+    bank: Array.isArray(parsed.bank) ? parsed.bank : [],
+    profile: {
+      ...DEFAULT_PROFILE,
+      ...parsed.profile,
+      settings: { ...DEFAULT_PROFILE.settings, ...parsed.profile?.settings },
+      seen: Array.isArray(parsed.profile?.seen) ? parsed.profile.seen : [],
+      askList: Array.isArray(parsed.profile?.askList) ? parsed.profile.askList : [],
+      stats: { ...DEFAULT_PROFILE.stats, ...parsed.profile?.stats },
+    },
+  };
+}
+
 function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<State>;
-      return {
-        hydrated: true,
-        sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
-        bank: Array.isArray(parsed.bank) ? parsed.bank : [],
-        profile: {
-          ...DEFAULT_PROFILE,
-          ...parsed.profile,
-          settings: { ...DEFAULT_PROFILE.settings, ...parsed.profile?.settings },
-          seen: Array.isArray(parsed.profile?.seen) ? parsed.profile.seen : [],
-          askList: Array.isArray(parsed.profile?.askList) ? parsed.profile.askList : [],
-          stats: { ...DEFAULT_PROFILE.stats, ...parsed.profile?.stats },
-        },
-      };
-    }
+    if (raw) return normalize(JSON.parse(raw) as Partial<State>);
   } catch {
     // Storage blocked or corrupted: start fresh in memory.
   }
@@ -365,6 +368,26 @@ export function markWelcomed() {
 export function turnOffVoiceNudge() {
   const s = current();
   commit({ profile: { ...s.profile, voiceNudgeOff: true } });
+}
+
+/** Stops the "keep your progress safe" pop-up from ever opening again. */
+export function turnOffSaveNudge() {
+  const s = current();
+  commit({ profile: { ...s.profile, saveNudgeOff: true } });
+}
+
+/** Everything a backup file holds, and notes the time so Me can show when the last one was made. */
+export function exportProgress(): BackupData {
+  const s = current();
+  const profile = { ...s.profile, lastBackup: new Date().toISOString() };
+  commit({ profile });
+  return { sessions: s.sessions, profile, bank: s.bank };
+}
+
+/** Replaces this browser's progress with a backup's. */
+export function importProgress(data: BackupData) {
+  const next = normalize(data);
+  commit({ sessions: next.sessions, profile: next.profile, bank: next.bank });
 }
 
 export function countCoachChat() {

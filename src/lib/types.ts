@@ -173,6 +173,10 @@ export type Profile = {
   welcomed?: boolean;
   /** Ticked "Don't show this again" on the returning-visitor voice pop-up. */
   voiceNudgeOff?: boolean;
+  /** Ticked "Don't show this again" on the "keep your progress safe" pop-up. */
+  saveNudgeOff?: boolean;
+  /** When the last progress backup file was made (ISO). */
+  lastBackup?: string;
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live", "phone", "video", "offer"] as const;

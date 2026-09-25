@@ -40,7 +40,9 @@ type InstallState = "installed" | "ready" | "ios" | "unavailable";
 function snapshot(): InstallState {
   if (installed || window.matchMedia("(display-mode: standalone)").matches) return "installed";
   if (deferred) return "ready";
-  return /iphone|ipad|ipod/i.test(navigator.userAgent) ? "ios" : "unavailable";
+  // iPads on iPadOS say "Macintosh", but Macs have no touch screen.
+  const apple = /iphone|ipad|ipod/i.test(navigator.userAgent) || (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  return apple ? "ios" : "unavailable";
 }
 
 export function useInstall(): { state: InstallState; install: () => Promise<void> } {

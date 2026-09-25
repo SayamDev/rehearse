@@ -20,6 +20,8 @@ import { ScoreChart, SkillBars } from "./progress-chart";
 import { ShareProgress } from "./share-progress";
 import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
+import { BackupButton, LoadBackup } from "./progress-backup";
+import { lastBackupLabel } from "@/lib/backup";
 import { useT, type UiKey } from "@/lib/i18n";
 
 type Tab = "progress" | "stickers" | "settings";
@@ -390,6 +392,19 @@ function SettingsTab() {
         ink="bg-grape"
         hint="Everything stays in this browser. Use the same browser to keep your progress: other browsers, other devices and private or incognito windows start fresh."
       >
+        <div className="flex flex-col gap-4 p-5">
+          <div>
+            <p className="font-semibold">Keep your progress safe</p>
+            <p className="mt-1 max-w-[56ch] text-label leading-relaxed text-muted">
+              Save a backup file now and then. Load it on a new phone, another browser, or after clearing your browser, and carry on where
+              you left off. {lastBackupLabel(profile.lastBackup)}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <BackupButton />
+            <LoadBackup />
+          </div>
+        </div>
         <Row
           label={<label htmlFor={ids.rec}>Keep recordings of my spoken answers</label>}
           description="Saved only on this device, never uploaded. Your 10 best are kept so you can replay them in the Calm corner."
