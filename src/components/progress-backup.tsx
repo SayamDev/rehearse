@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { DownloadSimpleIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { CheckIcon, DownloadSimpleIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { backupFile, backupFileName, MAX_BACKUP_BYTES, progressSummary, readBackup, type BackupData } from "@/lib/backup";
 import { askToKeepData } from "@/lib/popups";
 import { exportProgress, importProgress, useStore } from "@/lib/store";
@@ -19,19 +19,45 @@ export function downloadBackup(): string {
   return name;
 }
 
-/** "Back up my progress" button, with a note on where the file went. */
+/** Everything a backup holds, except the note of when it was made, so "has anything changed?" is a simple compare. */
+function progressKey(sessions: unknown, bank: unknown, profile: object): string {
+  const rest = { ...profile } as Record<string, unknown>;
+  delete rest.lastBackup;
+  return JSON.stringify([sessions, bank, rest]);
+}
+
+/**
+ * "Back up my progress". Once saved, it says so and rests until the progress changes, so a
+ * second tap never makes a pointless duplicate file; then it offers "Back up again".
+ */
 export function BackupButton({ variant = "ghost", className = "" }: { variant?: "ghost" | "go"; className?: string }) {
-  const [saved, setSaved] = useState("");
+  const { sessions, bank, profile } = useStore();
+  const [saved, setSaved] = useState<{ name: string; key: string; at: Date } | null>(null);
+  const current = progressKey(sessions, bank, profile);
+  const upToDate = saved?.key === current;
+
+  function save() {
+    const name = downloadBackup();
+    // Read after saving: exportProgress notes the time, which isn't part of the key.
+    setSaved({ name, key: current, at: new Date() });
+  }
+
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <button type="button" className={`btn btn-${variant} w-full sm:w-fit`} onClick={() => setSaved(downloadBackup())}>
-        <DownloadSimpleIcon size={18} weight="bold" aria-hidden />
-        Back up my progress
+      <button type="button" className={`btn btn-${upToDate ? "ghost" : variant} w-full sm:w-fit`} onClick={save} disabled={upToDate}>
+        {upToDate ? <CheckIcon size={18} weight="bold" className="text-up" aria-hidden /> : <DownloadSimpleIcon size={18} weight="bold" aria-hidden />}
+        {upToDate ? "Backed up" : saved ? "Back up again" : "Back up my progress"}
       </button>
       {saved && (
         <p role="status" className="text-label text-muted">
-          Saved <span className="font-semibold text-ink">{saved}</span> to your downloads. Keep it somewhere safe, like your email or
-          cloud storage. It holds your answers, so don&apos;t share it.
+          {upToDate ? (
+            <>
+              Saved <span className="font-semibold text-ink">{saved.name}</span> to your downloads. Keep it somewhere safe, like your email
+              or cloud storage. It holds your answers, so don&apos;t share it.
+            </>
+          ) : (
+            "Something's changed since your last backup. Save a new one to include it."
+          )}
         </p>
       )}
     </div>

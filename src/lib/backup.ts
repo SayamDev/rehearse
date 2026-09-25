@@ -17,9 +17,10 @@ export function backupFile(data: BackupData, now = new Date()): string {
   return JSON.stringify(file);
 }
 
+/** Dated and timed, so each backup has its own name instead of "(1)", "(2)" copies. */
 export function backupFileName(now = new Date()): string {
-  const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  return `rehearse-progress-${day}.json`;
+  const two = (n: number) => String(n).padStart(2, "0");
+  return `rehearse-progress-${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}-${two(now.getHours())}${two(now.getMinutes())}.json`;
 }
 
 /** Reads a backup file, or throws an error with a message fit to show the user. */
@@ -28,11 +29,11 @@ export function readBackup(text: string): { data: BackupData; savedAt: string } 
   try {
     file = JSON.parse(text) as Partial<BackupFile>;
   } catch {
-    throw new Error("That file isn't a Rehearse backup. Pick the file called rehearse-progress-(date).json.");
+    throw new Error("That file isn't a Rehearse backup. Pick a file that starts with rehearse-progress.");
   }
   const data = file?.data;
   if (file?.kind !== KIND || !data || typeof data !== "object") {
-    throw new Error("That file isn't a Rehearse backup. Pick the file called rehearse-progress-(date).json.");
+    throw new Error("That file isn't a Rehearse backup. Pick a file that starts with rehearse-progress.");
   }
   if (typeof file.version !== "number" || file.version > 1) {
     throw new Error("This backup was made by a newer version of Rehearse. Reload the page and try again.");

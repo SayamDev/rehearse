@@ -18,7 +18,9 @@ import {
   SpeakerHighIcon,
   StarIcon,
   StickerIcon,
+  TrashIcon,
   TrophyIcon,
+  CheckIcon,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { liveStreak, resetAll, updateSettings, useStore } from "@/lib/store";
@@ -27,7 +29,7 @@ import { COLLECTION, earnedIds } from "@/lib/collection";
 import { PERSONAS } from "@/lib/game";
 import { speak } from "@/lib/tts";
 import { CollectionAlbum } from "./collection-album";
-import { deleteRecordings } from "@/lib/recordings";
+import { deleteRecordings, listRecordings } from "@/lib/recordings";
 import { StickerArt } from "./sticker-art";
 import { VoiceSetting } from "./voice-setting";
 import { Segmented } from "./segmented";
@@ -320,8 +322,8 @@ function SettingsTab() {
   const { profile, sessions, bank } = useStore();
   const s = profile.settings;
   const [confirming, setConfirming] = useState(false);
+  const nothingSaved = sessions.length === 0 && profile.xp === 0 && bank.length === 0 && !profile.stories?.length && !profile.numbers?.length && !profile.company;
   const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId(), focus: useId() };
-  const [recsCleared, setRecsCleared] = useState(false);
   const speed = SPEEDS.find((o) => Number(o.value) === s.voiceSpeed)?.value ?? "1";
 
   return (
@@ -475,39 +477,24 @@ function SettingsTab() {
           description="Saved only on this device, never uploaded. Your 10 best are kept so you can replay them in the Calm corner."
           control={<Switch id={ids.rec} checked={s.keepRecordings} onChange={(v) => updateSettings({ keepRecordings: v })} />}
         />
-        <div className="flex flex-wrap items-center gap-3 px-5 py-4">
-          <button
-            type="button"
-            className="btn btn-ghost min-h-10 text-label"
-            onClick={() => deleteRecordings().then(() => setRecsCleared(true))}
-          >
-            Delete my recordings
-          </button>
-          {recsCleared && (
-            <span role="status" className="text-label text-muted">
-              Recordings deleted.
-            </span>
-          )}
-        </div>
+        <RecordingsControl key={sessions.length === 0 ? "none" : "some"} keeping={s.keepRecordings} />
         <div className="flex flex-col gap-4 p-5">
           <p className="max-w-[60ch] text-body-sm leading-relaxed text-muted">
-            Audio is only kept if you turn on recordings above, and then only on this device. In Live Interview, answers are sent to our AI provider to transcribe accurately, and not stored. Answer text is sent to our AI provider to be scored, with data retention turned off.{" "}
+            Audio is only kept if you turn on recordings above, and then only on this device. On phones and in Live Interview, spoken answers are sent to our AI provider to turn them into text, and not stored. Answer text is sent to our AI provider to be scored, with data retention turned off.{" "}
             <Link href="/privacy" className="font-semibold text-ink underline underline-offset-4">
               Read the privacy page
             </Link>
           </p>
           {!confirming ? (
-            <button
-              type="button"
-              className="btn btn-ghost w-fit"
-              onClick={() => setConfirming(true)}
-              disabled={sessions.length === 0 && profile.xp === 0 && bank.length === 0}
-            >
-              Delete all my practice data
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button type="button" className="btn btn-ghost w-fit" onClick={() => setConfirming(true)} disabled={nothingSaved}>
+                Delete all my practice data
+              </button>
+              {nothingSaved && <span className="text-label text-muted">Nothing saved yet, so nothing to delete.</span>}
+            </div>
           ) : (
             <div role="alert" className="flex flex-col gap-3 rounded-control border border-down/40 p-4">
-              <p className="font-medium">Delete every session, saved answer, your XP, and your streak? This can&apos;t be undone.</p>
+              <p className="font-medium">Delete every session, saved answer, story, your XP and your streak? This can&apos;t be undone.</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -528,6 +515,61 @@ function SettingsTab() {
           )}
         </div>
       </Group>
+    </div>
+  );
+}
+
+/** Delete recordings: says how many there are, asks first, and goes quiet once there are none. */
+function RecordingsControl({ keeping }: { keeping: boolean }) {
+  const [count, setCount] = useState<number | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [done, setDone] = useState(false);
+
+  // Recordings live in the browser's database, so they're counted after the page loads (and when the switch changes).
+  useEffect(() => {
+    let live = true;
+    listRecordings().then((r) => live && setCount(r.length));
+    return () => {
+      live = false;
+    };
+  }, [keeping]);
+
+  async function remove() {
+    await deleteRecordings();
+    setCount(0);
+    setAsking(false);
+    setDone(true);
+  }
+
+  return (
+    <div className="flex flex-col gap-3 px-5 py-4" aria-live="polite">
+      {count === null ? (
+        <span className="skeleton h-10 w-48" aria-hidden />
+      ) : count === 0 ? (
+        <p className="flex items-center gap-2 text-label text-muted">
+          {done && <CheckIcon size={16} weight="bold" className="text-up" aria-hidden />}
+          {done ? "Recordings deleted. None are saved on this device now." : "No recordings saved on this device."}
+        </p>
+      ) : asking ? (
+        <div role="alert" className="flex flex-col gap-3">
+          <p className="text-body-sm font-medium">
+            Delete {count === 1 ? "your recording" : `all ${count} recordings`}? You can&apos;t get {count === 1 ? "it" : "them"} back.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="btn min-h-10 bg-down text-label text-white hover:opacity-90" onClick={remove}>
+              Delete {count === 1 ? "it" : "them"}
+            </button>
+            <button type="button" className="btn btn-ghost min-h-10 text-label" onClick={() => setAsking(false)}>
+              Keep {count === 1 ? "it" : "them"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="btn btn-ghost min-h-10 w-fit text-label" onClick={() => setAsking(true)}>
+          <TrashIcon size={16} weight="bold" aria-hidden />
+          Delete my {count === 1 ? "recording" : `${count} recordings`}
+        </button>
+      )}
     </div>
   );
 }

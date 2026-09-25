@@ -215,7 +215,7 @@ describe("progress backups", () => {
     expect(savedAt).toBe("2026-09-25T10:00:00.000Z");
     expect(back.sessions).toHaveLength(2);
     expect(progressSummary(back)).toBe("1 round, 120 XP");
-    expect(backupFileName(new Date(2026, 8, 5))).toBe("rehearse-progress-2026-09-05.json");
+    expect(backupFileName(new Date(2026, 8, 5, 9, 7))).toBe("rehearse-progress-2026-09-05-0907.json");
   });
 
   it("refuses files that aren't backups, with a message for people", () => {
