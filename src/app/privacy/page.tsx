@@ -49,6 +49,11 @@ export default function PrivacyPage() {
           and then runs on your device, so nothing is sent at all. Until it&apos;s ready, questions (never your answers)
           may be sent to Groq to create a natural voice. You can switch to the standard voice in Me.
         </p>
+        <p className="text-muted">
+          CVs and job adverts: if you upload a CV file, it is read on your device and the file itself is never sent. Only the
+          text, with emails, phone numbers, postcodes and links removed, goes to Groq (with data retention turned off) to
+          find your stories and questions. It is not stored.
+        </p>
       </section>
       <section className="flex flex-col gap-2">
         <h2 className="text-title font-semibold">What we never do</h2>

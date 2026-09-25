@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { createSession, getSettings, useStore } from "@/lib/store";
 import { PERSONAS } from "@/lib/game";
+import { isEnglish, languageFor } from "@/lib/languages";
+import { CLOSER, OPENER } from "@/lib/prepare";
 import { prepareSpeech } from "@/lib/tts";
 import type { Category, Competency, Mode, PersonaId } from "@/lib/types";
 
@@ -18,6 +20,7 @@ export function PractiseButton({
   persona = "friendly",
   variant = "ghost",
   className = "",
+  language,
 }: {
   items: PractiseItem[];
   /** Job title for the round; defaults to the last one practised. */
@@ -27,6 +30,8 @@ export function PractiseButton({
   persona?: PersonaId;
   variant?: "go" | "ghost" | "primary";
   className?: string;
+  /** The questions' language, when the AI wrote them in the user's chosen one. */
+  language?: string;
 }) {
   const router = useRouter();
   const { sessions } = useStore();
@@ -40,14 +45,22 @@ export function PractiseButton({
       difficulty: q.difficulty,
       lookingFor: q.looking_for,
     }));
+    // A mock interview opens and closes like a real one.
+    const lang = languageFor(language);
+    const english = isEnglish(lang.code);
+    const bookended =
+      mode === "mock"
+        ? [english ? OPENER : { ...OPENER, text: lang.opener }, ...questions, english ? CLOSER : { ...CLOSER, text: lang.closer }]
+        : questions;
     const session = createSession({
       role: (role ?? sessions[0]?.role ?? "Any job").slice(0, 80),
       seniority: sessions[0]?.seniority ?? "entry",
       jobDescription: "",
-      questions,
+      questions: bookended,
       demo: true,
       mode,
       persona,
+      language: language,
     });
     prepareSpeech([PERSONAS[persona].greeting], PERSONAS[persona], getSettings().voiceEngine);
     router.push(`/practice/${session.id}`);

@@ -61,6 +61,16 @@ export function RememberView() {
             Pick your best take or the stronger version, put it in your own words, and pick a few key points. Then practise
             saying it from memory here, a little each day, until it sticks.
           </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-label font-medium">Four ways to practise, once you&apos;ve saved one:</p>
+            <ul className="flex flex-col gap-1.5">
+              {RECALL_MODES.map((m) => (
+                <li key={m.value} className="text-body-sm text-muted">
+                  <span className="font-semibold text-ink">{m.label}.</span> {m.how}
+                </li>
+              ))}
+            </ul>
+          </div>
           <Link href="/" className="btn btn-go">
             Practise a question
           </Link>
