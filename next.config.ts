@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+          // Hugging Face refuses model downloads referred from workers.dev, and the address is nobody's business anyway.
+          { key: "Referrer-Policy", value: "no-referrer" },
         ],
       },
       {

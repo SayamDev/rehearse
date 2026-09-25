@@ -6,8 +6,8 @@
  * Nothing here sends data anywhere.
  */
 // Bump to throw away every cached file. v2: v1 kept copies of scripts without the
-// cross-origin headers, which made Chrome block the voice worker.
-const VERSION = "rehearse-v2";
+// cross-origin headers, which made Chrome block the voice worker. v3: adds Referrer-Policy.
+const VERSION = "rehearse-v3";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const OFFLINE = "/offline";
@@ -76,10 +76,12 @@ self.addEventListener("activate", (event) => {
  * workers included, that carry matching headers. Add them to anything served from here.
  */
 function isolated(res) {
-  if (!res || res.type !== "basic" || res.headers.get("Cross-Origin-Embedder-Policy")) return res;
+  if (!res || res.type !== "basic" || (res.headers.get("Cross-Origin-Embedder-Policy") && res.headers.get("Referrer-Policy"))) return res;
   const headers = new Headers(res.headers);
   headers.set("Cross-Origin-Embedder-Policy", "credentialless");
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  // Hugging Face refuses the voice download when it's referred from workers.dev.
+  headers.set("Referrer-Policy", "no-referrer");
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
