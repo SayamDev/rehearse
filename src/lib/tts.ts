@@ -168,7 +168,14 @@ function groqClip(text: string, persona: Persona, pace: number): Promise<Clip> {
  * A human-sounding clip, trying in order: Kokoro (when chosen and loaded), Groq,
  * then Kokoro again once it finishes loading. Null means only the device voice is left.
  */
-function clipFor(text: string, persona: Persona, requested: Engine, pace: number): Promise<Clip> {
+function clipFor(text: string, persona: Persona, requested: Engine, pace: number, onDevice = false): Promise<Clip> {
+  // The user's own words never go to Groq: the on-device voice or nothing (then the device's built-in voice reads it).
+  if (onDevice) {
+    if (kokoroState().status !== "ready") return Promise.resolve(null);
+    const job = kokoroQueue.then(() => kokoroClip(text, persona.id, pace));
+    kokoroQueue = job.catch(() => null);
+    return job.then((url) => (url ? { url, rate: 1 } : null));
+  }
   if (requested !== "kokoro") return groqClip(text, persona, pace);
   if (kokoroState().status !== "ready") {
     // Kokoro is still loading: Groq speaks, and if it can't, wait for Kokoro rather than use the device voice.
@@ -262,8 +269,10 @@ function playClip(url: string, token: number, persona: PersonaId, rate: number):
 /**
  * Speaks the line in the interviewer's voice. Pass the greeting and question as
  * separate parts. Calling again (or stopSpeaking) interrupts.
+ * `onDevice` is for the user's own words (saved answers, scripts): they're read by the
+ * on-device voice or the device's built-in one, and never sent to Groq.
  */
-export async function speak(line: string | string[], persona: Persona, engine: Engine = "standard"): Promise<void> {
+export async function speak(line: string | string[], persona: Persona, engine: Engine = "standard", onDevice = false): Promise<void> {
   stopSpeaking();
   const token = ++run;
   const lang = otherLanguage();
@@ -274,7 +283,7 @@ export async function speak(line: string | string[], persona: Persona, engine: E
     try {
       setVoice({ status: "preparing", persona: persona.id });
       // Arabic has a free human voice on Groq; other languages use the device's voice.
-      const url = lang === "ar" ? await arabicClips(text, persona) : null;
+      const url = lang === "ar" && !onDevice ? await arabicClips(text, persona) : null;
       if (token !== run) return;
       if (url) {
         for (const u of url) await playClip(u, token, persona.id, paceFor(persona));
@@ -291,7 +300,7 @@ export async function speak(line: string | string[], persona: Persona, engine: E
   const pace = paceFor(persona);
   const parts = chunkParts(Array.isArray(line) ? line : [line]);
   // Ask for every chunk now; each one is usually ready before the one before it finishes.
-  const pending = parts.map((c) => clipFor(c, persona, engine, pace));
+  const pending = parts.map((c) => clipFor(c, persona, engine, pace, onDevice));
   try {
     for (let i = 0; i < parts.length; i++) {
       // The interviewer card shows a loader meanwhile; the device voice only steps in if nothing arrives.

@@ -6,6 +6,7 @@ import { MAX_POINTS, recallXp, scheduleAfterRecall } from "./memory";
 import { earnedIds } from "./collection";
 import { deleteRecordingsFor } from "./recordings";
 import type { BackupData } from "./backup";
+import { MAX_NUMBERS, MAX_STORIES, type CompanyCard, type NumberFact, type Story } from "./kit";
 import type { UpcomingInterview, ConversationLine, KeyPoint, Mode, PersonaId, Profile, Question, SavedAnswer, Session, Seniority, Settings, Take } from "./types";
 
 /**
@@ -368,6 +369,31 @@ export function markWelcomed() {
 export function turnOffVoiceNudge() {
   const s = current();
   commit({ profile: { ...s.profile, voiceNudgeOff: true } });
+}
+
+/* ---------------- Interview kit ---------------- */
+
+/** Adds a story, or updates it if it's already saved. */
+export function saveStory(story: Story) {
+  const s = current();
+  const stories = s.profile.stories ?? [];
+  const next = stories.some((x) => x.id === story.id) ? stories.map((x) => (x.id === story.id ? story : x)) : [...stories, story].slice(0, MAX_STORIES);
+  commit({ profile: { ...s.profile, stories: next } });
+}
+
+export function deleteStory(id: string) {
+  const s = current();
+  commit({ profile: { ...s.profile, stories: (s.profile.stories ?? []).filter((x) => x.id !== id) } });
+}
+
+export function setCompany(company: CompanyCard | null) {
+  const s = current();
+  commit({ profile: { ...s.profile, company } });
+}
+
+export function setNumbers(numbers: NumberFact[]) {
+  const s = current();
+  commit({ profile: { ...s.profile, numbers: numbers.slice(0, MAX_NUMBERS) } });
 }
 
 /** Stops the "keep your progress safe" pop-up from ever opening again. */

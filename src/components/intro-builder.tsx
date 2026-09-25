@@ -193,7 +193,7 @@ export function IntroBuilder() {
             type="button"
             className="btn btn-quiet"
             disabled={!script}
-            onClick={() => (reading ? stopSpeaking() : speak(script, PERSONAS.friendly, getSettings().voiceEngine))}
+            onClick={() => (reading ? stopSpeaking() : speak(script, PERSONAS.friendly, getSettings().voiceEngine, true))}
           >
             {reading ? <StopIcon size={18} weight="fill" aria-hidden /> : <SpeakerHighIcon size={18} weight="fill" aria-hidden />}
             {reading ? "Stop" : "Hear it read aloud"}

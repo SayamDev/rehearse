@@ -8,6 +8,7 @@ import { countdownLabel, daysUntil, interviewDate } from "@/lib/countdown";
 import { DAY_CHECKLIST } from "@/lib/calm";
 import { OPENER } from "@/lib/prepare";
 import { Breathing } from "./breathing";
+import { PocketList, pocketCards } from "./pocket-cards";
 
 const CHEERS = [
   "You've practised. You're more ready than you feel.",
@@ -34,6 +35,8 @@ export function DayOf() {
   const asks = profile.askList.slice(0, 3);
   const cheer = CHEERS[now.getDate() % CHEERS.length];
   const days = interview ? daysUntil(interview.when, now) : null;
+  // Stories and numbers first: they cover the most questions.
+  const pockets = pocketCards(profile, bank).sort((a, b) => ["story", "numbers", "company", "answer"].indexOf(a.kind) - ["story", "numbers", "company", "answer"].indexOf(b.kind));
 
   return (
     <div className="flex flex-col gap-10">
@@ -137,6 +140,20 @@ export function DayOf() {
               </ul>
             </div>
           )}
+        </section>
+      )}
+
+      {pockets.length > 0 && (
+        <section aria-labelledby="pockets" className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="pockets" className="text-title-lg font-bold tracking-[-0.02em]">
+              Your pocket cards
+            </h2>
+            <Link href="/remember/cards" className="text-label font-semibold underline underline-offset-4">
+              Make a lock-screen image
+            </Link>
+          </div>
+          <PocketList cards={pockets.slice(0, 6)} compact />
         </section>
       )}
 

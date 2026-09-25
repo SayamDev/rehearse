@@ -2,17 +2,27 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRightIcon, CaretDownIcon, CheckIcon, MinusIcon } from "@phosphor-icons/react";
+import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon, CaretDownIcon, CheckIcon, MinusIcon } from "@phosphor-icons/react";
 import { AnswerComposer, type SubmittedAnswer } from "./answer-composer";
 import { StrengthMeter } from "./strength-meter";
 import { describeDue, isDue, matchKeyPoints } from "@/lib/memory";
 import { levelFromXp } from "@/lib/scoring";
 import { localDay, recordRecall, useStore, type RecallResult } from "@/lib/store";
 import type { SavedAnswer } from "@/lib/types";
+import { RECALL_MODES, gapFor, gapMatches, orderMarks, shuffled, type Gap, type RecallMode } from "@/lib/kit";
+
+type Way = Exclude<RecallMode, "mix">;
+
+/** The way to recall this answer: mixing rotates through all three, skipping ones that don't fit. */
+function wayFor(mode: RecallMode, answer: SavedAnswer, index: number): Way {
+  const fits = (w: Way) => (w === "order" ? answer.keyPoints.length >= 2 : w === "gap" ? answer.keyPoints.some((p) => gapFor(p.text)) : true);
+  const wanted: Way = mode === "mix" ? (["say", "gap", "order"] as const)[index % 3] : mode;
+  return fits(wanted) ? wanted : "say";
+}
 
 type Outcome = { answer: SavedAnswer; hit: number; total: number; result: RecallResult };
 
-export function RecallDrill({ onlyId, all }: { onlyId?: string; all?: boolean }) {
+export function RecallDrill({ onlyId, all, mode = "mix" }: { onlyId?: string; all?: boolean; mode?: RecallMode }) {
   const { hydrated, bank, profile } = useStore();
   if (!hydrated) {
     return (
@@ -28,12 +38,13 @@ export function RecallDrill({ onlyId, all }: { onlyId?: string; all?: boolean })
     ? bank.filter((a) => a.id === onlyId)
     : bank.filter((a) => all || isDue(a, today)).sort((a, b) => a.box - b.box);
   // The queue is fixed when the drill starts, so recording a result doesn't reshuffle it.
-  return <Drill queue={queue} defaultMode={profile.settings.defaultAnswerMode} />;
+  return <Drill queue={queue} defaultMode={profile.settings.defaultAnswerMode} mode={mode} />;
 }
 
-function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultMode: "voice" | "type" }) {
+function Drill({ queue: initial, defaultMode, mode }: { queue: SavedAnswer[]; defaultMode: "voice" | "type"; mode: RecallMode }) {
   const [queue] = useState(initial);
   const [index, setIndex] = useState(0);
+  /** What the user said (Say it back), or an empty answer once a gap or order check is done. */
   const [recall, setRecall] = useState<SubmittedAnswer | null>(null);
   const [marks, setMarks] = useState<Record<string, boolean>>({});
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
@@ -54,10 +65,17 @@ function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultM
   if (index >= queue.length) return <Finished outcomes={outcomes} xpNow={profile.xp} />;
 
   const current = queue[index];
+  const way = wayFor(mode, current, index);
 
   function check(a: SubmittedAnswer) {
     setRecall(a);
     setMarks(matchKeyPoints(current.keyPoints, a.text));
+    window.scrollTo({ top: 0 });
+  }
+
+  function checked(result: Record<string, boolean>) {
+    setRecall({ text: "", mode: "type", durationSec: 0 });
+    setMarks(result);
     window.scrollTo({ top: 0 });
   }
 
@@ -94,22 +112,37 @@ function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultM
         </h1>
         {!recall && (
           <p className="text-muted">
-            Answer from memory, the way you would in the interview. You have{" "}
-            <span className="tnum font-medium text-ink">{current.keyPoints.length}</span> key{" "}
-            {current.keyPoints.length === 1 ? "point" : "points"} to hit.
+            <span className="sticker sticker-sky mr-2 align-middle">{RECALL_MODES.find((m) => m.value === way)!.label}</span>
+            {way === "say" ? (
+              <>
+                Answer from memory, the way you would in the interview. You have{" "}
+                <span className="tnum font-medium text-ink">{current.keyPoints.length}</span> key{" "}
+                {current.keyPoints.length === 1 ? "point" : "points"} to hit.
+              </>
+            ) : way === "gap" ? (
+              "Fill in the missing word in each key point."
+            ) : (
+              "Put your key points back in the order you'd say them."
+            )}
           </p>
         )}
       </section>
 
       {!recall ? (
-        <AnswerComposer
-          key={current.id}
-          takeNumber={1}
-          label="From memory"
-          submitLabel="Check my recall"
-          defaultMode={defaultMode}
-          onSubmit={check}
-        />
+        way === "gap" ? (
+          <GapRecall key={current.id} answer={current} onCheck={checked} />
+        ) : way === "order" ? (
+          <OrderRecall key={current.id} answer={current} onCheck={checked} />
+        ) : (
+          <AnswerComposer
+            key={current.id}
+            takeNumber={1}
+            label="From memory"
+            submitLabel="Check my recall"
+            defaultMode={defaultMode}
+            onSubmit={check}
+          />
+        )
       ) : (
         <>
           <section aria-labelledby="recall-result" className="panel flex flex-col">
@@ -131,7 +164,9 @@ function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultM
 
             <div className="border-t border-line p-5 sm:p-6">
               <h3 className="text-label font-semibold">Your key points</h3>
-              <p className="mt-1 text-label text-muted">We match your words roughly. Tap a point to correct it.</p>
+              <p className="mt-1 text-label text-muted">
+                {way === "say" ? "We match your words roughly. Tap a point to correct it." : "Tap a point to correct it."}
+              </p>
               <ul className="mt-3 flex flex-col gap-2">
                 {current.keyPoints.map((p) => {
                   const hit = Boolean(marks[p.id]);
@@ -165,7 +200,7 @@ function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultM
             </div>
 
             <Disclosure title="Your saved answer">{current.text}</Disclosure>
-            <Disclosure title="What you just said">{recall.text}</Disclosure>
+            {way === "say" && <Disclosure title="What you just said">{recall.text}</Disclosure>}
           </section>
 
           <div className="sticky bottom-[72px] z-20 -mx-4 flex gap-2 border-t border-line bg-floor/95 px-4 py-3 backdrop-blur md:bottom-0 md:mx-0 md:px-0 [&>button]:flex-1 sm:[&>button]:flex-none">
@@ -180,6 +215,104 @@ function Drill({ queue: initial, defaultMode }: { queue: SavedAnswer[]; defaultM
         </>
       )}
 
+    </div>
+  );
+}
+
+/** Fill the gap: each key point with its most telling word blanked out. */
+function GapRecall({ answer, onCheck }: { answer: SavedAnswer; onCheck: (marks: Record<string, boolean>) => void }) {
+  const [gaps] = useState(() => answer.keyPoints.map((p) => ({ point: p, gap: gapFor(p.text) })));
+  const [guesses, setGuesses] = useState<Record<string, string>>({});
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    // Points with nothing to blank are shown whole, so they count as remembered.
+    onCheck(Object.fromEntries(gaps.map(({ point, gap }) => [point.id, gap ? gapMatches(guesses[point.id] ?? "", gap.answer) : true])));
+  }
+
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-4">
+      <ol className="flex flex-col gap-3">
+        {gaps.map(({ point, gap }, i) => (
+          <li key={point.id} className="panel p-4 leading-relaxed">
+            {gap ? <GapLine gap={gap} n={i + 1} value={guesses[point.id] ?? ""} onChange={(v) => setGuesses((g) => ({ ...g, [point.id]: v }))} /> : point.text}
+          </li>
+        ))}
+      </ol>
+      <button type="submit" className="btn btn-go h-12 w-full px-6 sm:w-fit">
+        Check my gaps
+      </button>
+    </form>
+  );
+}
+
+function GapLine({ gap, n, value, onChange }: { gap: Gap; n: number; value: string; onChange: (v: string) => void }) {
+  return (
+    <span>
+      {gap.before}
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={`Missing word in key point ${n}`}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        className="field mx-1 inline-block h-10 min-h-0 w-[min(11rem,60vw)] px-2 py-1 align-middle"
+        style={{ width: `${Math.max(5, gap.answer.length + 3)}ch` }}
+      />
+      {gap.after}
+    </span>
+  );
+}
+
+/** Put in order: the key points shuffled, moved with up and down buttons (works with a keyboard and screen readers). */
+function OrderRecall({ answer, onCheck }: { answer: SavedAnswer; onCheck: (marks: Record<string, boolean>) => void }) {
+  const [order, setOrder] = useState(() => shuffled(answer.keyPoints.map((p) => p.id)));
+  const [moved, setMoved] = useState("");
+  const byId = Object.fromEntries(answer.keyPoints.map((p) => [p.id, p]));
+
+  function move(from: number, to: number) {
+    if (to < 0 || to >= order.length) return;
+    setOrder((o) => {
+      const next = [...o];
+      [next[from], next[to]] = [next[to], next[from]];
+      return next;
+    });
+    setMoved(`Moved to position ${to + 1} of ${order.length}.`);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ol className="flex flex-col gap-2">
+        {order.map((id, i) => (
+          <li key={id} className="panel flex items-center gap-3 p-3 pl-4">
+            <span className="tnum flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 text-label font-bold" aria-hidden>
+              {i + 1}
+            </span>
+            <span className="min-w-0 flex-1 leading-snug">{byId[id].text}</span>
+            <span className="flex shrink-0 gap-1">
+              <button type="button" className="btn btn-quiet size-11 p-0" onClick={() => move(i, i - 1)} disabled={i === 0} aria-label={`Move up: ${byId[id].text}`}>
+                <ArrowUpIcon size={18} weight="bold" aria-hidden />
+              </button>
+              <button
+                type="button"
+                className="btn btn-quiet size-11 p-0"
+                onClick={() => move(i, i + 1)}
+                disabled={i === order.length - 1}
+                aria-label={`Move down: ${byId[id].text}`}
+              >
+                <ArrowDownIcon size={18} weight="bold" aria-hidden />
+              </button>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="sr-only" aria-live="polite">
+        {moved}
+      </p>
+      <button type="button" className="btn btn-go h-12 w-full px-6 sm:w-fit" onClick={() => onCheck(orderMarks(answer.keyPoints, order))}>
+        Check my order
+      </button>
     </div>
   );
 }

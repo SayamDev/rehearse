@@ -11,7 +11,7 @@ const VERSION = "rehearse-v3";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const OFFLINE = "/offline";
-const WARM = ["/", "/offline", "/practice/new", "/prepare", "/prepare/packs", "/calm", "/remember", "/archive", "/me"];
+const WARM = ["/", "/offline", "/practice/new", "/prepare", "/prepare/packs", "/prepare/today", "/calm", "/remember", "/remember/cards", "/remember/quiz", "/archive", "/me"];
 
 /*
  * Pages for one practice round, saved answer or session (/practice/<id>) all share one

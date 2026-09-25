@@ -11,6 +11,8 @@ export const CATEGORIES = [
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+import type { CompanyCard, NumberFact, Story } from "./kit";
+
 export const COMPETENCIES = [
   "communication",
   "problem-solving",
@@ -177,6 +179,12 @@ export type Profile = {
   saveNudgeOff?: boolean;
   /** When the last progress backup file was made (ISO). */
   lastBackup?: string;
+  /** Story bank: the few stories that answer most questions. */
+  stories?: Story[];
+  /** What the user knows about the company they're interviewing with. */
+  company?: CompanyCard | null;
+  /** Figures to quote in answers ("team of 5"). */
+  numbers?: NumberFact[];
 };
 
 export const MODES = ["quick", "speed", "daily", "boss", "mock", "live", "phone", "video", "offer"] as const;
