@@ -2,7 +2,24 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { ArrowRightIcon, ChartLineUpIcon, DeviceMobileIcon, FireIcon, GearSixIcon, LockIcon, MicrophoneIcon, SparkleIcon, SpeakerHighIcon, StickerIcon } from "@phosphor-icons/react";
+import {
+  ArrowRightIcon,
+  CalendarCheckIcon,
+  CaretDownIcon,
+  ChartLineUpIcon,
+  ChatCircleIcon,
+  DeviceMobileIcon,
+  FireIcon,
+  GearSixIcon,
+  LockIcon,
+  LockSimpleIcon,
+  MicrophoneIcon,
+  SparkleIcon,
+  SpeakerHighIcon,
+  StarIcon,
+  StickerIcon,
+  TrophyIcon,
+} from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { liveStreak, resetAll, updateSettings, useStore } from "@/lib/store";
 import { levelFromXp } from "@/lib/scoring";
@@ -123,118 +140,144 @@ function ProgressTab({ onStickers }: { onStickers: () => void }) {
   const next = COLLECTION.find((c) => c.group === "achievements" && !earned.has(c.id)) ?? COLLECTION.find((c) => !earned.has(c.id));
   const points = scoreHistory(sessions);
   const skills = skillAverages(sessions);
+  const rounds = sessions.filter((s) => s.completedAt).length;
+  // Scores need two rounds to draw a line; until then one friendly note instead of two empty ones.
+  const unlocked = rounds >= 2;
 
   return (
-    <div className="flex flex-col gap-8">
-      <section aria-labelledby="level" className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="sticker tnum text-body">Level {level.level}</span>
-          <h2 id="level" className="text-title-lg font-bold tracking-[-0.02em]">
-            {level.title}
-          </h2>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div
-            className="h-3 w-full overflow-hidden rounded-full border border-line bg-surface-2"
-            role="progressbar"
-            aria-label="XP toward next level"
-            aria-valuemin={0}
-            aria-valuemax={span}
-            aria-valuenow={Math.min(into, span)}
-          >
-            <div className="h-full rounded-full bg-sun transition-[width] duration-500" style={{ width: `${pct}%` }} />
+    <div className="flex flex-col gap-10">
+      <Group title={`Level ${level.level} · ${level.title}`} hint="Every answer earns XP." icon={TrophyIcon} ink="bg-sun" padded>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <div
+              className="h-3 w-full overflow-hidden rounded-full border border-line bg-surface-2"
+              role="progressbar"
+              aria-label="XP toward next level"
+              aria-valuemin={0}
+              aria-valuemax={span}
+              aria-valuenow={Math.min(into, span)}
+            >
+              <div className="h-full rounded-full bg-sun transition-[width] duration-500" style={{ width: `${pct}%` }} />
+            </div>
+            <p className="text-label text-muted">
+              <span className="tnum font-semibold text-ink">{profile.xp} XP</span>
+              {level.level < 50 && ` · ${level.next - profile.xp} XP to level ${level.level + 1}`}
+            </p>
           </div>
-          <p className="text-label text-muted">
-            <span className="tnum font-semibold text-ink">{profile.xp} XP</span>
-            {level.level < 50 && ` · ${level.next - profile.xp} XP to level ${level.level + 1}`}
-          </p>
+          <dl className="grid grid-cols-3 gap-2 sm:gap-3">
+            <Stat icon={FireIcon} lit={streak > 0} label="Streak" value={streak} detail={`Best ${profile.bestStreak}`} />
+            <Stat icon={ChatCircleIcon} lit={answers > 0} label="Answers" value={answers} detail={`${retakes} ${retakes === 1 ? "retake" : "retakes"}`} />
+            <Stat icon={StickerIcon} lit={earned.size > 0} label="Stickers" value={earned.size} detail={`of ${COLLECTION.length}`} />
+          </dl>
+          {answers === 0 ? (
+            <div className="flex flex-col gap-3 rounded-control bg-surface-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-body-sm">
+                <strong>Your first round is waiting.</strong> Three questions, about five minutes.
+              </p>
+              <Link href="/practice/new" className="btn btn-go shrink-0">
+                Start your first round
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Link href="/archive" className="btn btn-ghost">
+                See past sessions <ArrowRightIcon size={16} weight="bold" aria-hidden />
+              </Link>
+              <ShareProgress />
+            </div>
+          )}
         </div>
-        <p className="flex flex-wrap items-center gap-x-5 gap-y-2 text-body-sm text-muted">
-          <span className="flex items-center gap-1.5">
-            <FireIcon size={18} weight={streak ? "fill" : "regular"} className={streak ? "text-sun-text" : ""} aria-hidden />
-            <span className="tnum font-semibold text-ink">{streak}</span> day streak (best {profile.bestStreak})
-          </span>
-          <span>
-            <span className="tnum font-semibold text-ink">{answers}</span> answers
-          </span>
-          <span>
-            <span className="tnum font-semibold text-ink">{retakes}</span> retakes
-          </span>
-          <span>
-            <span className="tnum font-semibold text-ink">{earned.size}</span> of {COLLECTION.length} stickers
-          </span>
-        </p>
-        {answers > 0 && <ShareProgress />}
-      </section>
+      </Group>
 
-      <WeeklyGoal />
-
-      <section aria-labelledby="scores" className="flex flex-col gap-3">
-        <h2 id="scores" className="text-title font-bold tracking-[-0.01em]">
-          Your scores
-        </h2>
-        <ScoreChart points={points} gain={scoreGain(points)} />
-      </section>
-
-      <section aria-labelledby="skills" className="flex flex-col gap-3">
-        <div>
-          <h2 id="skills" className="text-title font-bold tracking-[-0.01em]">
-            Your skills
-          </h2>
-          <p className="text-body-sm text-muted">Average of your last {skills[0]?.count ?? 0} answers, out of 10.</p>
-        </div>
-        <SkillBars skills={skills} weakest={weakestSkill(skills)} />
-      </section>
-
-      {felt.length > 0 && (
-        <section aria-labelledby="nerves" className="flex flex-col gap-1.5">
-          <h2 id="nerves" className="font-semibold">
-            Nerves
-          </h2>
-          <p className="max-w-[60ch] text-body-sm leading-relaxed text-muted">
-            You felt calmer at the end of <span className="tnum font-semibold text-ink">{calmer}</span> of{" "}
-            <span className="tnum font-semibold text-ink">{felt.length}</span> {felt.length === 1 ? "round" : "rounds"}. The more
-            you practise, the more familiar the real thing feels.{" "}
-            <Link href="/calm" className="font-semibold text-ink underline underline-offset-4">
-              Calm corner
-            </Link>
-          </p>
-        </section>
-      )}
+      <Group title="This week" hint="A gentle goal. Any finished round counts." icon={CalendarCheckIcon} ink="bg-lime" padded>
+        <WeeklyGoal />
+      </Group>
 
       {next && (
-        <section aria-labelledby="next-goal" className="panel flex flex-col items-start gap-4 p-5 sm:flex-row sm:items-center sm:p-6">
-          <StickerArt item={next} earned={false} size={84} tilt={-4} />
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <h2 id="next-goal" className="text-title font-bold">
-              Next sticker: {next.name}
-            </h2>
-            <p className="max-w-[56ch] text-body-sm text-muted">{next.how}</p>
+        <Group title="Up next" hint="Your next sticker to earn." icon={StarIcon} ink="bg-tomato" padded>
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <StickerArt item={next} earned={false} size={84} tilt={-4} />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <p className="text-title font-bold">{next.name}</p>
+              <p className="max-w-[56ch] text-body-sm text-muted">{next.how}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {answers > 0 && (
+                <Link href="/practice/new" className="btn btn-go">
+                  Practise now
+                </Link>
+              )}
+              <button type="button" className="btn btn-ghost" onClick={onStickers}>
+                All stickers
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/practice/new" className="btn btn-go">
-              Practise now
-            </Link>
-            <button type="button" className="btn btn-ghost" onClick={onStickers}>
-              All stickers
-            </button>
-          </div>
-        </section>
+        </Group>
       )}
 
-      <section aria-labelledby="how-xp" className="flex flex-col gap-2">
-        <h2 id="how-xp" className="font-semibold">
+      <Group
+        title="Scores and skills"
+        hint={unlocked ? `Your rounds over time, and your last ${skills[0]?.count ?? 0} answers out of 10.` : "How you're improving."}
+        icon={ChartLineUpIcon}
+        ink="bg-sky"
+        padded
+      >
+        {unlocked ? (
+          <div className="flex flex-col gap-8">
+            <ScoreChart points={points} gain={scoreGain(points)} />
+            <div className="flex flex-col gap-3 border-t border-line pt-6">
+              <h3 className="font-semibold">Your skills</h3>
+              <SkillBars skills={skills} weakest={weakestSkill(skills)} />
+            </div>
+            {felt.length > 0 && (
+              <div className="flex flex-col gap-1.5 border-t border-line pt-6">
+                <h3 className="font-semibold">Nerves</h3>
+                <p className="max-w-[60ch] text-body-sm leading-relaxed text-muted">
+                  You felt calmer at the end of <span className="tnum font-semibold text-ink">{calmer}</span> of{" "}
+                  <span className="tnum font-semibold text-ink">{felt.length}</span> {felt.length === 1 ? "round" : "rounds"}. The more
+                  you practise, the more familiar the real thing feels.{" "}
+                  <Link href="/calm" className="font-semibold text-ink underline underline-offset-4">
+                    Calm corner
+                  </Link>
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
+            <LockSimpleIcon size={22} weight="bold" className="mt-0.5 shrink-0 text-muted" aria-hidden />
+            <p className="text-body-sm text-muted">
+              Finish {rounds === 1 ? "one more round" : "two rounds"} to unlock your score line and see which skills are strongest.
+            </p>
+          </div>
+        )}
+      </Group>
+
+      <details className="group rounded-[var(--radius-panel)] border-2 border-dashed border-line px-5 py-4">
+        <summary className="flex min-h-8 cursor-pointer list-none items-center justify-between gap-3 font-semibold [&::-webkit-details-marker]:hidden">
           How to level up faster
-        </h2>
-        <ul className="flex max-w-[62ch] flex-col gap-1.5 text-body-sm leading-relaxed text-muted">
+          <CaretDownIcon size={18} weight="bold" className="shrink-0 transition-transform duration-200 group-open:rotate-180" aria-hidden />
+        </summary>
+        <ul className="mt-3 flex max-w-[62ch] flex-col gap-1.5 text-body-sm leading-relaxed text-muted">
           <li>Every answer earns XP. Beating your own score on a retake earns the most.</li>
           <li>Practise a little every day to grow your streak. The daily question takes two minutes.</li>
           <li>Save strong answers in Remember and recall them to earn extra XP.</li>
         </ul>
-        <Link href="/archive" className="mt-1 flex w-fit items-center gap-1.5 text-label font-semibold underline underline-offset-4">
-          See past sessions <ArrowRightIcon size={14} weight="bold" aria-hidden />
-        </Link>
-      </section>
+      </details>
+    </div>
+  );
+}
+
+/** One number worth glancing at: icon, big number, what it is, and a small detail. */
+function Stat({ icon: StatIcon, lit, label, value, detail }: { icon: Icon; lit: boolean; label: string; value: number; detail: string }) {
+  return (
+    <div className="flex min-w-0 flex-col rounded-control bg-surface-2 p-3 sm:p-4">
+      <dd className="order-1 flex flex-col gap-2">
+        <StatIcon size={20} weight={lit ? "fill" : "regular"} className={lit ? "text-ink" : "text-muted"} aria-hidden />
+        <span className="tnum font-display text-title-lg font-bold leading-none">{value}</span>
+      </dd>
+      <dt className="order-2 mt-1.5 text-label font-semibold">{label}</dt>
+      <dd className="order-3 text-label text-muted">{detail}</dd>
     </div>
   );
 }
@@ -494,8 +537,23 @@ function InstallRow() {
   );
 }
 
-/** A settings group, headed by a small sticker icon in its own colour so each group is easy to spot. */
-function Group({ title, hint, icon: GroupIcon, ink, children }: { title: string; hint: string; icon: Icon; ink: string; children: ReactNode }) {
+/** A group of related things (settings, or progress), headed by a small sticker icon in its own colour so each group is easy to spot. */
+function Group({
+  title,
+  hint,
+  icon: GroupIcon,
+  ink,
+  padded = false,
+  children,
+}: {
+  title: string;
+  hint: string;
+  icon: Icon;
+  ink: string;
+  /** A card with padding, for free-form content, rather than a list of setting rows. */
+  padded?: boolean;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
@@ -512,7 +570,7 @@ function Group({ title, hint, icon: GroupIcon, ink, children }: { title: string;
           <p className="text-body-sm text-muted">{hint}</p>
         </div>
       </div>
-      <div className="panel flex flex-col divide-y divide-line">{children}</div>
+      <div className={padded ? "panel p-5 sm:p-6" : "panel flex flex-col divide-y divide-line"}>{children}</div>
     </section>
   );
 }
