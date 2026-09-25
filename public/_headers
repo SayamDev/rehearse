@@ -5,3 +5,7 @@
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
+
+# The offline service worker must always be checked for updates.
+/sw.js
+  Cache-Control: no-cache

@@ -5,7 +5,9 @@
  * - /api is never cached: answers and AI calls always go to the network.
  * Nothing here sends data anywhere.
  */
-const VERSION = "rehearse-v1";
+// Bump to throw away every cached file. v2: v1 kept copies of scripts without the
+// cross-origin headers, which made Chrome block the voice worker.
+const VERSION = "rehearse-v2";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const OFFLINE = "/offline";
@@ -69,6 +71,18 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+/*
+ * The page is cross-origin isolated (for the on-device voice), so Chrome only runs scripts,
+ * workers included, that carry matching headers. Add them to anything served from here.
+ */
+function isolated(res) {
+  if (!res || res.type !== "basic" || res.headers.get("Cross-Origin-Embedder-Policy")) return res;
+  const headers = new Headers(res.headers);
+  headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
 function isAsset(url) {
   return (
     url.pathname.startsWith("/_next/static/") ||
@@ -91,10 +105,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.open(ASSETS).then(async (cache) => {
         const hit = await cache.match(req);
-        if (hit) return hit;
+        if (hit) return isolated(hit);
         const res = await fetch(req);
         if (res.ok) cache.put(req, res.clone());
-        return res;
+        return isolated(res);
       }),
     );
     return;
@@ -112,11 +126,11 @@ self.addEventListener("fetch", (event) => {
           }
           return res;
         } catch {
-          return (
+          return isolated(
             (await cache.match(url.pathname)) ||
-            (await fromShell(cache, url.pathname)) ||
-            (await cache.match(OFFLINE)) ||
-            Response.error()
+              (await fromShell(cache, url.pathname)) ||
+              (await cache.match(OFFLINE)) ||
+              Response.error(),
           );
         }
       })(),
