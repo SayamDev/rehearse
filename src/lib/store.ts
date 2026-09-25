@@ -373,6 +373,22 @@ export function turnOffVoiceNudge() {
   commit({ profile: { ...s.profile, voiceNudgeOff: true } });
 }
 
+/** Saves the name shown on the Me page (letters, spaces, hyphens and apostrophes; up to 24). Empty removes it. */
+export function setName(name: string) {
+  const s = current();
+  const clean = cleanName(name);
+  commit({ profile: { ...s.profile, name: clean || undefined } });
+}
+
+export function cleanName(name: string): string {
+  return name
+    .normalize("NFC")
+    .replace(/[^\p{L}\p{M}' -]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 24);
+}
+
 /* ---------------- Interview kit ---------------- */
 
 /** Adds a story, or updates it if it's already saved. */

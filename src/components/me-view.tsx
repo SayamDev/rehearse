@@ -40,6 +40,7 @@ import { ShareProgress } from "./share-progress";
 import { WeeklyGoal } from "./weekly-goal";
 import { useInstall } from "./pwa";
 import { scrollToHash } from "./route-scroll";
+import { NameTitle } from "./name-title";
 import { ACCENTS, AUTO, accentFor } from "@/lib/accents";
 import { BackupButton, LoadBackup } from "./progress-backup";
 import { lastBackupLabel } from "@/lib/backup";
@@ -109,7 +110,7 @@ export function MeView() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
-        <h1 className="text-headline font-bold leading-[1.1] tracking-[-0.03em]">{t("me.title")}</h1>
+        <NameTitle fallback={t("me.title")} />
         <div id={`${baseId}-tabs`} role="tablist" aria-label="Your page" className="scroll-mt-20 flex w-fit max-w-full gap-1 rounded-full border-2 border-line bg-surface p-1">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button

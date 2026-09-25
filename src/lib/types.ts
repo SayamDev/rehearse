@@ -187,6 +187,8 @@ export type Profile = {
   saveNudgeOff?: boolean;
   /** When the last progress backup file was made (ISO). */
   lastBackup?: string;
+  /** A first name or nickname for the Me page. Kept on this device; never sent anywhere. */
+  name?: string;
   /** Story bank: the few stories that answer most questions. */
   stories?: Story[];
   /** What the user knows about the company they're interviewing with. */

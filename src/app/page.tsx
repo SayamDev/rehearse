@@ -1,5 +1,6 @@
 import { RoleForm } from "@/components/role-form";
 import { JustOneQuestion } from "@/components/just-one";
+import { WelcomeBack } from "@/components/name-title";
 import { RecentPractice } from "@/components/recent-practice";
 import { LandingStickers } from "@/components/landing-stickers";
 import { HowItWorks } from "@/components/how-it-works";
@@ -16,6 +17,7 @@ export default function Home() {
       <div className="grid gap-7 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14">
         <section aria-labelledby="start" className="flex flex-col gap-5 md:gap-6 md:pt-8">
           <HeroMic className="-mb-4 -ml-2 w-32 sm:w-40" />
+          <WelcomeBack />
           <div className="relative w-fit pr-4 pt-7 sm:pt-6">
             <h1 id="start" className="max-w-[16ch] text-display font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-display-lg">
               <UiText k="home.title" />
