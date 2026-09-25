@@ -116,6 +116,15 @@
 }
 
 /* Me > Settings > Larger text: everything is sized in rem, so this scales the whole app. */
+/* Focus mode during a round: only the question, the answer and progress stay on screen. */
+html[data-focus="on"] [data-focus-hide] {
+  display: none;
+}
+/* No bottom menu in Focus mode, so action bars sit at the very bottom. */
+html[data-focus="on"] [data-sticky-bar] {
+  bottom: 0;
+}
+
 html[data-text="large"] {
   font-size: 112.5%;
 }

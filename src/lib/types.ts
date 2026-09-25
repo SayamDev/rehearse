@@ -111,6 +111,8 @@ export type Session = {
   demo: boolean;
   /** How the user felt before and after the round, 0 (very nervous) to 4 (calm and ready). */
   feel?: { before?: number; after?: number };
+  /** Started with "Just one question": no check-in first, one question, done. */
+  oneQuestion?: boolean;
   /** Live Interview: everything said, in order. */
   conversation?: ConversationLine[];
   /** Language the round is in. Missing means English. */
@@ -138,6 +140,8 @@ export type Settings = {
   largeText: boolean;
   /** Ask the AI for simpler words in questions and notes. */
   plainWords: boolean;
+  /** During rounds, hide everything but the question, the answer and progress. */
+  focusMode?: boolean;
   /** Language to practise in (see languages.ts). Menus stay in English. */
   language: string;
   /** Light or dark colours. "system" follows the device. */

@@ -305,7 +305,7 @@ function SettingsTab() {
   const { profile, sessions, bank } = useStore();
   const s = profile.settings;
   const [confirming, setConfirming] = useState(false);
-  const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId() };
+  const ids = { lang: useId(), read: useId(), help: useId(), delivery: useId(), soft: useId(), large: useId(), plain: useId(), rec: useId(), focus: useId() };
   const [recsCleared, setRecsCleared] = useState(false);
   const speed = SPEEDS.find((o) => Number(o.value) === s.voiceSpeed)?.value ?? "1";
 
@@ -412,6 +412,11 @@ function SettingsTab() {
               ))}
             </select>
           }
+        />
+        <Row
+          label={<label htmlFor={ids.focus}>Focus mode</label>}
+          description="During a round, only the question, your answer and your progress stay on screen. Menus and stickers wait, and notes open with the one thing to fix. Helpful for ADHD or when your mind wanders."
+          control={<Switch id={ids.focus} checked={Boolean(s.focusMode)} onChange={(v) => updateSettings({ focusMode: v })} />}
         />
         <Row
           label={<label htmlFor={ids.large}>Larger text</label>}

@@ -6,6 +6,7 @@
 import type { Category, Competency } from "../types";
 import type { GradeRequest, GradingOutput, QuestionsRequest } from "./schemas";
 import { contentWords } from "../memory";
+import { ACTION, RESULT, detectStar } from "../star";
 import { packForRole } from "../packs";
 
 export type BankItem = {
@@ -128,10 +129,6 @@ export function demoQuestions(req: QuestionsRequest): BankItem[] {
 
 /* ---------------- Heuristic grader ---------------- */
 
-const SITUATION = /\b(when i|at my|while i|last (year|summer|month)|in my (last|previous|first|second)|during|there was a time|once)\b/i;
-const TASK = /\b(my (job|role|task|goal|responsibility) was|i (had|needed) to|i was (asked|responsible)|the goal was)\b/i;
-const ACTION = /\b(i (decided|built|called|asked|created|wrote|organi[sz]ed|led|started|fixed|changed|made|spoke|talked|set up|checked|found|trained|helped|offered|explained|listened|suggested|planned|stayed|handled|contacted|emailed|apologi[sz]ed|arranged|sorted|took|gave|showed))\b/i;
-const RESULT = /\b(as a result|in the end|result(ed)?|so (the|we|she|he|they)|which (meant|led|helped)|afterwards|came back|increased|reduced|saved|improved|finished|thanked|thanks to|feedback|praised|promoted|on time|was happy|were happy|worked out|turned out|\d+ ?(%|percent|per cent))\b/i;
 /** Motivation answers should point at this job, not only at the candidate. */
 const JOB_LINK = /\b(this (job|role|company|team|place|position)|your (company|team|shop|store|customers|values)|here|because)\b/i;
 
@@ -150,13 +147,7 @@ export function demoGrade(req: GradeRequest): GradingOutput {
   const lower = text.toLowerCase();
   const genuine = wc >= 8 && /[a-z]/i.test(text);
 
-  const star = {
-    situation: SITUATION.test(text),
-    task: TASK.test(text),
-    // A clear action counts even when it's phrased differently ("I rang", "I stayed late").
-    action: ACTION.test(text) || (lower.match(/\bi (\w+ed|did|went|made|took|told|spoke|found|built|led|ran|gave|got|set|kept|brought|wrote|chose)\b/g) ?? []).length >= 2,
-    result: RESULT.test(text),
-  };
+  const star = detectStar(text);
   const starCount = Object.values(star).filter(Boolean).length;
   const numbers = (text.match(/\b\d[\d,.%]*\b|\b(one|two|three|four|five|ten|twenty|hundred)\b/gi) ?? []).length;
   const iCount = (lower.match(/\bi\b|\bmy\b/g) ?? []).length;

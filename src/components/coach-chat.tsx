@@ -10,10 +10,13 @@ import { daysUntil } from "@/lib/countdown";
 import { roundsThisWeek, weeklyGoal } from "@/lib/goal";
 import { skillAverages, weakestSkill } from "@/lib/skills";
 import { useT } from "@/lib/i18n";
+import { guessQuestion, practiceFromReply } from "@/lib/ai/coach";
+import { PractiseButton } from "./practise-button";
 
 type Msg = { role: "user" | "assistant"; content: string; source?: "ai" | "rules" };
 
 const STARTERS = [
+  "Give me 3 questions to practise",
   "How do I answer 'tell me about yourself'?",
   "What should I say for my weakness?",
   "I have no work experience. What do I talk about?",
@@ -188,8 +191,7 @@ export function CoachChat() {
                 <span className="sticker sticker-empty mb-2 flex w-fit">Quick guide</span>
               )}
               <span className="sr-only">{m.role === "user" ? "You: " : "Cobi: "}</span>
-              {m.role === "assistant" ? plain(m.content) : m.content}
-              {m.role === "assistant" && i > 0 && <ToolLinks text={m.content} />}
+              {m.role === "assistant" ? <CobiReply content={m.content} first={i === 0} role={context?.role} /> : m.content}
             </div>
           </li>
         ))}
@@ -259,6 +261,40 @@ function plain(text: string): string {
     .replace(/(^|\s)\*(\S.*?)\*(?=\s|$)/g, "$1$2")
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/^\s*[*]\s+/gm, "- ");
+}
+
+/** Cobi's words, plus buttons: tools it mentions, and a practice round when it suggests questions. */
+function CobiReply({ content, first, role }: { content: string; first: boolean; role?: string }) {
+  const { text, questions } = practiceFromReply(content);
+  return (
+    <>
+      {plain(text)}
+      {!first && <ToolLinks text={text} />}
+      {questions.length > 0 && <PracticeCard questions={questions} role={role} />}
+    </>
+  );
+}
+
+/** The questions Cobi suggested, ready to answer with Sam in one tap. */
+function PracticeCard({ questions, role }: { questions: string[]; role?: string }) {
+  const items = questions.map((text) => {
+    const g = guessQuestion(text);
+    return { text, category: g.category, competency: g.competency, difficulty: 2, looking_for: g.lookingFor };
+  });
+  return (
+    <span className="mt-3 flex flex-col gap-3 rounded-control border-2 border-dashed border-line p-3">
+      <span className="text-label font-semibold">Practise {questions.length === 1 ? "this question" : `these ${questions.length} questions`} with Sam</span>
+      <span className="flex flex-col gap-1.5">
+        {questions.map((q, n) => (
+          <span key={q} className="flex gap-2 text-body-sm leading-snug">
+            <span className="tnum font-bold text-muted">{n + 1}.</span>
+            {q}
+          </span>
+        ))}
+      </span>
+      <PractiseButton items={items} role={role} label={questions.length === 1 ? "Practise it" : "Practise these"} variant="go" />
+    </span>
+  );
 }
 
 function ToolLinks({ text }: { text: string }) {

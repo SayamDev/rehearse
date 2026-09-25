@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowRightIcon, ChatCircleTextIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, ChatCircleTextIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { InterviewerCard } from "./interviewer-card";
 import { PersonaAvatar } from "./persona-avatar";
 import { MODES, PERSONAS, allowsFollowUp } from "@/lib/game";
@@ -14,7 +14,8 @@ import { FlagSticker } from "./flag-sticker";
 import { FeelCheck } from "./feel-check";
 import { ReadyScreen } from "./ready-screen";
 import { LiveInterview } from "./live-interview";
-import { addFollowUp, addTake, completeSession, useSession, useStore, type AddTakeResult } from "@/lib/store";
+import { addFollowUp, addTake, completeSession, updateSettings, useSession, useStore, type AddTakeResult } from "@/lib/store";
+import { useFocusScreen } from "@/lib/focus";
 import { measureDelivery } from "@/lib/delivery";
 import { prepareSpeech } from "@/lib/tts";
 import { isOffline, offlineGrading } from "@/lib/offline";
@@ -38,6 +39,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
   const [draft, setDraft] = useState<SubmittedAnswer | null>(null);
   const [lastResult, setLastResult] = useState<AddTakeResult | null>(null);
   const [started, setStarted] = useState(false);
+  const focus = useFocusScreen();
 
   if (!hydrated) return <RunnerSkeleton />;
   if (!session) {
@@ -162,7 +164,8 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
     !session.questions.some((q) => q.question.followUpOf === sq.question.id);
 
   // Before a fresh round: a check-in while the interviewer's voice gets ready.
-  const fresh = !session.questions.some((q) => q.takes.length > 0) && session.feel?.before === undefined;
+  // "Just one question" skips it: the point is to start straight away.
+  const fresh = !session.oneQuestion && !session.questions.some((q) => q.takes.length > 0) && session.feel?.before === undefined;
   if (fresh && !started) {
     return (
       <ReadyScreen
@@ -182,9 +185,16 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-label text-muted">
-          <span className="font-medium text-ink">{session.role}</span>
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-label text-muted">
+            <span className="font-medium text-ink">{session.role}</span>
+          </p>
+          {!focus && (
+            <button type="button" className="btn btn-quiet min-h-9 px-2.5 text-label" onClick={() => updateSettings({ focusMode: true })}>
+              <EyeSlashIcon size={16} weight="bold" aria-hidden /> Focus
+            </button>
+          )}
+        </div>
         <QuestionTrack
           total={session.questions.length}
           current={qIndex}
@@ -211,7 +221,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
           readAloud={profile.settings.readAloud}
           voiceEngine={profile.settings.voiceEngine}
           autoRead={!hasTakes && currentPhase === "answer"}
-          upNext={session.questions[qIndex + 1]?.question.text}
+          upNext={focus ? undefined : session.questions[qIndex + 1]?.question.text}
           headingId="question"
           srPrefix={`Question ${qIndex + 1} of ${session.questions.length}: `}
         />
@@ -257,6 +267,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
             xpLevel={profile.xp}
             interviewerAsksFollowUp={canFollowUp && Boolean(session.persona)}
             soft={profile.settings.softMode}
+            focus={focus}
           />
           {canFollowUp && session.persona && (
             <section aria-label="Follow-up question" className="flex items-center gap-4 rounded-[var(--radius-panel)] border-2 border-dashed border-line p-4">
@@ -289,7 +300,7 @@ export function PracticeRunner({ sessionId }: { sessionId: string }) {
             </section>
           )}
           <SaveAnswerPanel key={sq.question.id} role={session.role} question={sq.question} takes={sq.takes} />
-          <div className="sticky bottom-[72px] z-20 -mx-4 flex gap-2 border-t border-line bg-floor/95 px-4 py-3 backdrop-blur md:bottom-0 md:mx-0 md:px-0 [&>button]:flex-1 sm:[&>button]:flex-none">
+          <div data-sticky-bar className="sticky bottom-[72px] z-20 -mx-4 flex gap-2 border-t border-line bg-floor/95 px-4 py-3 backdrop-blur md:bottom-0 md:mx-0 md:px-0 [&>button]:flex-1 sm:[&>button]:flex-none">
             <button type="button" className="btn btn-go h-12 px-6" onClick={() => setPhase("answer")}>
               Take {sq.takes.length + 1}
             </button>

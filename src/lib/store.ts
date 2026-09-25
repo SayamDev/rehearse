@@ -144,6 +144,7 @@ export function createSession(input: {
   mode?: Mode;
   persona?: PersonaId;
   language?: string;
+  oneQuestion?: boolean;
 }): Session {
   const s = current();
   const session: Session = {
@@ -158,6 +159,7 @@ export function createSession(input: {
     completedAt: null,
     demo: input.demo,
     ...(input.language && input.language !== "en" ? { language: input.language } : {}),
+    ...(input.oneQuestion ? { oneQuestion: true } : {}),
   };
   commit({ sessions: [session, ...s.sessions], profile: s.profile });
   return session;

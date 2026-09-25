@@ -23,6 +23,20 @@ const STAR_PARTS = [
   ["result", "Result"],
 ] as const;
 
+/** In Focus mode, the rest of the notes sit behind one "Show all notes" line. */
+function MoreNotes({ folded, children }: { folded: boolean; children: React.ReactNode }) {
+  if (!folded) return <>{children}</>;
+  return (
+    <details className="group border-t border-line">
+      <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between gap-3 px-5 text-label font-semibold sm:px-6 [&::-webkit-details-marker]:hidden">
+        Show all notes
+        <CaretDownIcon size={16} className="text-muted transition-transform group-open:rotate-180" aria-hidden />
+      </summary>
+      {children}
+    </details>
+  );
+}
+
 export function NotesCard({
   question,
   take,
@@ -32,6 +46,7 @@ export function NotesCard({
   xpLevel,
   interviewerAsksFollowUp = false,
   soft = false,
+  focus = false,
 }: {
   question: Question;
   take: Take;
@@ -43,6 +58,8 @@ export function NotesCard({
   interviewerAsksFollowUp?: boolean;
   /** Soft mode: scores stay hidden until the round's summary. */
   soft?: boolean;
+  /** Focus mode: what worked and the one fix first; everything else folds away. */
+  focus?: boolean;
 }) {
   const g = take.grading;
   const t = useT();
@@ -101,6 +118,7 @@ export function NotesCard({
             </div>
           </dl>
 
+          <MoreNotes folded={focus}>
           {!soft && (
           <section aria-labelledby={`rubric-${take.id}`} className="border-t border-line p-5 sm:p-6">
             <h2 id={`rubric-${take.id}`} className="text-label font-semibold">
@@ -221,6 +239,7 @@ export function NotesCard({
               <p className="mt-1.5 leading-relaxed">{g.followUpQuestion}</p>
             </div>
           )}
+          </MoreNotes>
         </>
       )}
     </article>

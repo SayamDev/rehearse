@@ -28,13 +28,13 @@ export async function POST(request: Request) {
   const last = messages[messages.length - 1];
   if (last.role !== "user") return Response.json({ error: "Ask the coach a question." }, { status: 400 });
 
-  if (!groqEnabled()) return Response.json({ reply: guideReply(last.content), source: "rules", reason: "not-configured" });
-  if (!takeToken("coach", clientKey(request)).ok) return Response.json({ reply: guideReply(last.content), source: "rules", reason: "limit" });
+  if (!groqEnabled()) return Response.json({ reply: guideReply(last.content, parsed.data.context?.role), source: "rules", reason: "not-configured" });
+  if (!takeToken("coach", clientKey(request)).ok) return Response.json({ reply: guideReply(last.content, parsed.data.context?.role), source: "rules", reason: "limit" });
 
   try {
     return Response.json({ reply: await groqChat(coachSystem(parsed.data.context, languageInstruction(parsed.data.language, "your replies")), messages), source: "ai" });
   } catch (error) {
     if (!(error instanceof GroqLimitError)) console.error("coach route", error);
-    return Response.json({ reply: guideReply(last.content), source: "rules", reason: error instanceof GroqLimitError ? "limit" : "error" });
+    return Response.json({ reply: guideReply(last.content, parsed.data.context?.role), source: "rules", reason: error instanceof GroqLimitError ? "limit" : "error" });
   }
 }

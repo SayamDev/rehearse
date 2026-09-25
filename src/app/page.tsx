@@ -1,4 +1,5 @@
 import { RoleForm } from "@/components/role-form";
+import { JustOneQuestion } from "@/components/just-one";
 import { RecentPractice } from "@/components/recent-practice";
 import { LandingStickers } from "@/components/landing-stickers";
 import { HowItWorks } from "@/components/how-it-works";
@@ -24,6 +25,7 @@ export default function Home() {
             </span>
           </div>
           <RoleForm />
+          <JustOneQuestion className="-mt-1" />
           <p className="max-w-[52ch] text-body leading-relaxed text-muted sm:text-body-lg">
             <UiText k="home.blurb" />
           </p>

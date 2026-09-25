@@ -6,9 +6,11 @@ import { useSpeech, useSpeechSupported } from "@/lib/use-speech";
 import { countWords } from "@/lib/delivery";
 import { nextStep } from "@/lib/helpers";
 import { StuckHelper } from "./stuck-helper";
+import { StarChecklist } from "./star-checklist";
 import { CalmMoment } from "./calm-moment";
 import { CameraCheck } from "./camera-check";
 import { useT } from "@/lib/i18n";
+import { useFocusScreen } from "@/lib/focus";
 import type { AnswerMode, Category } from "@/lib/types";
 
 export type SubmittedAnswer = { text: string; mode: AnswerMode; durationSec: number; /** Spoken answers, when recordings are kept. */ audio?: Blob | null };
@@ -62,6 +64,7 @@ export function AnswerComposer({
 }) {
   const supported = useSpeechSupported();
   const t = useT();
+  const focus = useFocusScreen();
   const submitText = submitLabel ?? t("answer.getNotes");
   const [chosenMode, setMode] = useState<AnswerMode>(initialMode ?? defaultMode);
   const mode: AnswerMode = supported === false ? "type" : chosenMode;
@@ -153,6 +156,8 @@ export function AnswerComposer({
   }
 
   const liveText = `${speech.transcript} ${speech.interim}`.trim();
+  // STAR fits "tell me about a time" and "what would you do" questions, not "why this job".
+  const starOn = Boolean(help && (help.category === "behavioral" || help.category === "situational"));
   const overTime = speech.elapsed >= TARGET_SECONDS;
 
   /* ---------- Gentle nudge after a quiet moment while speaking ---------- */
@@ -192,7 +197,7 @@ export function AnswerComposer({
   return (
     <section aria-label={label ? `Your answer, ${label.toLowerCase()}` : `Your answer, take ${takeNumber}`} className="panel flex flex-col gap-5 p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="flex items-center gap-3">
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <span className="sticker sticker-sky">{label ?? `Take ${takeNumber}`}</span>
           {timeLimit !== null && remaining !== null && (
             <span
@@ -211,7 +216,7 @@ export function AnswerComposer({
               {t("answer.moment")}
             </button>
           )}
-          {setting !== "phone" && (
+          {setting !== "phone" && (setting === "video" || !focus) && (
             <button
               type="button"
               className="btn btn-quiet min-h-9 px-2.5 text-label"
@@ -390,6 +395,8 @@ export function AnswerComposer({
           </div>
         </div>
       )}
+
+      {starOn && (mode === "type" || recording || reviewing) && <StarChecklist text={mode === "type" ? typed : reviewing ? voiceText : liveText} />}
 
       {help && !reviewing && (
         <StuckHelper category={help.category} lookingFor={help.lookingFor} questionId={help.questionId} mode={mode} onInsert={insertStarter} />

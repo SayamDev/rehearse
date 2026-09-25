@@ -1,6 +1,6 @@
 import { demoGrade, demoQuestions } from "./ai/demo";
 import { toGrading } from "./ai/to-grading";
-import type { Grading, Question, Seniority } from "./types";
+import type { Grading, Question, Seniority, Session } from "./types";
 
 /**
  * When there's no internet connection, rounds still work: questions come from the
@@ -36,4 +36,18 @@ export function offlineGrading(input: { role: string; seniority: Seniority; ques
       language: "en",
     }),
   );
+}
+
+/**
+ * One question for "Just one question": for the job they practised last, one they
+ * haven't been asked recently when possible. From the built-in bank, so it's instant.
+ */
+export function pickOneQuestion(sessions: Session[], random = Math.random): { role: string; seniority: Seniority; question: Question } {
+  const role = sessions[0]?.role ?? "Any job";
+  const seniority = sessions[0]?.seniority ?? "entry";
+  const asked = new Set(sessions.slice(0, 20).flatMap((s) => s.questions.map((q) => q.question.text.toLowerCase())));
+  const pool = offlineQuestions(role, seniority, 8);
+  const fresh = pool.filter((q) => !asked.has(q.text.toLowerCase()) && q.category !== "motivation");
+  const from = fresh.length ? fresh : pool;
+  return { role, seniority, question: from[Math.floor(random() * from.length)] };
 }

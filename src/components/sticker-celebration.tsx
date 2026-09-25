@@ -8,6 +8,7 @@ import { LottieBurst } from "./lottie-burst";
 import { RARITY_LABEL, StickerArt } from "./sticker-art";
 import { COLLECTION_BY_ID, earnedIds } from "@/lib/collection";
 import { markSeen, useStore } from "@/lib/store";
+import { useFocusScreen } from "@/lib/focus";
 
 /**
  * Celebrates each newly earned sticker once: a Lottie burst, the sticker slapping
@@ -17,6 +18,8 @@ export function StickerCelebration() {
   const { hydrated, sessions, bank, profile } = useStore();
   const pathname = usePathname();
   const reduce = useReducedMotion();
+  // In Focus mode, new stickers wait until the round is off screen.
+  const focus = useFocusScreen();
 
   const fresh = useMemo(() => {
     if (!hydrated) return [];
@@ -24,7 +27,7 @@ export function StickerCelebration() {
     return [...earnedIds({ sessions, bank, profile })].filter((id) => !seen.has(id) && COLLECTION_BY_ID[id]);
   }, [hydrated, sessions, bank, profile]);
 
-  if (pathname.startsWith("/dev")) return null;
+  if (pathname.startsWith("/dev") || focus) return null;
   const current = fresh[0] ? COLLECTION_BY_ID[fresh[0]] : null;
 
   return (

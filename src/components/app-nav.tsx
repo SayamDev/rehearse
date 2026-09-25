@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArchiveIcon, CardsIcon, ChatCircleDotsIcon, FireIcon, MicrophoneStageIcon, UserCircleIcon } from "@phosphor-icons/react";
-import { liveStreak, localDay, useStore } from "@/lib/store";
+import { ArchiveIcon, CardsIcon, EyeIcon, ChatCircleDotsIcon, FireIcon, MicrophoneStageIcon, UserCircleIcon } from "@phosphor-icons/react";
+import { liveStreak, localDay, updateSettings, useStore } from "@/lib/store";
+import { useFocusScreen } from "@/lib/focus";
 import { isDue } from "@/lib/memory";
 import { levelFromXp } from "@/lib/scoring";
 import { useT, type UiKey } from "@/lib/i18n";
@@ -25,6 +26,23 @@ export function AppNav() {
   const level = levelFromXp(profile.xp);
   const streak = liveStreak(profile);
   const t = useT();
+  const focus = useFocusScreen();
+
+  // Focus mode: just the name (a way home) and a way out of focus.
+  if (focus) {
+    return (
+      <header className="sticky top-0 z-30 border-b border-line bg-floor">
+        <nav aria-label="Main" className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href="/" className="sticker sticker-tomato text-wordmark">
+            Rehearse
+          </Link>
+          <button type="button" className="btn btn-quiet min-h-10 text-label" onClick={() => updateSettings({ focusMode: false })}>
+            <EyeIcon size={18} weight="bold" aria-hidden /> Show everything
+          </button>
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <>
