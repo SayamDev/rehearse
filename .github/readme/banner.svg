@@ -36,7 +36,7 @@
   </g>
 
   <text x="478" y="282" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="40" fill="#1c1b2e">Practise interviews out loud.</text>
-  <text x="478" y="330" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="500" font-size="28" fill="#56566e">Get a score, one clear fix, and watch yourself improve.</text>
+  <text x="478" y="330" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="500" font-size="28" fill="#56566e">Get a score, one clear fix, and take it again.</text>
 
   <!-- little stickers -->
   <g transform="translate(985 40) rotate(8)" filter="url(#lift)">
@@ -53,6 +53,6 @@
   </g>
   <g transform="translate(748 364) rotate(-4)" filter="url(#lift)">
     <rect width="150" height="46" rx="23" fill="#a58bff" stroke="#fdfdff" stroke-width="5"/>
-    <text x="75" y="31" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="20" fill="#1c1b2e">12 languages</text>
+    <text x="75" y="31" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="20" fill="#1c1b2e">Speak or type</text>
   </g>
 </svg>
